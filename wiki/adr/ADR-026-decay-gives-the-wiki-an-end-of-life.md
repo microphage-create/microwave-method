@@ -19,7 +19,8 @@ code will notice.
 ## Decision
 
 Ship `gates/decay.py`. An atom is a candidate for archival only if it is BOTH
-orphan (no `[[link]]` reheats it) AND old (its last git commit is older than
+orphan (no other atom wikilinks to it, so nothing reheats it) AND old (its last
+git commit is older than
 `--days`, default 90). It reports candidates, never deletes: humans delete
 (ADR-020). It runs on demand or in a scheduled job, not in the pre-commit hook,
 like `metrics.py` and `trace.py`.

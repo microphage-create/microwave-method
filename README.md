@@ -373,6 +373,29 @@ contested, and yours depend on your setup. Measure your own instead. The method
 instruments itself (`docs/method.md`), so diff your token spend before and after
 on the same tasks.
 
+## Where it sits, and the honest risk
+
+You already have pieces of this. What Microwave adds, against each:
+
+- **Native skills / subagents** (Claude Code, etc.): great for building one
+  agent. No registry, no anti-dup across many, no lifecycle. Microwave is the
+  layer that keeps a hundred of them mappable.
+- **`AGENTS.md` / `CLAUDE.md`**: a context file. Microwave ships one too, and
+  wraps it in a factory, a governed memory, and gates.
+- **spec-kit, BMAD-METHOD**: structure, but ceremony per object. Microwave's
+  consumption test deletes any step nothing reads, and its ceremony selector
+  scales process to blast radius, so read-only work stays cheap.
+- **Provider memory tools**: a store, usually opaque and provider-owned.
+  Microwave's memory is a readable, git-native wiki you own and can `git blame`.
+- **Obsidian + MCP**: a human wiki. Microwave adds the machine gates, the
+  registry, and the single-entry factory on top.
+
+The honest risk: providers are absorbing the memory and subagent layers fast, and
+a markdown method above them could look redundant in two releases. The bet is the
+substrate. A readable, governed, git-native, provider-agnostic wiki survives a
+provider swapping its memory tool, and composes with whatever retrieval they
+ship. You are not locked to one vendor's black box.
+
 ## Status
 
 Extracted from a system its author has run daily on a private stack, then

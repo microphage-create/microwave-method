@@ -310,7 +310,10 @@ irm https://raw.githubusercontent.com/microphage-create/microwave-method/main/in
 curl -fsSL https://raw.githubusercontent.com/microphage-create/microwave-method/main/install/bootstrap.sh | bash
 ```
 
-Per-OS walkthrough, troubleshooting and uninstall: `docs/install.md`. The
+The bootstrap clones `main` (unpinned) and runs the Python installer; prefer
+`uvx microwave-method`, which pulls a specific published version, and read any
+script before you pipe it to a shell. Per-OS walkthrough, troubleshooting and
+uninstall: `docs/install.md`. The
 generated reference (flows, gates, decisions) is `docs/reference.md`.
 
 This copies the flows, templates, technique banks, slop rules, gates,

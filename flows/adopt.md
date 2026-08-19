@@ -5,6 +5,16 @@ the existing estate is scanned like an antivirus scans a disk: everything
 found is archived, nothing is judged yet, and the archive becomes the
 shopping list of what to migrate.
 
+## Before you scan: never archive a secret
+
+The archive is committed to git, so the scan must not capture a secret. Exclude
+credential-bearing paths outright: `.env`, `.env.*`, `**/secrets/**`, `*.pem`,
+`*.key`, `id_rsa` / `id_*`, and anything under `.git/`. Record METADATA about
+each artifact (provenance, apparent mission, apparent blast radius), never its
+raw file body: if a location is a whole repo, read it, do not copy its contents
+into the archive. When in doubt, skip it and note the skip, do not archive it.
+Tell the human, before scanning, that the archive will be committed.
+
 ## Step 1: Point at the estate
 
 Ask the human where their agents sleep. Typical answers: a `.claude/`

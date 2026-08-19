@@ -84,5 +84,32 @@ class TestGateSchema(unittest.TestCase):
         self.assertEqual(rc, 0, out)
 
 
+sys.path.insert(0, str(GATES))
+import gate_slop  # noqa: E402
+
+
+class TestSlopBlanking(unittest.TestCase):
+    """gate_slop's citation-blanking: a banned word in prose is scanned, but the
+    same word inside a code fence / inline code / blockquote is blanked first, so
+    citing slop to talk about it never trips the gate."""
+
+    def test_prose_keeps_the_word(self):
+        self.assertIn("delve", gate_slop._blank_quoted("we delve here"))
+
+    def test_fence_is_blanked(self):
+        self.assertNotIn("delve", gate_slop._blank_quoted("p\n```\ndelve\n```\n"))
+
+    def test_inline_code_is_blanked(self):
+        self.assertNotIn("delve", gate_slop._blank_quoted("a `delve` b"))
+
+    def test_blockquote_is_blanked(self):
+        self.assertNotIn("delve", gate_slop._blank_quoted("> delve here"))
+
+    def test_blanking_preserves_line_count(self):
+        # the offsets in a slop report must stay accurate: blank, don't delete
+        src = "one\n```\ntwo\nthree\n```\nfour\n"
+        self.assertEqual(gate_slop._blank_quoted(src).count("\n"), src.count("\n"))
+
+
 if __name__ == "__main__":
     unittest.main()

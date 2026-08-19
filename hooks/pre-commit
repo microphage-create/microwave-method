@@ -1,0 +1,41 @@
+#!/usr/bin/env bash
+# Microwave pre-commit hook: gates run on the STAGED content of every agent
+# card, wiki integrity and slop sweep always. Installed by
+# hooks/install-hooks.sh (or .ps1).
+# Doctrine: a card committed to git is gate-green; keep work-in-progress in
+# the working tree (wiki/_staging/README.md). The gates here audit what is
+# actually staged (git show :path), not the working tree; the CI check is
+# the final guarantee.
+set -euo pipefail
+
+PY="$(command -v python3 || command -v python || true)"
+if [ -z "$PY" ]; then
+  echo "pre-commit: python3 is required to run the Microwave gates" >&2
+  exit 1
+fi
+
+status=0
+tmpdir="$(mktemp -d)"
+trap 'rm -rf "$tmpdir"' EXIT
+
+while IFS= read -r -d '' card; do
+  case "$card" in
+    wiki/agents/*README*|wiki/_staging/*README*) continue ;;
+    wiki/agents/*.md|wiki/_staging/*.md)
+      staged="$tmpdir/$(basename "$card")"
+      git show ":$card" > "$staged"
+      # anti-dup/wiki need repo context; schema/brief/testable/embodiment/slop
+      # validate the staged content itself
+      "$PY" gates/gate_brief.py "$staged" || status=1
+      "$PY" gates/gate_schema.py "$staged" || status=1
+      "$PY" gates/gate_testable.py "$staged" || status=1
+      "$PY" gates/run_gates.py "$card" || status=1
+      ;;
+  esac
+done < <(git diff --cached --name-only -z --diff-filter=ACM)
+
+"$PY" gates/gate_wiki.py || status=1
+"$PY" gates/gate_slop.py || status=1
+"$PY" gates/gate_docs.py || status=1
+
+exit $status

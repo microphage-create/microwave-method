@@ -1,0 +1,16 @@
+id,pattern,severity,message
+em-dash,—,reject,Em dash: the number-one LLM tell. Rewrite with a colon or a comma or a period.
+filler-opener,^\s*(It('|’)s important to note|It is worth noting|In today('|’)s fast-paced|In the ever-evolving|In conclusion|Furthermore|Moreover|Additionally|Overall),reject,Filler opener. Start with the point itself.
+buzzword-delve,\bdelv(e|es|ing)\b,reject,LLM buzzword. Say what is actually done.
+buzzword-seamless,\bseamless(ly)?\b,warn,Marketing filler. Name the actual behavior instead.
+buzzword-leverage,\bleverag(e|es|ing)\b,warn,Say 'use'.
+buzzword-cutting-edge,\b(cutting-edge|game-chang\w+|revolutioniz\w+|state-of-the-art)\b,warn,Unfalsifiable praise. Cite a measurement or drop it.
+buzzword-tapestry,\b(tapestry|testament to|rich landscape|treasure trove)\b,reject,Purple LLM prose.
+buzzword-crucial,\b(crucial|pivotal|invaluable)\b,warn,Inflated weight. Prefer a concrete consequence.
+hedging-stack,\b(could potentially|might possibly|may perhaps)\b,reject,Double hedge. Hedge once or commit.
+empty-power,\b(unlock|harness|unleash) the (power|potential|full potential)\b,reject,Empty power metaphor.
+as-an-ai,\bAs an AI\b,reject,Assistant leakage in a durable artifact.
+placeholder,\b(Lorem ipsum|TBD|TODO:|\[insert)\b,reject,Placeholder left in a finished artifact.
+emoji-heading,"^#{1,6} .*[☀-➿\U0001F300-\U0001FAFF]",reject,Emoji in a heading. Headings carry words.
+aims-to,\b(This (document|README|guide|page) (aims|seeks) to)\b,warn,"Say what it does, not what it aims at."
+not-only,\bnot only\b.*\bbut also\b,warn,LLM symmetry tic. One clause usually suffices.

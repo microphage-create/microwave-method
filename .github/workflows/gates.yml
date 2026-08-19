@@ -1,0 +1,34 @@
+name: gates
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  gates:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Wiki integrity
+        run: python gates/gate_wiki.py
+      - name: Anti-slop sweep
+        run: python gates/gate_slop.py
+      - name: Generated docs are fresh
+        run: python gates/gate_docs.py
+      - name: All agent cards (active and staged)
+        run: |
+          set -e
+          found=0
+          for card in wiki/agents/*.md wiki/_staging/*.md; do
+            [ -e "$card" ] || continue
+            case "$card" in *README.md) continue;; esac
+            found=1
+            python gates/run_gates.py "$card"
+          done
+          [ "$found" = "1" ] || echo "no agent cards yet"

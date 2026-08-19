@@ -1,0 +1,43 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "microwave-method"
+version = "0.1.0"
+description = "An agent factory with a governed memory. One command drops it into your repo and hands you to your coding agent for a guided welcome."
+readme = "README.md"
+requires-python = ">=3.10"
+license = "MIT"
+authors = [{ name = "Microphage" }]
+keywords = ["agents", "governance", "wiki", "factory", "llm"]
+
+# No runtime dependencies: the installer and the gates are Python stdlib only
+# (ADR-007). uv/uvx provides the isolated environment; nothing else is needed.
+dependencies = []
+
+[project.urls]
+Homepage = "https://github.com/microphage-create/microwave-method"
+
+[project.scripts]
+microwave-method = "microwave_method:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["microwave_method"]
+
+# The framework files live at the repo root (a single source, used for the
+# self-hosting dogfood). The build embeds them into the wheel under the
+# package's _payload/, so `uvx microwave-method` is fully self-contained and
+# never has to reach back to GitHub.
+[tool.hatch.build.targets.wheel.force-include]
+"flows" = "microwave_method/_payload/flows"
+"templates" = "microwave_method/_payload/templates"
+"techniques" = "microwave_method/_payload/techniques"
+"slop" = "microwave_method/_payload/slop"
+"gates" = "microwave_method/_payload/gates"
+"embodiment" = "microwave_method/_payload/embodiment"
+"hooks" = "microwave_method/_payload/hooks"
+"harness" = "microwave_method/_payload/harness"
+"install/banner.txt" = "microwave_method/_payload/banner.txt"
+".github/workflows/gates.yml" = "microwave_method/_payload/.github/workflows/gates.yml"
+"CODEOWNERS" = "microwave_method/_payload/CODEOWNERS"

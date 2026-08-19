@@ -1,0 +1,21 @@
+{
+  "$comment": "Example harness deny-rules for a repo governed by Microwave (Claude Code settings format; translate for other harnesses). Floor 1 of docs/governance.md: the agent CANNOT bypass the factory, whatever the prompt says. Copy into .claude/settings.json of the governed repo and adapt paths.",
+  "permissions": {
+    "deny": [
+      "Read(./.env)",
+      "Read(./.env.*)",
+      "Read(./**/secrets/**)",
+      "Write(./wiki/agents/**)",
+      "Write(./wiki/adr/**)",
+      "Write(./wiki/INDEX.md)",
+      "Write(./gates/**)",
+      "Write(./hooks/**)",
+      "Write(./CODEOWNERS)",
+      "Write(./.github/workflows/**)"
+    ],
+    "$why": [
+      "wiki/agents, wiki/adr and INDEX.md are written only by gates/activate.py and gates/promote paths run by a human: agents draft in wiki/_staging/ and go through the factory flow.",
+      "gates/, hooks/, CODEOWNERS and CI definitions are the protected space: changed only via flows/amend-rule.md (PR + gatekeeper)."
+    ]
+  }
+}

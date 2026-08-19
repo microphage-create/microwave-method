@@ -1,0 +1,10 @@
+# The gatekeeper owns the protected space: no change to the rules, the flows,
+# or the meta wiki merges without their review (pair with branch protection,
+# see docs/governance.md "Repo layer").
+/gates/        @microphage-create
+/flows/        @microphage-create
+/hooks/        @microphage-create
+/harness/      @microphage-create
+/wiki/adr/     @microphage-create
+/.github/      @microphage-create
+/CODEOWNERS    @microphage-create

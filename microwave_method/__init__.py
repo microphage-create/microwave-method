@@ -306,6 +306,15 @@ def main() -> None:
     target = Path(os.environ.get("MICROWAVE_TARGET", os.getcwd())).resolve()
     payload = _payload()
 
+    if "--help" in sys.argv or "-h" in sys.argv:
+        print("microwave-method - drop Microwave into the current repo.\n")
+        print("  uvx microwave-method              install (additive, asks before side effects)")
+        print("  uvx microwave-method --dry-run    show what would be written, write nothing")
+        print("  uvx microwave-method --uninstall  remove what it installed (keeps your edits)")
+        print("\nEnv: MICROWAVE_TARGET=<dir> targets another repo; MICROWAVE_NO_LAUNCH=1 is")
+        print("     CI-safe; MICROWAVE_SHADOW=1 makes gates report without blocking.")
+        return
+
     if "--dry-run" in sys.argv or os.environ.get("MICROWAVE_DRY_RUN") == "1":
         planned = _install_plan(target, payload)
         print(f"\nMicrowave dry-run: {len(planned)} file(s) would be created in")

@@ -40,21 +40,38 @@ def load_rules(root: Path) -> list[dict]:
         if missing:
             fail(GATE, f"{rules_file}: missing columns {', '.join(sorted(missing))}")
         for row in reader:
+            rid = row.get("id") or "?"
+            pattern = row.get("pattern")
+            if not pattern or not pattern.strip():
+                fail(GATE, f"rule '{rid}': empty pattern (a stray comma often "
+                           f"shifts the columns; quote the pattern)")
             if row["severity"] not in ("reject", "warn"):
-                fail(GATE, f"rule '{row['id']}': severity must be reject|warn "
+                fail(GATE, f"rule '{rid}': severity must be reject|warn "
                            f"(got {row['severity']!r}); a stray comma in the "
                            f"pattern often shifts the columns, quote the pattern")
             try:
-                row["_re"] = re.compile(row["pattern"], re.I | re.M)
-            except re.error as e:
-                fail(GATE, f"invalid regex in rule '{row['id']}': {e}")
+                row["_re"] = re.compile(pattern, re.I | re.M)
+            except (re.error, TypeError) as e:
+                fail(GATE, f"invalid regex in rule '{rid}': {e}")
             rules.append(row)
     return rules
 
 
+def _blank_quoted(text: str) -> str:
+    # Blank out fenced code, inline code and blockquote lines (keeping line
+    # positions intact) so an atom can CITE the very slop it documents without
+    # tripping the gate. The prose around them is still scanned.
+    def blank(m: "re.Match") -> str:
+        return re.sub(r"[^\n]", " ", m.group(0))
+    text = re.sub(r"```.*?```", blank, text, flags=re.S)
+    text = re.sub(r"`[^`\n]*`", blank, text)
+    return "\n".join(" " * len(line) if line.lstrip().startswith(">") else line
+                     for line in text.split("\n"))
+
+
 def scan(path: Path, rules: list[dict]) -> tuple[list[str], list[str]]:
     rejects, warns = [], []
-    text = read_text(path)
+    text = _blank_quoted(read_text(path))
     for rule in rules:
         for m in rule["_re"].finditer(text):
             line_no = text.count("\n", 0, m.start()) + 1

@@ -92,7 +92,9 @@ def _split_inline(inner: str) -> list[str]:
 
 def _scalar(raw: str):
     raw = raw.strip()
-    if raw.startswith("[") and raw.endswith("]"):
+    if raw.startswith("["):
+        if not raw.endswith("]"):
+            raise GateError(f"malformed inline list (no closing ]): {raw!r}")
         inner = raw[1:-1].strip()
         return [] if not inner else [_scalar(x) for x in _split_inline(inner)]
     if len(raw) >= 2 and raw[0] == raw[-1] and raw[0] in "\"'":

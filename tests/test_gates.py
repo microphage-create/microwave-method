@@ -108,6 +108,28 @@ Reads the folder. Writes nothing.
 """
 
 
+class TestDecay(unittest.TestCase):
+    def test_flags_orphan_old_atom_keeps_linked(self):
+        import tempfile
+        root = Path(tempfile.mkdtemp())
+        d = root / "wiki" / "projects" / "x" / "learnings"
+        d.mkdir(parents=True)
+        (root / "wiki" / "INDEX.md").write_text("# idx\n", encoding="utf-8")
+        (d / "LRN-A.md").write_text("# A\nalive\n", encoding="utf-8")
+        (d / "LRN-B.md").write_text("# B\nsee [[LRN-A]]\n", encoding="utf-8")
+        (d / "LRN-C.md").write_text("# C\norphan\n", encoding="utf-8")
+        git = ["git", "-C", str(root)]
+        subprocess.run(git + ["init", "-q"], check=True)
+        subprocess.run(git + ["add", "-A"], check=True)
+        subprocess.run(git + ["-c", "user.email=t@t", "-c", "user.name=t",
+                              "commit", "-qm", "seed"], check=True)
+        sys.path.insert(0, str(GATES))
+        import decay
+        names = {Path(s["atom"]).name for s in decay.find_stale(root, 0.0)}
+        self.assertIn("LRN-C.md", names)      # orphan -> candidate
+        self.assertNotIn("LRN-A.md", names)   # linked -> alive
+
+
 class TestShadowMode(unittest.TestCase):
     def test_shadow_reports_but_does_not_block(self):
         import os

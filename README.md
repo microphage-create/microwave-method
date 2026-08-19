@@ -213,9 +213,11 @@ Three things follow:
   from named, readable entries, not opaque vectors. Excite the right molecule,
   do not reheat the whole pan.
 - **Governed and alive.** The gates refuse duplicates, doctrine distills instead
-  of piling up, and wikilinks turn atoms into a graph, a real body of knowledge.
-  This is the second brain of your whole workflow: a persistent external memory
-  your agents query, not a throwaway context reloaded blind every session.
+  of piling up, wikilinks turn atoms into a graph, and `gates/decay.py` names the
+  atoms nothing links and nobody touched, so the wiki has a real end-of-life, not
+  just growth. This is the second brain of your whole workflow: a persistent
+  external memory your agents query, not a throwaway context reloaded blind
+  every session.
 
 Search is a separate layer, and modern retrieval is good at it: reranking,
 metadata filters, hybrid search. It composes ON TOP of an atom wiki; it is not an

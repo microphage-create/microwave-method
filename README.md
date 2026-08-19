@@ -2,7 +2,7 @@
 
 **An agent factory with a governed memory. Heavy pass once per agent, light pass per feature. Context is cooked once and reheated at cache price.**
 
-*Methods tell you what to do. Microwave verifies it was done.*
+*Methods tell you what to do. Microwave gates how agents get made, and governs what they remember.*
 
 [![gates](https://github.com/microphage-create/microwave-method/actions/workflows/gates.yml/badge.svg)](https://github.com/microphage-create/microwave-method/actions/workflows/gates.yml)
 [![license: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
@@ -83,8 +83,8 @@ One recursive method, two planes, one registry.
 ```
 
 - **The registry** is an index-first file: one line per agent, cards opened on
-  demand, readable by humans and by LLMs, consumed at runtime. A registry the
-  runtime reads cannot rot into dead documentation.
+  demand, readable by humans and by LLMs. A registry the agent reads on demand,
+  not a doc set nobody reopens, is far harder to let rot.
 - **The wiki** has one format and two scopes: `wiki/agents/` +
   `wiki/adr/` (org-wide meta plane) and `wiki/projects/<name>/` (product
   plane). Learnings are promoted upward only through the gatekeeper. Subsidiarity:
@@ -233,14 +233,28 @@ point**: the gatekeeper, only on the full path, judging only cards with a
 clean devil report. On the fast path, green gates = `gates/activate.py`,
 nobody to wait for.
 
-Rules are enforced at the harness level, the way a coding agent is denied
-reading your `.env`: the system refuses, goodwill is not involved. Shipped as
-artifacts: example permission deny-rules (`harness/`), a pre-commit hook that
-runs the gates (`hooks/`), a CI workflow (`.github/workflows/gates.yml`) and
-`CODEOWNERS` on the protected space. One thing files cannot carry: enable
-branch protection on your host (the installer prints the command). Rules are
-inviolable in execution and amendable only through process
-(`flows/amend-rule.md`): a constitution, not a dogma.
+### What is actually enforced, and what is not
+
+Stated plainly, because the difference matters.
+
+**Structural** (a machine refuses; goodwill is not involved): the pre-commit
+hook and the CI workflow (`.github/workflows/gates.yml`) run the gates and block
+a commit that fails them. `CODEOWNERS` plus branch protection gate who can merge
+to the protected space (you enable branch protection; the installer prints the
+command). These exit non-zero. They are the real fence.
+
+**Cooperative** (the agent or harness has to play along): the flows, the
+elicitation, the devil pass, and the gatekeeper's judgment are conventions the
+method encourages, not code that exits non-zero. Whether a criterion's check
+actually ran is the agent's honest report. The shipped permission deny-rules
+(`harness/`) are an EXAMPLE, Claude-Code-specific, and cover the Read tool only,
+not the shell, so a determined agent can still `cat` a file: treat them as a
+hint, not a sandbox, and never as secret protection.
+
+So Microwave hard-gates the FORM of what enters your repo, and makes the
+substance reviewable (the devil pass, the human gatekeeper) rather than
+guaranteed. Rules are amendable only through process (`flows/amend-rule.md`): a
+constitution, not a dogma.
 
 ## Agents as apps
 

@@ -1,5 +1,5 @@
 {
-  "$comment": "Example harness deny-rules for a repo governed by Microwave (Claude Code settings format; translate for other harnesses). Floor 1 of docs/governance.md: the agent CANNOT bypass the factory, whatever the prompt says. Copy into .claude/settings.json of the governed repo and adapt paths.",
+  "$comment": "Example deny-rules for a Microwave-governed repo, Claude Code settings format (translate for other harnesses). READ BEFORE TRUSTING: these cover the Read and Write TOOLS only. They do NOT cover the shell, so a determined agent can still read a file via `cat`, `python -c`, and so on. They are advisory unless your harness actually enforces them. Treat this as a hint that keeps an honest agent on-path, NOT a sandbox and NOT secret protection. The real protection for a secret is to keep it out of the repo entirely (env vars, a secret manager). Copy into .claude/settings.json of the governed repo and adapt paths.",
   "permissions": {
     "deny": [
       "Read(./.env)",
@@ -7,6 +7,8 @@
       "Read(./**/.env)",
       "Read(./**/.env.*)",
       "Read(./**/secrets/**)",
+      "Bash(cat .env*)",
+      "Bash(cat ./.env*)",
       "Write(./wiki/agents/**)",
       "Write(./wiki/adr/**)",
       "Write(./wiki/INDEX.md)",
@@ -16,8 +18,9 @@
       "Write(./.github/workflows/**)"
     ],
     "$why": [
-      "wiki/agents, wiki/adr and INDEX.md are written only by gates/activate.py and gates/promote paths run by a human: agents draft in wiki/_staging/ and go through the factory flow.",
-      "gates/, hooks/, CODEOWNERS and CI definitions are the protected space: changed only via flows/amend-rule.md (PR + gatekeeper)."
+      "wiki/agents, wiki/adr and INDEX.md are written only by gates/activate.py and the promote paths a human runs: agents draft in wiki/_staging/ and go through the factory flow.",
+      "gates/, hooks/, CODEOWNERS and CI definitions are the protected space: changed only via flows/amend-rule.md (PR + gatekeeper).",
+      "the two Bash(cat .env*) rules are a token gesture against the most trivial secret read; they are NOT complete (the shell has many other ways), which is exactly why secrets must not live in the repo and why floor 3 (branch protection) is the fence that actually holds."
     ]
   }
 }

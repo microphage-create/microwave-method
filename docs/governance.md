@@ -1,6 +1,7 @@
 # Governance
 
-Four rules, all structural. Installed, not preached.
+Four rules. Each states plainly whether a machine enforces it or the flows merely
+encourage it: overclaiming enforcement is the fastest way to lose trust.
 
 ## 1. Subsidiarity
 
@@ -17,8 +18,10 @@ activations.
 ## 3. The factory is the single entry point of creation
 
 Agents may create agents, only through the factory. Out-of-band creation is
-refused at execution time (blocking hook), not discouraged in a wiki page.
-This is the anti-sprawl invariant, and what makes recursion safe.
+discouraged by the flows and the write-deny rules, and caught at the commit
+boundary by the gates, CODEOWNERS and branch protection on the protected space.
+It is a governed convention with real teeth where it counts, not a runtime that
+intercepts every keystroke. This is the anti-sprawl invariant.
 
 ## 4. Staged gatekeepers
 
@@ -36,32 +39,37 @@ Each gate exits non-zero with an actionable message. Fix, re-run. One human
 point: the gatekeeper, full path only.
 
 **Known failure mode: gate gaming.** A creator (human or agent) can write
-trivial done-criteria just to pass `gate_testable`. Gates check existence and
-execution, not pertinence. Three answers, layered: the **devil review**
+trivial done-criteria just to pass `gate_testable`, which checks that each
+criterion NAMES a check, not that the check exists or ran. Gates check form,
+not whether the work was actually done. Three answers, layered: the **devil review**
 (`flows/devil-review.md`, orchestrated by `flows/devil-loop.md`) attacks
 substance with fresh eyes before any full-path judgment; the full path keeps
 its single human; and everything is traced in the wiki, so pertinence is
 judged after the fact on traces, and an agent whose criteria prove hollow
 gets purged. The loop closes itself.
 
-## Harness-level enforcement
+## Enforcement: structural vs cooperative
 
-Rules are not prompt instructions. They live in the execution layer, the same
-way a coding agent is denied reading your `.env` by permission rules: the
-harness refuses, goodwill is not involved. Three structural floors:
+Which is which, plainly. Overclaiming here is how you lose a security-minded
+reader.
 
-1. **Permissions / deny rules**: the agent CANNOT read secrets, write to the
-   main wiki spaces directly, or modify the gates. Shipped:
-   `harness/claude-settings.example.json` (adapt to your harness).
-2. **Blocking hooks**: gates run on every staged card at commit time.
-   Shipped: `hooks/pre-commit` + installers (`hooks/install-hooks.sh|.ps1`),
-   wired automatically by `install/`.
-3. **Repo layer**: required CI checks + CODEOWNERS on the protected space.
-   Shipped: `.github/workflows/gates.yml` and `CODEOWNERS`. One setting
-   cannot be shipped as a file: **branch protection** (required check
-   `gates`, `enforce_admins`) must be enabled on your host: the installer
-   prints the `gh` command. With it on, a human cannot merge red, admin
-   included; without it, floor 3 is advisory.
+**Structural (a machine refuses):**
+- **Commit gate**: the pre-commit hook and CI run the gates and block a commit
+  that fails. Shipped: `hooks/pre-commit` + installers, `.github/workflows/gates.yml`.
+- **Protected space**: `CODEOWNERS` + branch protection require a gatekeeper's
+  merge for `gates/`, `hooks/`, CI, `CODEOWNERS`, and the main wiki spaces. You
+  enable branch protection (required check `gates`, `enforce_admins`); the
+  installer prints the `gh` command. Without it, this floor is advisory.
+
+**Cooperative (the harness or agent must play along):**
+- **Deny-rules** (`harness/claude-settings.example.json`) deny the agent's Read
+  and Write TOOLS on secrets and protected paths. They are an example, Claude-
+  Code-specific, and do NOT cover the shell: a determined agent can still `cat`
+  a file. Treat them as a hint that keeps an honest agent on-path, never as a
+  sandbox or as secret protection. The real protection for a secret is not to
+  keep it in the repo (env vars, a secret manager).
+- **The flows, the devil pass, the gatekeeper's judgment**: conventions the
+  method encourages. They are how substance is reviewed, not machine-guaranteed.
 
 ## Constitution, not dogma
 

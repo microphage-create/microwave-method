@@ -4,7 +4,8 @@ The failure mode a governed wiki must answer: after months, hundreds of atoms,
 and nobody knows which are still alive. `decay` names the dead so you can archive
 them, on two signals that together avoid false positives:
 
-- ORPHAN: no other atom links to it (`[[id]]`), so nothing reheats it.
+- ORPHAN: no other atom references it, by wikilink `[[stem]]` OR by its short id
+  in prose (ADRs are cited "ADR-008", not `[[...]]`), so nothing reheats it.
 - OLD: its last git commit is older than --days (default 90).
 
 An atom is a candidate only if BOTH hold: a referenced atom is alive even if old,
@@ -28,7 +29,17 @@ sys.path.insert(0, str(Path(__file__).parent))
 from _lib import GateError, read_text, repo_root  # noqa: E402
 
 SKIP = {"INDEX.md", "README.md", "BACKLOG.md"}
-LINK_RE = re.compile(r"\[\[([^\]|#]+)")
+ID_RE = re.compile(r"^([A-Za-z]{2,6}-\d+)")  # ADR-008, LRN-012, ...
+
+
+def _reheat_keys(path: Path) -> set[str]:
+    """What another atom would use to reheat this one: its full stem, and its
+    short id (so `ADR-008` in prose counts, not only `[[ADR-008-title]]`)."""
+    keys = {path.stem}
+    m = ID_RE.match(path.stem)
+    if m:
+        keys.add(m.group(1))
+    return keys
 
 
 def _atoms(root: Path) -> list[Path]:
@@ -49,14 +60,13 @@ def _last_commit_age_days(root: Path, path: Path) -> float | None:
 
 def find_stale(root: Path, days: float) -> list[dict]:
     files = _atoms(root)
-    linked: set[str] = set()
-    for p in files:
-        for target in LINK_RE.findall(read_text(p)):
-            linked.add(target.strip())
+    texts = {p: read_text(p) for p in files}
     stale = []
     for p in files:
-        if p.stem in linked:
-            continue  # something reheats it: alive
+        keys = _reheat_keys(p)
+        others = "\n".join(t for q, t in texts.items() if q != p)
+        if any(k in others for k in keys):
+            continue  # referenced by wikilink or by id in prose: alive
         age = _last_commit_age_days(root, p)
         if age is None or age < days:
             continue

@@ -61,7 +61,7 @@ def commits() -> list[dict]:
     for chunk in raw.split("\x1e"):
         if not chunk.strip():
             continue
-        parts = chunk.split("\x1f")
+        parts = chunk.split("\x1f", 4)
         if len(parts) < 5:
             continue
         sha, date, subject, body, filesblock = parts[0], parts[1], parts[2], parts[3], parts[4]

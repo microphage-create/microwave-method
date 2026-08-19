@@ -8,8 +8,10 @@ Rules:
   gatekeeper (full path) or green gates (fast path, cards with
   `blast_radius: read` only).
 - **A candidate committed to git is gate-green.** Work-in-progress stays in
-  your working tree; the pre-commit hook enforces this. Red cards do not
-  enter history: what the team can check out is always a valid state.
+  your working tree; the pre-commit hook (once installed) plus CI keep red
+  cards out of history, so what the team checks out is a valid state. A
+  determined committer can bypass a local hook with `--no-verify`, which is why
+  branch protection with the `gates` check is the real backstop.
 - Kills are traced: a rejected candidate stays here with `status: rejected`
   and a rationale, until periodically archived.
 - Staging is not storage: anything older than the review cycle is a red flag

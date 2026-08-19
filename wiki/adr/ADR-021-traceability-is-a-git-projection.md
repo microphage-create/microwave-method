@@ -35,8 +35,9 @@ registry" alone.
 
 The discipline that makes the link exist is one line, already practised: a
 commit that lands an atom names that atom in its message. `trace.py --check`
-enforces ADR-020 at commit granularity by flagging any commit that ADDS an
-atom file without naming it (a decision landing with no global trace). Scope
+is a manual check for ADR-020 orphans (run it yourself; it is wired into no
+hook or CI yet) that flags any commit which ADDS an atom file without naming
+it (a decision landing with no global trace). Scope
 is deliberately tight so it never cries wolf: only ADDED atom files (a later
 edit is covered by git blame, and a mass coherence pass touching many atoms
 must not be punished), and only atom-bearing paths (`wiki/adr/`, project

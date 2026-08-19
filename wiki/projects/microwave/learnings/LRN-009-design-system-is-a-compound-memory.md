@@ -25,8 +25,8 @@ agents; it must be produced by the same forces that keep the wiki clean.
 Give the DS the wiki's compound loop (ADR-016): before producing UI, an
 agent runs component anti-dup against the DS; what it newly produces is
 staged; the gatekeeper promotes it into the canonical DS or redirects to
-the existing component. `gate_design` enforces token conformance and
-non-duplication. The thesis holds for CSS: the more UI you produce, the
+the existing component. `gate_design` (specified in ADR-016, not yet shipped)
+will enforce token conformance and non-duplication. The thesis holds for CSS: the more UI you produce, the
 smarter the DS gets, instead of the more illegible.
 
 ## Links

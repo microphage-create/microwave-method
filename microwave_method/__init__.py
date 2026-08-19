@@ -23,9 +23,77 @@ WIKI_SPACES = ["agents", "adr", "projects", "_staging", "_archive"]
 WIKI_INDEX = (
     "# Registry index\n\n"
     "One line per artifact: `- [type] id: one-line summary → path`\n\n"
-    "## Agents\n\n## ADR (meta)\n\n## Projects\n"
+    "## Agents\n\n"
+    "- [agent] microwave: agent zero, the desktop front door that opens a "
+    "context-loaded session on this repo → wiki/agents/microwave.md\n\n"
+    "## ADR (meta)\n\n## Projects\n"
 )
 START_LINE = "run the Microwave welcome flow"
+TAGLINE = "an agent factory with a governed memory"
+
+try:
+    from importlib.metadata import version as _pkg_version
+    VERSION = _pkg_version("microwave-method")
+except Exception:
+    VERSION = "0.1.3"
+
+
+def _enable_ansi() -> bool:
+    if os.environ.get("NO_COLOR") or not sys.stdout.isatty():
+        return False
+    if os.name == "nt":
+        try:
+            import ctypes
+            k = ctypes.windll.kernel32
+            k.SetConsoleMode(k.GetStdHandle(-11), 7)  # VT processing
+        except Exception:
+            return False
+    return True
+
+
+_COLOR = _enable_ansi()
+_ANSI_RE = __import__("re").compile(r"\033\[[0-9;]*m")
+
+
+def _c(code: str) -> str:
+    return f"\033[{code}m" if _COLOR else ""
+
+
+def _vlen(s: str) -> int:
+    """Visible length: strip ANSI (braille glyphs are single-width)."""
+    return len(_ANSI_RE.sub("", s))
+
+
+def _welcome(target: Path, payload: Path) -> None:
+    """Boxed splash in the Grok/Claude-Code spirit: the M centered, product
+    name + version + path bottom-left. Plain box if the terminal has no color."""
+    cols = shutil.get_terminal_size((80, 24)).columns
+    inner = max(46, min(cols - 2, 96))
+    dim, accent, reset, bold = _c("2"), _c("38;2;120;170;170"), _c("0"), _c("1")
+    tl, tr, bl, br, h, v = ("╭", "╮", "╰", "╯", "─", "│") if _COLOR else ("+", "+", "+", "+", "-", "|")
+
+    def row(content: str = "") -> None:
+        print(dim + v + reset + content + " " * max(0, inner - _vlen(content)) + dim + v + reset)
+
+    art = []
+    b = payload / "banner.txt"
+    if b.is_file():
+        art = b.read_text(encoding="utf-8").rstrip("\n").split("\n")
+    art_w = max((len(l) for l in art), default=0)
+    pad = " " * max(0, (inner - art_w) // 2)
+
+    print()
+    print(dim + tl + h * inner + tr + reset)
+    row(); row()
+    for l in art:
+        row(accent + pad + l + reset)
+    row(); row()
+    row("  " + bold + "Microwave Method" + reset + dim + "   v" + VERSION + reset)
+    row("  " + dim + str(target) + reset)
+    row("  " + dim + TAGLINE + reset)
+    row()
+    print(dim + bl + h * inner + br + reset)
+    print()
 
 
 def _payload() -> Path:
@@ -118,14 +186,40 @@ def _resolve_agent(target: Path) -> tuple[Path | None, Path | None]:
     return None, agent_path  # inside the repo: could be planted, refuse
 
 
+def _embody_agent_zero(target: Path) -> None:
+    """Agent zero: put the Microwave icon on the desktop (the front door).
+
+    Additive, gated behind its own yes, and never fatal: an OS with no Windows
+    Terminal / Desktop to write to just prints why and moves on."""
+    card = target / "wiki" / "agents" / "microwave.md"
+    embodier = target / "embodiment" / "embody.py"
+    if not (card.is_file() and embodier.is_file()):
+        return
+    if not _confirm("Put a Microwave icon on your desktop (opens this repo in a terminal)?"):
+        return
+    try:
+        r = subprocess.run([sys.executable, str(embodier), str(card)],
+                           cwd=str(target), capture_output=True, text=True)
+    except OSError as exc:
+        print(f"  (no desktop icon: {exc})")
+        return
+    if r.returncode == 0:
+        print(f"  {_c('32')}+{_c('0')} Microwave icon on your desktop")
+    else:
+        tail = (r.stderr or r.stdout).strip().splitlines()
+        print(f"  (no desktop icon this time: {tail[-1] if tail else 'embodiment skipped'})")
+
+
 def main() -> None:
     target = Path(os.environ.get("MICROWAVE_TARGET", os.getcwd())).resolve()
     payload = _payload()
 
-    banner = payload / "banner.txt"
-    if banner.is_file():
-        print(banner.read_text(encoding="utf-8"))
-    print(f"Installing Microwave into {target}")
+    _welcome(target, payload)
+
+    green, reset = _c("32"), _c("0")
+
+    def _ok(msg: str) -> None:
+        print(f"  {green}+{reset} {msg}")
 
     # Copy files and seed the wiki: always safe, additive, never overwrites.
     copied = sum(_copy_tree(payload / d, target / d) for d in PAYLOAD_DIRS)
@@ -151,7 +245,15 @@ def main() -> None:
     index = wiki / "INDEX.md"
     if not index.exists():
         index.write_text(WIKI_INDEX, encoding="utf-8", newline="\n")
-    print(f"Done. {copied} files installed.")
+    # CLAUDE.md (session-start context) and the agent-zero card, additive
+    claude = target / "CLAUDE.md"
+    if not claude.exists() and (payload / "CLAUDE.md").is_file():
+        shutil.copy2(payload / "CLAUDE.md", claude)
+    zero_src = payload / "wiki" / "agents" / "microwave.md"
+    zero = wiki / "agents" / "microwave.md"
+    if not zero.exists() and zero_src.is_file():
+        shutil.copy2(zero_src, zero)
+    _ok(f"{copied} files copied, wiki seeded, CI + CODEOWNERS dropped")
 
     # Side effects (git init, hook, launching your agent) only with a yes.
     proceed = _confirm(
@@ -160,10 +262,11 @@ def main() -> None:
         if not _is_git_repo(target):
             init = subprocess.run(["git", "-C", str(target), "init"],
                                   capture_output=True, text=True)
-            print("  git repo initialized." if init.returncode == 0
-                  else "  could not run git init (install git for the gates).")
+            _ok("git repo initialized" if init.returncode == 0
+                else "git not found (install git so the gates can guard the repo)")
         if _is_git_repo(target):
-            print("  " + _wire_hook(target))
+            _ok(_wire_hook(target))
+        _embody_agent_zero(target)
         agent_path, refused = _resolve_agent(target)
         if refused is not None:
             print(f"\nRefusing to auto-launch: 'claude' resolved to a binary inside\n"
@@ -177,11 +280,16 @@ def main() -> None:
             except OSError as exc:
                 print(f"(could not launch the agent: {exc})")
 
-    print("\nTo start: open your coding agent in this folder and say\n")
-    print(f"    {START_LINE}\n")
+    dim, bold, reset = _c("2"), _c("1"), _c("0")
+    print(f"{dim}Hardening left to you (cannot be shipped as files):{reset}")
+    print(f"  1. put your gatekeeper's handle in {bold}CODEOWNERS{reset}")
+    print(f"  2. adapt {bold}harness/claude-settings.example.json{reset} into your harness")
+    print(f"  3. enable branch protection with the required check {bold}gates{reset}")
+    print(f"\nTo start: open your coding agent here and say")
+    print(f"    {bold}{START_LINE}{reset}")
     if not _is_git_repo(target):
-        print("First run `git init` here so the gates can guard the repo.")
-    print("It adapts to you, and nothing changes until you say so.")
+        print(f"{dim}First run `git init` here so the gates can guard the repo.{reset}")
+    print(f"{dim}It adapts to you, and nothing changes until you say so.{reset}")
 
 
 if __name__ == "__main__":

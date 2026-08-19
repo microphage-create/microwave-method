@@ -10,6 +10,7 @@ it, the runtime resolves agents through it. A line has the form:
 - [agent] librarian: Curate the wiki between gatekeeper sessions by proposing promotions, flagging rot, and keeping links and index coverage healthy → wiki/agents/librarian.md
 
 - [agent] factory: single entry point of agent creation, runs the pass-1 flow with gates → wiki/agents/factory.md
+- [agent] microwave: agent zero, the desktop front door that opens a context-loaded session on this repo → wiki/agents/microwave.md
 
 ## Rules and rationale
 

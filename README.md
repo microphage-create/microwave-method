@@ -7,6 +7,15 @@
 [![gates](https://github.com/microphage-create/microwave-method/actions/workflows/gates.yml/badge.svg)](https://github.com/microphage-create/microwave-method/actions/workflows/gates.yml)
 [![license: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
+```bash
+uvx microwave-method
+```
+
+**In one breath:** create AI agents without ending up with a pile nobody can
+map. Machine gates enforce the FORM of every creation, a human gatekeeper plus an
+adversarial pass review the substance, and a governed wiki of atoms (not a RAG)
+is the compounding memory.
+
 Microwave is a method, not a runtime. It ships as markdown flows, templates, and
 a handful of dependency-free scripts that any coding agent (Claude Code, Codex,
 Cursor, ...) can execute. It answers one question organizations keep failing at:
@@ -19,6 +28,11 @@ nobody can map?**
 > [94% of IT leaders say agent sprawl is already increasing complexity and risk; 12% have a central platform for it](https://www.outsystems.com/news/enterprise-ai-agent-report-2026/).
 > Microwave is that missing method, as open source you install in your repo,
 > not a SaaS you buy.
+
+Scope, honestly: it governs one repo at a time (a solo dev, a team, a product).
+The enterprise-wide rollup across hundreds of repos is a bigger problem Microwave
+does not claim to solve alone; it is the per-repo discipline such a rollup would
+need underneath.
 
 ## Why "Microwave"
 
@@ -177,27 +191,32 @@ half-works, and it rots invisibly: chunks are cut mid-thought, similarity
 retrieval is fuzzy so it misses the relevant and drags in noise, nobody can read
 a vector, and nothing is governed, so a stale or wrong chunk lives forever.
 
-Microwave's memory is a governed wiki of atoms (the Karpathy pattern). One atom
-is one idea, in plain markdown, tagged (type, id) and linked to the others.
+Microwave's memory is a governed wiki of atoms: atomic notes in the Zettelkasten
+lineage, the shape Andrej Karpathy has argued LLMs should keep their knowledge
+in. One atom is one idea, in plain markdown, tagged (type, id) and linked to the
+others.
 Three things follow:
 
 - **Readable both ways.** The same file serves the human, who reads and corrects
   it, and the agent, which opens it on demand. One source of truth, not a doc set
   for people plus a vector store for the machine. You can see, in plain text,
   what your system knows.
-- **Targeted, not fuzzy.** An index holds one line per atom; the agent reads the
-  menu and opens the exact atom by name, instead of scooping the whole fridge
-  hoping to catch the right chunk. Deterministic where RAG is probabilistic. It
-  is the microwave again: excite the right molecule, do not reheat the whole pan.
+- **Targeted, not fuzzy.** A compact index lets the agent scan what exists and
+  open the atom it needs by name, instead of hoping a similarity search surfaced
+  the right chunk. The agent still chooses, so it is not magic, but it chooses
+  from named, readable entries, not opaque vectors. Excite the right molecule,
+  do not reheat the whole pan.
 - **Governed and alive.** The gates refuse duplicates, doctrine distills instead
   of piling up, and wikilinks turn atoms into a graph, a real body of knowledge.
   This is the second brain of your whole workflow: a persistent external memory
   your agents query, not a throwaway context reloaded blind every session.
 
-RAG is not wrong; it is the right tool for searching a huge unstructured corpus.
-But for the cumulative memory of a workflow, knowledge you want correct,
-structured and current, the atom wiki wins outright, and at scale the index can
-itself gain a retrieval layer. Right tool, right place.
+And modern RAG is more than naive chunk-and-vector: reranking, metadata filters
+and hybrid search all help. The point is not that retrieval is bad, it is that
+these are COMPOSABLE with an atom wiki, not alternatives to it. Keep the
+governed, readable atoms as the source of truth; add retrieval over them when
+the corpus outgrows a scannable index. For a workflow's cumulative memory, start
+with the index and reach for retrieval at scale. Right tool, right place.
 
 ## Gates, not meetings
 
@@ -311,24 +330,30 @@ wrapper? *"run the Microwave adopt flow"* does exactly that.)
 
 ## The economics, honestly
 
-- Reading context dominates agent cost: **76.1% of operation tokens** in
-  measured coding sessions (SWE-Pruner, arXiv:2601.16746).
-- Static context files alone are disputed: one study measured −28.6% runtime
-  (arXiv:2601.20404), two replications found no correctness effect
-  (arXiv:2602.11988, arXiv:2607.27250). We do not sell that number.
-- What holds: **continuously refined context beats static context** (33.0% vs
-  28.3% resolution, p<0.001, arXiv:2606.20512). It is the *governed upkeep* of
-  context that pays, not the file. That upkeep is precisely what this method
-  automates, and what your provider's prompt cache (0.1x read price) turns into
-  savings across sessions and agents.
+The honest version is unglamorous, so no headline percentage:
 
-Measure your own numbers: the method instruments itself (see `docs/method.md`).
+- Reading context is a large, repeated share of agent cost. A session that
+  re-derives what an earlier one already figured out pays for it again.
+- Prompt caching cuts the cost of re-reading the SAME context inside your
+  provider's cache window (a read is a fraction of a write), so a stable, reused
+  context file is cheaper on the second hit. The size of that win depends on the
+  provider, the cache TTL, and the workload.
+- The compounding win is separate and slower: not re-discovering knowledge
+  across sessions and agents, because it was captured once as an atom and
+  reopened by id instead of rebuilt. That is what the method automates.
+
+We do not sell a number: the published figures on static context files are
+contested, and yours depend on your setup. Measure your own instead. The method
+instruments itself (`docs/method.md`), so diff your token spend before and after
+on the same tasks.
 
 ## Status
 
-Extracted from a system operated daily since early 2026 by its author (45+
-active skills, a 4-generation governed rule corpus, 300+ knowledge atoms on a
-single product). Bootstrapped light, self-hosting as soon as the factory runs:
-Microwave's next module is created by Microwave.
+Extracted from a system its author has run daily on a private stack, then
+squashed and cleaned for release. The scale behind it (dozens of skills, a
+multi-generation rule corpus) lives in that private system, not in this repo, so
+take those as provenance, not proof. What this repo demonstrates on its own: it
+self-hosts (its `wiki/agents/` were created through its own factory) and it
+passes its own gates. Judge it on that, and on what you build with it.
 
 MIT. See `NOTICE.md` for attributions.

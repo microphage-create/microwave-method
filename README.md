@@ -313,7 +313,8 @@ irm https://raw.githubusercontent.com/microphage-create/microwave-method/main/in
 curl -fsSL https://raw.githubusercontent.com/microphage-create/microwave-method/main/install/bootstrap.sh | bash
 ```
 
-The bootstrap clones `main` (unpinned) and runs the Python installer; prefer
+The bootstrap clones `main` (unpinned) and runs the shell installer
+(`install.sh` / `install.ps1`); prefer
 `uvx microwave-method`, which pulls a specific published version, and read any
 script before you pipe it to a shell. Per-OS walkthrough, troubleshooting and
 uninstall: `docs/install.md`. The
@@ -321,10 +322,12 @@ generated reference (flows, gates, decisions) is `docs/reference.md`.
 
 This copies the flows, templates, technique banks, slop rules, gates,
 embodiment tooling, harness examples and hooks into your repo and seeds the
-wiki, and drops the CI workflow and a CODEOWNERS placeholder. Then, only with
-your confirmation, it sets up git, wires the pre-commit hook, and opens the
-welcome flow: nothing touches your machine without a yes. Finish the hardening
-by enabling branch protection (the installer prints the command).
+wiki, and drops the CI workflow and a CODEOWNERS placeholder. On the `uvx` path,
+the side effects (git setup, wiring the pre-commit hook, opening the welcome
+flow) run only after you confirm: nothing touches your machine without a yes.
+The piped shell bootstrap cannot prompt (its stdin is the script), so it wires
+the hook directly, additively, backing up any existing pre-commit. Finish the
+hardening by enabling branch protection (the installer prints the command).
 
 If it did not open on its own, start it: in your coding agent, say
 *"run the Microwave welcome flow"*. It takes you by the hand, adapts to you, and

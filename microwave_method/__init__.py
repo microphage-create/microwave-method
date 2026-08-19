@@ -98,6 +98,26 @@ def _wire_hook(target: Path) -> str:
     return "pre-commit hook wired"
 
 
+def _resolve_agent(target: Path) -> tuple[Path | None, Path | None]:
+    """Resolve the 'claude' binary for auto-launch, refusing an untrusted one.
+
+    Returns (trusted, refused). `trusted` is a claude binary safe to launch, or
+    None. `refused` is set when a claude binary was found but resolves INSIDE
+    `target`: shutil.which prepends the CWD on Windows, so a claude.exe planted
+    at a repo's root would resolve before the real one on PATH (an RCE on
+    `uvx microwave-method`). This is the security guard; keep it covered.
+    """
+    found = shutil.which("claude")
+    if not found:
+        return None, None
+    agent_path = Path(found).resolve()
+    try:
+        agent_path.relative_to(Path(target).resolve())
+    except ValueError:
+        return agent_path, None  # outside the repo, from a real PATH entry
+    return None, agent_path  # inside the repo: could be planted, refuse
+
+
 def main() -> None:
     target = Path(os.environ.get("MICROWAVE_TARGET", os.getcwd())).resolve()
     payload = _payload()
@@ -144,21 +164,12 @@ def main() -> None:
                   else "  could not run git init (install git for the gates).")
         if _is_git_repo(target):
             print("  " + _wire_hook(target))
-        agent = shutil.which("claude")
-        if agent:
-            agent_path = Path(agent).resolve()
-            # shutil.which prepends the CWD on Windows, so a claude.exe planted in
-            # this repo would resolve before the real one on PATH. Refuse a binary
-            # that resolves inside the folder we are installing into.
-            try:
-                agent_path.relative_to(target)
-                print(f"\nRefusing to auto-launch: 'claude' resolved to a binary inside\n"
-                      f"this folder ({agent_path}), which a malicious repo could have\n"
-                      f"planted. Open your own coding agent and say:\n    {START_LINE}")
-                agent = None
-            except ValueError:
-                pass  # resolved outside the repo, from a real PATH entry
-        if agent:
+        agent_path, refused = _resolve_agent(target)
+        if refused is not None:
+            print(f"\nRefusing to auto-launch: 'claude' resolved to a binary inside\n"
+                  f"this folder ({refused}), which a malicious repo could have\n"
+                  f"planted. Open your own coding agent and say:\n    {START_LINE}")
+        if agent_path is not None:
             print(f"\nStarting {agent_path} on the welcome flow...\n")
             try:
                 subprocess.run([str(agent_path), START_LINE], cwd=str(target))

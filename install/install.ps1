@@ -42,6 +42,13 @@ if (-not (Test-Path $co)) {
     Write-Host "CODEOWNERS created: replace @your-gatekeeper with your gatekeeper's handle"
 }
 
+# Propagate the MIT license and attribution (techniques/ banks are BMAD, MIT)
+foreach ($f in @("LICENSE", "NOTICE.md")) {
+    $to = Join-Path $dst $f
+    $fromf = Join-Path $src $f
+    if ((-not (Test-Path $to)) -and (Test-Path $fromf)) { Copy-Item $fromf $to }
+}
+
 # Seed the wiki (INDEX + spaces), never overwriting
 $wiki = Join-Path $dst "wiki"
 foreach ($d in @("agents", "adr", "projects", "_staging", "_archive")) {
@@ -69,7 +76,7 @@ if ($isRepo) {
 }
 
 Write-Host "Microwave installed into $dst (flows, templates, techniques, slop, gates, embodiment, hooks, harness, CI workflow)"
-Write-Host "Next: open your coding agent there and say 'run the Microwave adopt flow'."
+Write-Host "Next: open your coding agent there and say 'run the Microwave welcome flow'."
 Write-Host "Hardening left to you (cannot be shipped as files):"
 Write-Host "  1. edit CODEOWNERS with your gatekeeper's handle"
 Write-Host "  2. adapt harness/claude-settings.example.json into your harness settings"

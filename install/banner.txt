@@ -1,10 +1,14 @@
-  +------------------------+
-  |  +------------------+  |
-  |  |                  |  |   M I C R O W A V E
-  |  |  ~   ~   ~   ~   |  |
-  |  |    ~   ~   ~     |  |   an agent factory
-  |  |  ~   ~   ~   ~   |  |   with a governed memory
-  |  |                  |  |
-  |  +------------------+  |   context cooked once,
-  |                 (o)    |   reheated at cache price
-  +------------------------+
+  +----------------------------+
+  |  +--------------------+    |
+  |  |                    |    |     M I C R O W A V E
+  |  |  ~   ~   ~   ~  |       |
+  |  |    ~   ~   ~    |       |     an agent factory
+  |  |  ~   ~   ~   ~  |       |     with a governed memory
+  |  |                    |    |
+  |  +--------------------+    |     context cooked once,
+  |                     (o)    |     reheated at cache price
+  +----------------------------+
+
+        |\  /|
+        | \/ |   a microphage project
+        |    |

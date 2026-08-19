@@ -38,7 +38,9 @@ If `python3` is missing on macOS: `xcode-select --install` or `brew install pyth
 
 `uvx microwave-method` (top of this page) is the canonical one-command install,
 published on PyPI. The shell bootstrap above is the no-`uv` fallback; it clones
-the repo and runs the same Python installer.
+the repo and runs the shell installer (`install.sh` / `install.ps1`), which is
+non-interactive: it wires the hook directly (additive, backs up any existing
+pre-commit). The `uvx` path asks before any side effect.
 
 ## What the installer does (additive, never overwrites)
 

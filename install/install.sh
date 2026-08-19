@@ -28,6 +28,11 @@ if [ ! -e "$DST/CODEOWNERS" ]; then
   sed 's/@microphage-create/@your-gatekeeper/' "$SRC/CODEOWNERS" > "$DST/CODEOWNERS"
   echo "CODEOWNERS created: replace @your-gatekeeper with your gatekeeper's handle"
 fi
+# Propagate the MIT license and attribution (techniques/ banks are BMAD, MIT)
+for f in LICENSE NOTICE.md; do
+  [ -e "$DST/$f" ] || { [ -f "$SRC/$f" ] && cp "$SRC/$f" "$DST/$f"; }
+done
+
 if git -C "$DST" rev-parse --is-inside-work-tree >/dev/null 2>&1; then
   (cd "$DST" && bash hooks/install-hooks.sh)
 fi
@@ -48,7 +53,7 @@ EOF
 fi
 
 echo "Microwave installed into $DST (flows, templates, techniques, slop, gates, embodiment, hooks, harness, CI workflow)"
-echo "Next: open your coding agent there and say 'run the Microwave adopt flow'."
+echo "Next: open your coding agent there and say 'run the Microwave welcome flow'."
 echo "Hardening left to you (cannot be shipped as files):"
 echo "  1. edit CODEOWNERS with your gatekeeper's handle"
 echo "  2. adapt harness/claude-settings.example.json into your harness settings"

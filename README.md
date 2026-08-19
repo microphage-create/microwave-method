@@ -71,15 +71,15 @@ Two mechanical tests make it the middle by construction, not by promise:
 One recursive method, two planes, one registry.
 
 ```
-            META PLANE (the factory)                 PRODUCT PLANE (the work)
-  ┌────────────────────────────────────┐    ┌────────────────────────────────────┐
-  │ PASS 1 - heavy, ONCE per agent     │    │ PASS 2 - light, EVERY feature      │
-  │ elicit → spec → anti-dup → build   │    │ intent → short story with          │
-  │ → embodiment → card in registry    │───▶│ verifiable done-criteria → build   │
-  │ → wiki seeded                      │    │ → traces written to the wiki       │
-  └────────────────────────────────────┘    └────────────────────────────────────┘
-                    ▲                                        │
-                    └──── governed promotion (gatekeeper) ◀──┘
+        META PLANE (the factory)           PRODUCT PLANE (the work)
+  +----------------------------------+   +----------------------------------+
+  | PASS 1: heavy, ONCE per agent    |   | PASS 2: light, EVERY feature     |
+  | elicit -> spec -> anti-dup ->    |   | intent -> a short story with     |
+  | build -> embodiment -> card      |-->| verifiable done-criteria ->      |
+  | in the registry, wiki seeded     |   | build -> traces to the wiki      |
+  +----------------------------------+   +----------------------------------+
+                    ^                                      |
+                    '-- governed promotion (gatekeeper) ---'
 ```
 
 - **The registry** is an index-first file: one line per agent, cards opened on

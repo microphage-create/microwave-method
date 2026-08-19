@@ -9,7 +9,7 @@ uvx microwave-method
 Prerequisites: `git`, Python 3.10+ and `uv` (the Python package runner, installs
 in one line). The tool itself is standard library only, no packages. Your coding
 agent (Claude Code, Codex, Cursor, ...) does the rest. No `uv`? The shell
-bootstrap below does the same by cloning the repo.
+bootstrap below does the same by cloning the repo (the desktop icon is uvx-only).
 
 Note on `python`: commands in the flows are written `python gates/...`. On
 macOS/Linux where only `python3` exists, substitute it (or
@@ -46,12 +46,16 @@ pre-commit). The `uvx` path asks before any side effect.
 
 1. Copies `flows/`, `templates/`, `techniques/`, `slop/`, `gates/`,
    `embodiment/`, `hooks/`, `harness/` into your repo and seeds `wiki/`.
-2. Wires the pre-commit hook (gates run on every committed agent card).
-3. Drops the CI workflow (`.github/workflows/gates.yml`) and a `CODEOWNERS`
+2. Drops a session-start `CLAUDE.md` and the agent-zero card
+   (`wiki/agents/microwave.md`), so no session opens wired to nothing.
+3. Wires the pre-commit hook (gates run on every committed agent card).
+4. Drops the CI workflow (`.github/workflows/gates.yml`) and a `CODEOWNERS`
    placeholder.
-4. Prints the two hardening steps that cannot be shipped as files: your
-   gatekeeper's handle in CODEOWNERS, and branch protection (command
-   provided).
+5. On the `uvx` path, after your yes: offers to put a Microwave desktop icon
+   (agent zero) on your machine, and prints the three hardening steps that
+   cannot be shipped as files — your gatekeeper's handle in CODEOWNERS, adapting
+   `harness/claude-settings.example.json` into your harness, and branch
+   protection (command provided).
 
 ## The onboarding, end to end
 
@@ -69,9 +73,9 @@ pre-commit). The `uvx` path asks before any side effect.
 5. repeat at your own pace; create net-new agents the same way
 ```
 
-From zero to "my whole estate is mapped and my first governed agent has an
-icon on my desktop" is one install line plus two sentences said to your
-coding agent.
+From zero to "the Microwave icon is on my desktop, my whole estate is mapped,
+and my first governed agent has its own icon too" is one install line plus two
+sentences said to your coding agent.
 
 ## Uninstall
 

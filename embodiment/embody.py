@@ -1,4 +1,4 @@
-"""embody: give an agent its body (ADR-004).
+"""embody: give an agent its body (ADR-003, amended).
 
 Reads the embodiment block of an agent card, compiles it into native OS
 artifacts through one adapter, then flips `embodied: true` in the card.

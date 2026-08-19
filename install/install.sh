@@ -46,11 +46,17 @@ One line per artifact: `- [type] id: one-line summary → path`
 
 ## Agents
 
+- [agent] microwave: agent zero, the desktop front door that opens a context-loaded session on this repo → wiki/agents/microwave.md
+
 ## ADR (meta)
 
 ## Projects
 EOF
 fi
+
+# CLAUDE.md (session-start context) + agent-zero card, additive (parity with uvx)
+[ -e "$DST/CLAUDE.md" ] || { [ -f "$SRC/CLAUDE.md" ] && cp "$SRC/CLAUDE.md" "$DST/CLAUDE.md"; }
+[ -e "$DST/wiki/agents/microwave.md" ] || { [ -f "$SRC/wiki/agents/microwave.md" ] && cp "$SRC/wiki/agents/microwave.md" "$DST/wiki/agents/microwave.md"; }
 
 echo "Microwave installed into $DST (flows, templates, techniques, slop, gates, embodiment, hooks, harness, CI workflow)"
 echo "Next: open your coding agent there and say 'run the Microwave welcome flow'."

@@ -63,10 +63,22 @@ One line per artifact: `- [type] id: one-line summary → path`
 
 ## Agents
 
+- [agent] microwave: agent zero, the desktop front door that opens a context-loaded session on this repo → wiki/agents/microwave.md
+
 ## ADR (meta)
 
 ## Projects
 '@ | Set-Content -Encoding utf8NoBOM $index
+}
+
+# CLAUDE.md (session-start context) + agent-zero card, additive (parity with uvx)
+foreach ($f in @("CLAUDE.md", "wiki/agents/microwave.md")) {
+    $to = Join-Path $dst $f
+    $fromf = Join-Path $src $f
+    if ((-not (Test-Path $to)) -and (Test-Path $fromf)) {
+        New-Item -ItemType Directory -Force -Path (Split-Path $to) | Out-Null
+        Copy-Item $fromf $to
+    }
 }
 
 if ($isRepo) {

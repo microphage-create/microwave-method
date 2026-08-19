@@ -13,7 +13,7 @@ uvx microwave-method
 
 **In one breath:** create AI agents and keep them mappable. Machine gates
 enforce the FORM of every creation, a human gatekeeper plus an
-adversarial pass review the substance, and a governed wiki of atoms (not a RAG)
+adversarial pass review the substance, and a governed wiki of atoms (readable, not an opaque vector store)
 is the compounding memory.
 
 Microwave is a method, not a runtime. It ships as markdown flows, templates, and
@@ -186,13 +186,14 @@ You: "I want a skill that reads my contracts and flags risky clauses"
   -> Three minutes. The next skill of this kind starts from this card, not zero.
 ```
 
-## The memory is a wiki, not a RAG
+## The memory is a wiki, not a vector store
 
-Most tools bolt memory on as a RAG: chop your docs into chunks, turn each chunk
-into an opaque vector, and at query time pull back "whatever looks similar". It
-half-works, and it rots invisibly: chunks are cut mid-thought, similarity
-retrieval is fuzzy so it misses the relevant and drags in noise, nobody can read
-a vector, and nothing is governed, so a stale or wrong chunk lives forever.
+Most tools make the vector store the memory itself: chop your docs into chunks,
+turn each into an opaque vector, and at query time pull back "whatever looks
+similar". As a substrate it half-works and rots invisibly: chunks are cut
+mid-thought, nobody can read a vector, and nothing is governed, so a stale or
+wrong chunk lives forever. The problem is not that search is bad; it is that an
+unreadable, ungoverned store has become the memory.
 
 Microwave's memory is a governed wiki of atoms: atomic notes in the Zettelkasten
 lineage, the shape Andrej Karpathy has argued LLMs should keep their knowledge
@@ -214,12 +215,11 @@ Three things follow:
   This is the second brain of your whole workflow: a persistent external memory
   your agents query, not a throwaway context reloaded blind every session.
 
-And modern RAG is more than naive chunk-and-vector: reranking, metadata filters
-and hybrid search all help. The point is not that retrieval is bad, it is that
-these are COMPOSABLE with an atom wiki, not alternatives to it. Keep the
-governed, readable atoms as the source of truth; add retrieval over them when
-the corpus outgrows a scannable index. For a workflow's cumulative memory, start
-with the index and reach for retrieval at scale. Right tool, right place.
+Search is a separate layer, and modern retrieval is good at it: reranking,
+metadata filters, hybrid search. It composes ON TOP of an atom wiki; it is not an
+alternative to it. Keep the readable, governed atoms as the substrate and source
+of truth; add retrieval over them when the corpus outgrows a scannable index.
+Substrate first, search on top: right tool, right place.
 
 ## Gates, not meetings
 
@@ -282,7 +282,9 @@ constitution, not a dogma.
 ## Agents as apps
 
 An agent that can do damage is not done until it has a body; a read-only one
-may stay bodiless. For a powerful agent, pass 1 generates a desktop presence: an
+may stay bodiless, with one deliberate exception: agent zero (Microwave itself),
+the front door, is embodied at install so your desktop has a door to open. For a
+powerful agent, pass 1 generates a desktop presence: an
 icon, a short name, a themed terminal profile, a launcher. These
 are **terminals dressed as apps, not apps replacing the terminal**: full
 terminal power, zero anonymity. With five sessions open in parallel you know
@@ -302,7 +304,8 @@ uvx microwave-method
 One line, any OS, run inside the repo you want governed. Prerequisites: `git`,
 Python 3.10+ and `uv` (the Python package runner, installs in one line); the
 tool itself is standard-library-only. No `uv`? The shell bootstrap does the same
-by cloning the repo:
+by cloning the repo (files, wiki, hook, CLAUDE.md, agent zero; the desktop icon
+is uvx-only):
 
 ```powershell
 # Windows (PowerShell 7+)
@@ -322,7 +325,8 @@ generated reference (flows, gates, decisions) is `docs/reference.md`.
 
 This copies the flows, templates, technique banks, slop rules, gates,
 embodiment tooling, harness examples and hooks into your repo and seeds the
-wiki, and drops the CI workflow and a CODEOWNERS placeholder. On the `uvx` path,
+wiki, and drops the CI workflow, a CODEOWNERS placeholder, a session-start
+CLAUDE.md, and the agent-zero card. On the `uvx` path,
 the side effects (git setup, wiring the pre-commit hook, opening the welcome
 flow) run only after you confirm: nothing touches your machine without a yes.
 The piped shell bootstrap cannot prompt (its stdin is the script), so it wires

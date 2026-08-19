@@ -19,7 +19,7 @@ GATE = "gate_docs"
 def main() -> None:
     stale = docgen.apply(repo_root(), check=True)
     if stale:
-        fail(GATE, f"README.md is stale in section(s): {', '.join(stale)}. "
+        fail(GATE, f"generated doc sections are stale: {', '.join(stale)}. "
                    f"Run `python gates/docgen.py` and commit the result.")
     ok(GATE, "generated doc sections match their source")
 

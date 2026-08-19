@@ -247,8 +247,14 @@ def main() -> None:
         index.write_text(WIKI_INDEX, encoding="utf-8", newline="\n")
     # CLAUDE.md (session-start context) and the agent-zero card, additive
     claude = target / "CLAUDE.md"
-    if not claude.exists() and (payload / "CLAUDE.md").is_file():
-        shutil.copy2(payload / "CLAUDE.md", claude)
+    src_claude = payload / "CLAUDE.md"
+    if src_claude.is_file():
+        if not claude.exists():
+            shutil.copy2(src_claude, claude)
+        elif "runs on Microwave" not in claude.read_text(encoding="utf-8"):
+            # host already has a CLAUDE.md: append our session-start block, never clobber
+            with claude.open("a", encoding="utf-8") as f:
+                f.write("\n\n---\n\n" + src_claude.read_text(encoding="utf-8"))
     zero_src = payload / "wiki" / "agents" / "microwave.md"
     zero = wiki / "agents" / "microwave.md"
     if not zero.exists() and zero_src.is_file():

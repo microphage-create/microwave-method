@@ -108,6 +108,18 @@ Reads the folder. Writes nothing.
 """
 
 
+class TestShadowMode(unittest.TestCase):
+    def test_shadow_reports_but_does_not_block(self):
+        import os
+        bad = VALID_READ_CARD.replace("blast_radius: read", "blast_radius: godmode")
+        card = write_card(bad)
+        env = {**os.environ, "MICROWAVE_SHADOW": "1"}
+        r = subprocess.run([sys.executable, str(GATES / "gate_schema.py"), str(card)],
+                           capture_output=True, text=True, env=env)
+        self.assertEqual(r.returncode, 0, r.stdout + r.stderr)  # not blocking
+        self.assertIn("SHADOW", r.stdout + r.stderr)
+
+
 class TestGateTestableRefs(unittest.TestCase):
     def test_rejects_a_check_naming_a_nonexistent_gate(self):
         import tempfile

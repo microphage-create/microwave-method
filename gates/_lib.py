@@ -10,6 +10,7 @@ Duplicate keys are rejected, not silently overwritten.
 """
 from __future__ import annotations
 
+import os
 import re
 import sys
 from pathlib import Path
@@ -32,6 +33,13 @@ class GateError(Exception):
 
 
 def fail(gate: str, msg: str) -> NoReturn:
+    if os.environ.get("MICROWAVE_SHADOW") == "1":
+        # Shadow mode: report what WOULD block, but exit 0 so nothing is blocked.
+        # For the first days in a new repo, so a team learns the rules without a
+        # red CI. Unset MICROWAVE_SHADOW to enforce.
+        print(f"[{gate}] SHADOW: would block: {msg}")
+        print(f"[{gate}] (not blocking; unset MICROWAVE_SHADOW to enforce)")
+        sys.exit(0)
     print(f"[{gate}] FAIL: {msg}")
     sys.exit(1)
 

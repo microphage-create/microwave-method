@@ -257,6 +257,11 @@ point**: the gatekeeper, only on the full path, judging only cards with a
 clean devil report. On the fast path, green gates = `gates/activate.py`,
 nobody to wait for.
 
+**Rolling out to a live team?** Set `MICROWAVE_SHADOW=1` and the gates report
+what they *would* block without blocking, so people learn the rules before the CI
+ever turns red. Unset it to enforce. It is the opposite of the Friday-night
+`--no-verify`: the discipline arrives with a grace period, not a wall.
+
 ### What is actually enforced, and what is not
 
 Stated plainly, because the difference matters.

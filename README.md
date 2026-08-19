@@ -260,7 +260,8 @@ Stated plainly, because the difference matters.
 hook and the CI workflow (`.github/workflows/gates.yml`) run the gates and block
 a commit that fails them. `CODEOWNERS` plus branch protection gate who can merge
 to the protected space (you enable branch protection; the installer prints the
-command). These exit non-zero. They are the real fence.
+command). These exit non-zero. They are the real fence. The gates and the YAML parser they
+rely on are covered by a stdlib test suite (`tests/`), run in that same CI.
 
 **Cooperative** (the agent or harness has to play along): the flows, the
 elicitation, the devil pass, and the gatekeeper's judgment are conventions the

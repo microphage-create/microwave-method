@@ -41,7 +41,8 @@ Run by `flows/create-feature.md`. The agent is already contextualized: no PRD.
 
 1. State the intent.
 2. Write a short story (`templates/story.md`): 3-8 verifiable done-criteria,
-   each tied to an executable check (`gate_testable` enforces it).
+   each tied to a named check (`gate_testable` checks that the criterion names
+   one, not that it runs).
 3. Build until checks pass.
 4. Write traces to the project wiki (`templates/learning.md`, `templates/adr.md`,
    `templates/bug.md` as applicable) and update `wiki/INDEX.md`.

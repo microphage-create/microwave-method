@@ -17,7 +17,8 @@ python3 embodiment/embody.py wiki/agents/factory.md --remove
   gates/gate_slop.py && python gates/gate_docs.py && python -m unittest discover
   tests` (the pre-commit hook runs the gates if you ran
   `hooks/install-hooks.sh`). CI runs all of them on every PR.
-- Changes to `gates/`, `flows/`, `hooks/`, `harness/` or `wiki/adr/` go
+- Changes to `gates/`, `flows/`, `hooks/`, `harness/`, `.github/`, `CODEOWNERS`
+  or `wiki/adr/` go
   through the amend-rule flow (`flows/amend-rule.md`) and require gatekeeper
   review (see CODEOWNERS).
 - Keep it stdlib-only (ADR-007): a PR adding a dependency to a gate or an

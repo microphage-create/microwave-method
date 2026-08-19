@@ -1,11 +1,9 @@
-"""gate_testable: every done-criterion names a check, and a framework gate it
-names must actually exist.
+"""gate_testable: every done-criterion names a real check, not a filler word.
 
-It checks the FORM of a check (it names a command or assertion, not a filler
-word) and that any `gates/<name>.py` it invokes is real, so a criterion cannot
-point at a gate that does not exist. It does NOT run the check or judge its
-pertinence: that is the gatekeeper's job on the full path, and post-hoc trace
-review everywhere.
+It checks the FORM of a check (it names a command or assertion) and that any
+`gates/<name>.py` it invokes actually exists, so a criterion cannot point at a
+gate that does not exist. It does NOT run the check or judge its pertinence:
+that is the gatekeeper's job on the full path, and post-hoc trace review.
 """
 import re
 import sys

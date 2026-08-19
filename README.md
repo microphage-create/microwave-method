@@ -236,7 +236,7 @@ creation. No committee, no ceremony:
 | `gate_antidup` | no unjustified overlap with the registry |
 | `gate_brief` | the 3-section brief is complete |
 | `gate_schema` | the agent card matches the template contract |
-| `gate_testable` | every done-criterion names a check, and a framework gate it |
+| `gate_testable` | every done-criterion names a real check, not a filler word |
 | `gate_embodiment` | the agent has a body when it needs one |
 | `gate_slop` | durable artifacts do not read like slop |
 | `gate_wiki` | the wiki is linked, indexed, and its atoms carry their contract |
@@ -275,6 +275,15 @@ actually ran is the agent's honest report. The shipped permission deny-rules
 (`harness/`) are an EXAMPLE, Claude-Code-specific, and cover the Read and Write tools (plus a token Bash rule),
 not the shell in general, so a determined agent can still `cat` a file: treat them as a
 hint, not a sandbox, and never as secret protection.
+
+And precisely what the gates check, so the word "gate" does not oversell:
+`gate_antidup` is a lexical overlap test (bag-of-words Jaccard) against the
+registry, not semantic, so two agents worded differently can slip past, and the
+escape hatch is a written rationale; `gate_slop` is a bank of surface regexes (an
+uninstructed model's tells), not a quality score; `gate_testable` checks that a
+criterion names a check, not that it ran. They catch the common failure modes
+cheaply; they are not proofs. The proof is the devil pass, the gatekeeper, and
+your own tests.
 
 So Microwave hard-gates the FORM of what enters your repo, and makes the
 substance reviewable (the devil pass, the human gatekeeper) rather than

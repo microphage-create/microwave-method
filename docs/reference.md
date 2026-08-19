@@ -106,6 +106,8 @@ below is the log of decisions and their current lifecycle status.
 | ADR-022 | Derivable docs are generated views, gated for freshness (the README is a spreadsheet) | accepted |
 | ADR-023 | Guided flows adapt to the person, fluidity first | accepted |
 | ADR-024 | One-command install via uvx; distribution follows the Python core | accepted |
+| ADR-025 | Shadow mode so gates roll out with a grace period, not a wall | accepted |
+| ADR-026 | Decay gives the wiki an end-of-life, so it does not only grow | accepted |
 
 <!-- microwave:adrs end -->
 

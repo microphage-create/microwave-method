@@ -84,6 +84,31 @@ class InstallPlan(unittest.TestCase):
                          "install plan must not carry __pycache__")
         self.assertFalse(list(tmp.rglob("*")), "dry-run must write nothing")
 
+    def test_dry_run_matches_what_install_writes(self):
+        import contextlib
+        import io
+        import os
+        import tempfile
+        repo = Path(__file__).resolve().parent.parent
+        orig = microwave_method._payload
+        microwave_method._payload = lambda: repo
+        try:
+            t1 = Path(tempfile.mkdtemp())
+            plan = {str(p.relative_to(t1)) for p in microwave_method._install_plan(t1, repo)}
+            t2 = Path(tempfile.mkdtemp())
+            os.environ["MICROWAVE_TARGET"] = str(t2)
+            os.environ["MICROWAVE_NO_LAUNCH"] = "1"
+            with contextlib.redirect_stdout(io.StringIO()):
+                sys.argv = ["mw"]
+                microwave_method.main()
+            written = {str(p.relative_to(t2)) for p in t2.rglob("*") if p.is_file()}
+            self.assertEqual(plan, written, "dry-run must promise exactly what install writes")
+        finally:
+            microwave_method._payload = orig
+            os.environ.pop("MICROWAVE_TARGET", None)
+            os.environ.pop("MICROWAVE_NO_LAUNCH", None)
+            sys.argv = ["mw"]
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -22,12 +22,14 @@ Cursor, ...) can execute. It answers one question organizations keep failing at:
 **how do you let everyone create agents without ending up with a pile of agents
 nobody can map?**
 
-> [Gartner projects 150,000+ agents per Fortune 500 enterprise by 2028](https://cxotoday.com/editors-picks/how-to-manage-ai-agent-sprawl-a-six-step-framework-by-gartner/),
-> whose six-step framework centers on three: rules for who creates agents, a
-> central inventory, and a lifecycle that retires redundant ones.
-> [94% of IT leaders say agent sprawl is already increasing complexity and risk; 12% have a central platform for it](https://www.outsystems.com/news/enterprise-ai-agent-report-2026/).
-> Microwave is that missing method, as open source you install in your repo,
-> not a SaaS you buy.
+> Gartner projects that [enterprise apps embedding task-specific AI agents jump
+> from under 5% in 2025 to 40% by 2026](https://www.gartner.com/en/newsroom/press-releases/2025-08-26-gartner-predicts-40-percent-of-enterprise-apps-will-feature-task-specific-ai-agents-by-2026-up-from-less-than-5-percent-in-2025),
+> and, separately, that [more than 40% of agentic AI projects will be canceled by
+> the end of 2027](https://www.gartner.com/en/newsroom/press-releases/2025-06-25-gartner-predicts-over-40-percent-of-agentic-ai-projects-will-be-canceled-by-end-of-2027).
+> Agents multiply faster than anyone maps them, and most never make it. Microwave
+> is the missing discipline underneath: rules for who creates agents, a central
+> inventory, and a lifecycle that retires the dead. Open source you install in
+> your repo, not a SaaS you buy.
 
 Scope, honestly: it governs one repo at a time (a solo dev, a team, a product).
 The enterprise-wide rollup across hundreds of repos is a bigger problem Microwave

@@ -57,7 +57,8 @@ reader.
 - **Commit gate**: the pre-commit hook and CI run the gates and block a commit
   that fails. Shipped: `hooks/pre-commit` + installers, `.github/workflows/gates.yml`.
 - **Protected space**: `CODEOWNERS` + branch protection require a gatekeeper's
-  merge for `gates/`, `hooks/`, CI, `CODEOWNERS`, and the main wiki spaces. You
+  merge for `gates/`, `flows/`, `hooks/`, `harness/`, CI, `CODEOWNERS`, and
+  `wiki/adr/`. You
   enable branch protection (required check `gates`, `enforce_admins`); the
   installer prints the `gh` command. Without it, this floor is advisory.
 

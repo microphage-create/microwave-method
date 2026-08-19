@@ -13,8 +13,9 @@ Nobody bypasses a rule; anybody may propose to change one.
 3. **Gatekeeper judgment.** The gatekeeper (a human; see CODEOWNERS on
    `gates/`) accepts or rejects, in writing, in the ADR.
 4. **Apply through a PR** touching the protected space (`gates/`, hooks,
-   permission files). Required checks + CODEOWNERS make it impossible to merge
-   without the gatekeeper: the rule for changing rules is itself gated.
+   permission files). Once branch protection is enabled, required checks +
+   CODEOWNERS make it impossible to merge without the gatekeeper: the rule for
+   changing rules is itself gated.
 5. **Distill** the decision into one actionable line in `wiki/RULES.md`
    (the live rule base) and set the ADR `status: distilled`. The ADR stays
    in `wiki/adr/` as archived rationale (NOT indexed per-line in

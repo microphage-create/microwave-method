@@ -19,9 +19,9 @@ involved.
 
 Enforcement is split honestly (docs/governance.md). STRUCTURAL, a machine
 refuses: the pre-commit hook and CI run the gates and block a red commit, and
-CODEOWNERS plus branch protection gate the protected space (`gates/`, `hooks/`,
-CI, `CODEOWNERS`, the main wiki spaces) so no one merges red once branch
-protection is on. COOPERATIVE, the agent or harness must play along: the shipped
+CODEOWNERS plus branch protection gate the protected space (`gates/`, `flows/`,
+`hooks/`, `harness/`, CI, `CODEOWNERS`, `wiki/adr/`) so no one merges red once
+branch protection is on. COOPERATIVE, the agent or harness must play along: the shipped
 permission deny-rules (`harness/`) cover the Read and Write TOOLS only, not the
 shell, so they are a hint, not a sandbox and not secret protection; the flows and
 the gatekeeper's judgment are convention. Rules are amendable only through

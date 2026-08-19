@@ -1,4 +1,4 @@
-"""gate_testable: every done-criterion is tied to an executable check.
+"""gate_testable: every done-criterion names a check (form, not execution).
 
 Gates verify existence and substance of checks, not their pertinence: that is
 the gatekeeper's job on the full path, and post-hoc trace review everywhere.

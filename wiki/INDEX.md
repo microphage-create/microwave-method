@@ -14,7 +14,7 @@ it, the runtime resolves agents through it. A line has the form:
 ## Rules and rationale
 
 - Live rules (the what): `wiki/RULES.md`
-- Archived rationale (the why, ADRs + learnings, distilled and time-limited): `wiki/adr/` and `wiki/projects/microwave/learnings/`
+- Archived rationale (the why), opened on demand: ADRs (`wiki/adr/`, meta, distilled and time-limited) and learnings (`wiki/projects/microwave/learnings/`, product work, append-only)
 
 
 ## Projects

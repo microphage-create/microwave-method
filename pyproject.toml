@@ -41,3 +41,5 @@ packages = ["microwave_method"]
 "install/banner.txt" = "microwave_method/_payload/banner.txt"
 ".github/workflows/gates.yml" = "microwave_method/_payload/.github/workflows/gates.yml"
 "CODEOWNERS" = "microwave_method/_payload/CODEOWNERS"
+"LICENSE" = "microwave_method/_payload/LICENSE"
+"NOTICE.md" = "microwave_method/_payload/NOTICE.md"

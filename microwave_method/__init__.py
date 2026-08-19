@@ -119,6 +119,12 @@ def main() -> None:
         text = (payload / "CODEOWNERS").read_text(encoding="utf-8")
         co.write_text(text.replace("@microphage-create", "@your-gatekeeper"),
                       encoding="utf-8", newline="\n")
+    # propagate the MIT license and attribution (the techniques/ banks are from
+    # BMAD, MIT) alongside the copied files
+    for name in ("LICENSE", "NOTICE.md"):
+        out = target / name
+        if not out.exists() and (payload / name).is_file():
+            shutil.copy2(payload / name, out)
     wiki = target / "wiki"
     for space in WIKI_SPACES:
         (wiki / space).mkdir(parents=True, exist_ok=True)

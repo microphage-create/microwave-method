@@ -23,8 +23,8 @@ Cursor, ...) can execute. It answers one question organizations keep failing at:
 nobody can map?**
 
 > [Gartner projects 150,000+ agents per Fortune 500 enterprise by 2028](https://cxotoday.com/editors-picks/how-to-manage-ai-agent-sprawl-a-six-step-framework-by-gartner/),
-> and prescribes exactly three things: rules for who creates agents, a central
-> inventory, and a lifecycle that retires redundant ones.
+> whose six-step framework centers on three: rules for who creates agents, a
+> central inventory, and a lifecycle that retires redundant ones.
 > [94% of IT leaders say agent sprawl is already increasing complexity and risk; 12% have a central platform for it](https://www.outsystems.com/news/enterprise-ai-agent-report-2026/).
 > Microwave is that missing method, as open source you install in your repo,
 > not a SaaS you buy.
@@ -178,7 +178,8 @@ You: "I want a skill that reads my contracts and flags risky clauses"
   4. Read-only, so fast path: activated on the spot
      (wrote or sent anything -> adversarial review + a human approves first)
 
-  5. Filed in the registry (one line, searchable) + an icon on your desktop
+  5. Filed in the registry (one line, searchable). Read-only, so it stays
+     bodiless; a write/spend/prod agent would also get a desktop icon + terminal
 
   -> Three minutes. The next skill of this kind starts from this card, not zero.
 ```
@@ -231,7 +232,7 @@ creation. No committee, no ceremony:
 | `gate_antidup` | no unjustified overlap with the registry |
 | `gate_brief` | the 3-section brief is complete |
 | `gate_schema` | the agent card matches the template contract |
-| `gate_testable` | every done-criterion is tied to an executable check |
+| `gate_testable` | every done-criterion names a check (form, not execution) |
 | `gate_embodiment` | the agent has a body when it needs one |
 | `gate_slop` | durable artifacts do not read like slop |
 | `gate_wiki` | the wiki is linked, indexed, and its atoms carry their contract |
@@ -357,7 +358,7 @@ Extracted from a system its author has run daily on a private stack, then
 squashed and cleaned for release. The scale behind it (dozens of skills, a
 multi-generation rule corpus) lives in that private system, not in this repo, so
 take those as provenance, not proof. What this repo demonstrates on its own: it
-self-hosts (its `wiki/agents/` were created through its own factory) and it
+self-hosts (its `wiki/agents/` pass the same gates the factory imposes) and it
 passes its own gates. Judge it on that, and on what you build with it.
 
 MIT. See `NOTICE.md` for attributions.

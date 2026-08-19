@@ -56,7 +56,9 @@ def read_text(path: Path) -> str:
 def read_frontmatter(path: Path) -> tuple[dict, str]:
     """Return (frontmatter dict, body) of a markdown file."""
     text = read_text(path)
-    lines = text.splitlines()
+    # split on '\n' only (str.splitlines also breaks on \v \f \x85    ,
+    # which would silently split a value that legitimately contains one)
+    lines = [ln.rstrip("\r") for ln in text.split("\n")]
     if not lines or lines[0].strip() != FM_DELIM:
         raise GateError(f"{path}: no frontmatter (file must start with ---)")
     try:

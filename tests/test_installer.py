@@ -6,6 +6,7 @@ by 'uvx microwave-method'. These tests pin that a binary resolving INSIDE the
 target is refused, and one OUTSIDE is allowed. A refactor that drops the guard
 turns these red.
 """
+import sys
 import unittest
 from pathlib import Path
 
@@ -41,6 +42,33 @@ class ResolveAgent(unittest.TestCase):
         trusted, refused = microwave_method._resolve_agent(Path("."))
         self.assertIsNone(trusted)
         self.assertIsNone(refused)
+
+
+class UninstallSafety(unittest.TestCase):
+    def test_uninstall_keeps_an_edited_file(self):
+        import os
+        import tempfile
+        repo = Path(__file__).resolve().parent.parent
+        tmp = Path(tempfile.mkdtemp())
+        orig_payload = microwave_method._payload
+        microwave_method._payload = lambda: repo
+        os.environ["MICROWAVE_TARGET"] = str(tmp)
+        os.environ["MICROWAVE_NO_LAUNCH"] = "1"
+        try:
+            sys.argv = ["mw"]
+            microwave_method.main()  # install
+            edited = tmp / "flows" / "welcome.md"
+            self.assertTrue(edited.exists())
+            edited.write_text("MY EDITS, keep me\n", encoding="utf-8")
+            sys.argv = ["mw", "--uninstall"]
+            microwave_method.main()  # uninstall
+            self.assertTrue(edited.exists(), "uninstall must never delete an edited file")
+            self.assertEqual(edited.read_text(encoding="utf-8"), "MY EDITS, keep me\n")
+        finally:
+            microwave_method._payload = orig_payload
+            os.environ.pop("MICROWAVE_TARGET", None)
+            os.environ.pop("MICROWAVE_NO_LAUNCH", None)
+            sys.argv = ["mw"]
 
 
 class InstallPlan(unittest.TestCase):

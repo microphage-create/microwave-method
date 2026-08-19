@@ -280,17 +280,20 @@ Per-OS walkthrough, troubleshooting and uninstall: `docs/install.md`. The
 generated reference (flows, gates, decisions) is `docs/reference.md`.
 
 This copies the flows, templates, technique banks, slop rules, gates,
-embodiment tooling, harness examples and hooks into your repo, wires the
-pre-commit hook, and drops the CI workflow and a CODEOWNERS placeholder. Finish the hardening by enabling
-branch protection (the installer prints the command).
+embodiment tooling, harness examples and hooks into your repo and seeds the
+wiki, and drops the CI workflow and a CODEOWNERS placeholder. Then, only with
+your confirmation, it sets up git, wires the pre-commit hook, and opens the
+welcome flow: nothing touches your machine without a yes. Finish the hardening
+by enabling branch protection (the installer prints the command).
 
-Then start where every real organization starts: with what already exists:
-open your coding agent and say *"run the Microwave adopt flow"*. It scans
-wherever your agents sleep (`.claude/`, prompt folders, repos), archives one
-inventory entry per artifact found, and writes the shopping list of
+If it did not open on its own, start it: in your coding agent, say
+*"run the Microwave welcome flow"*. It takes you by the hand, adapts to you, and
+scans wherever your agents sleep (`.claude/`, prompt folders, repos), archiving
+one inventory entry per artifact found and writing the shopping list of
 migrations (`wiki/_archive/BACKLOG.md`). Migrating an archived agent through
-*"run the Microwave create-agent flow"* is the cheapest creation you will
-ever run: the entry is the elicitation input.
+*"run the Microwave create-agent flow"* is the cheapest creation you will ever
+run: the entry is the elicitation input. (Want the raw scan without the guided
+wrapper? *"run the Microwave adopt flow"* does exactly that.)
 
 ## The economics, honestly
 

@@ -1,15 +1,21 @@
-"""gate_testable: every done-criterion names a check (form, not execution).
+"""gate_testable: every done-criterion names a check, and a framework gate it
+names must actually exist.
 
-Gates verify existence and substance of checks, not their pertinence: that is
-the gatekeeper's job on the full path, and post-hoc trace review everywhere.
+It checks the FORM of a check (it names a command or assertion, not a filler
+word) and that any `gates/<name>.py` it invokes is real, so a criterion cannot
+point at a gate that does not exist. It does NOT run the check or judge its
+pertinence: that is the gatekeeper's job on the full path, and post-hoc trace
+review everywhere.
 """
+import re
 import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent))
-from _lib import GateError, fail, get, ok, read_frontmatter
+from _lib import GateError, fail, get, ok, read_frontmatter, repo_root
 
 GATE = "gate_testable"
+GATE_REF_RE = re.compile(r"\bgates/(\w+\.py)\b")
 
 HOLLOW = {"true", "yes", "ok", "works", "done", "n/a", "todo", "tbd", "manual",
           "see above", "obvious"}
@@ -35,6 +41,10 @@ def main(card: str) -> None:
     crits = get(fm, "brief.success_criteria") or []
     if not crits:
         fail(GATE, f"{path.name}: no success criteria to check")
+    try:
+        root = repo_root(path.resolve().parent)
+    except GateError:
+        root = None  # card judged in isolation (e.g. a test): skip ref existence
     for i, c in enumerate(crits, 1):
         check = str(c.get("check", "")).strip() if isinstance(c, dict) else ""
         if not check:
@@ -43,6 +53,11 @@ def main(card: str) -> None:
         if is_hollow(check):
             fail(GATE, f"{path.name}: criterion #{i} check is hollow: {check!r}. "
                        f"Name a command or a measurable assertion.")
+        if root is not None:
+            for ref in GATE_REF_RE.findall(check):
+                if not (root / "gates" / ref).exists():
+                    fail(GATE, f"{path.name}: criterion #{i} names gates/{ref}, "
+                               f"which does not exist. Name a real gate or fix the path.")
     ok(GATE, f"{path.name}: {len(crits)} criteria, all tied to substantive checks")
 
 

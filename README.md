@@ -236,7 +236,7 @@ creation. No committee, no ceremony:
 | `gate_antidup` | no unjustified overlap with the registry |
 | `gate_brief` | the 3-section brief is complete |
 | `gate_schema` | the agent card matches the template contract |
-| `gate_testable` | every done-criterion names a check (form, not execution) |
+| `gate_testable` | every done-criterion names a check, and a framework gate it |
 | `gate_embodiment` | the agent has a body when it needs one |
 | `gate_slop` | durable artifacts do not read like slop |
 | `gate_wiki` | the wiki is linked, indexed, and its atoms carry their contract |

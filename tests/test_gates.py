@@ -84,6 +84,46 @@ class TestGateSchema(unittest.TestCase):
         self.assertEqual(rc, 0, out)
 
 
+GHOST_GATE_CARD = """---
+type: agent-card
+name: Ghost Ref
+slug: ghost-ref
+status: staging
+blast_radius: read
+mission: read files and report what they contain
+definition_path: flows/ghost-ref.md
+owner: "@me"
+synonyms: [reader, scanner]
+brief:
+  success_criteria:
+    - criterion: it reports every file
+      check: python gates/ghost.py passes
+  volume_cap: 5 files per run
+  abort_conditions: stop if a path escapes the folder
+---
+
+# Ghost Ref
+
+Reads the folder. Writes nothing.
+"""
+
+
+class TestGateTestableRefs(unittest.TestCase):
+    def test_rejects_a_check_naming_a_nonexistent_gate(self):
+        import tempfile
+        root = Path(tempfile.mkdtemp())
+        (root / "wiki").mkdir()
+        (root / "wiki" / "INDEX.md").write_text("# idx\n", encoding="utf-8")
+        (root / "gates").mkdir()
+        agents = root / "wiki" / "agents"
+        agents.mkdir()
+        card = agents / "ghost-ref.md"
+        card.write_text(GHOST_GATE_CARD, encoding="utf-8")
+        rc, out = run_gate("gate_testable.py", card)
+        self.assertEqual(rc, 1, out)
+        self.assertIn("does not exist", out)
+
+
 sys.path.insert(0, str(GATES))
 import gate_slop  # noqa: E402
 

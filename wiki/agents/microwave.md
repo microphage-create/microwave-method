@@ -27,7 +27,7 @@ brief:
       check: the Windows Terminal profile commandline contains cd '<repo>' and the .lnk targets wt.exe -p "Microwave"
     - criterion: The opened session is contextualized, not blank
       check: the repo carries a CLAUDE.md that tells the agent to load the registry and wiki index on start
-  volume_cap: "one agent-zero icon per install; the factory's own agents get theirs through embody.py"
+  volume_cap: "1 agent-zero icon per install; the factory's own agents get theirs through embody.py"
   abort_conditions:
     - The target has no Windows Terminal / no Desktop and no GUI launcher can be written (fall back to the printed start line)
     - settings.json cannot be parsed or backed up (never edit a harness config you cannot restore)

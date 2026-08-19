@@ -43,5 +43,19 @@ class ResolveAgent(unittest.TestCase):
         self.assertIsNone(refused)
 
 
+class InstallPlan(unittest.TestCase):
+    def test_dry_run_lists_files_no_bytecode_writes_nothing(self):
+        import tempfile
+        repo = Path(__file__).resolve().parent.parent
+        tmp = Path(tempfile.mkdtemp())
+        plan = microwave_method._install_plan(tmp, repo)
+        self.assertGreater(len(plan), 20)  # flows, gates, templates, ...
+        self.assertFalse([p for p in plan if p.suffix in (".pyc", ".pyo")],
+                         "install plan must not carry bytecode")
+        self.assertFalse([p for p in plan if "__pycache__" in p.parts],
+                         "install plan must not carry __pycache__")
+        self.assertFalse(list(tmp.rglob("*")), "dry-run must write nothing")
+
+
 if __name__ == "__main__":
     unittest.main()

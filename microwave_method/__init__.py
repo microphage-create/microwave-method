@@ -106,9 +106,11 @@ def _copy_tree(src: Path, dst: Path) -> int:
         return 0
     for root, _dirs, files in os.walk(src):
         rel = Path(root).relative_to(src)
-        if "icons" in rel.parts:
+        if "icons" in rel.parts or "__pycache__" in rel.parts:
             continue
         for name in files:
+            if name.endswith((".pyc", ".pyo")):
+                continue
             out = dst / rel / name
             if not out.exists():
                 out.parent.mkdir(parents=True, exist_ok=True)
@@ -186,6 +188,35 @@ def _resolve_agent(target: Path) -> tuple[Path | None, Path | None]:
     return None, agent_path  # inside the repo: could be planted, refuse
 
 
+def _install_plan(target: Path, payload: Path) -> list[Path]:
+    """The files an install WOULD create (additive), for --dry-run. Existing
+    files are never in the list, since the installer never overwrites."""
+    planned: list[Path] = []
+
+    def add(p: Path) -> None:
+        if not p.exists():
+            planned.append(p)
+
+    for d in PAYLOAD_DIRS:
+        src = payload / d
+        if not src.is_dir():
+            continue
+        for root, _dirs, files in os.walk(src):
+            rel = Path(root).relative_to(src)
+            if "icons" in rel.parts or "__pycache__" in rel.parts:
+                continue
+            for name in files:
+                if name.endswith((".pyc", ".pyo")):
+                    continue
+                add(target / d / rel / name)
+    add(target / ".github" / "workflows" / "gates.yml")
+    for name in ("CODEOWNERS", "LICENSE", "NOTICE.md", "CLAUDE.md"):
+        add(target / name)
+    add(target / "wiki" / "INDEX.md")
+    add(target / "wiki" / "agents" / "microwave.md")
+    return planned
+
+
 def _embody_agent_zero(target: Path) -> None:
     """Agent zero: put the Microwave icon on the desktop (the front door).
 
@@ -210,9 +241,86 @@ def _embody_agent_zero(target: Path) -> None:
         print(f"  (no desktop icon this time: {tail[-1] if tail else 'embodiment skipped'})")
 
 
+def _uninstall(target: Path, payload: Path) -> None:
+    """Remove Microwave files still byte-identical to what was installed: never
+    touch a file you edited, never touch your own atoms. Restores a backed-up
+    pre-commit hook if we made one."""
+    removed = 0
+
+    def rm_if_untouched(t: Path, s: Path) -> None:
+        nonlocal removed
+        if t.is_file() and s.is_file() and t.read_bytes() == s.read_bytes():
+            t.unlink()
+            removed += 1
+
+    for d in PAYLOAD_DIRS:
+        src = payload / d
+        if not src.is_dir():
+            continue
+        for root, _dirs, files in os.walk(src):
+            rel = Path(root).relative_to(src)
+            if "icons" in rel.parts or "__pycache__" in rel.parts:
+                continue
+            for name in files:
+                if name.endswith((".pyc", ".pyo")):
+                    continue
+                rm_if_untouched(target / d / rel / name, src / rel / name)
+    rm_if_untouched(target / ".github" / "workflows" / "gates.yml",
+                    payload / ".github" / "workflows" / "gates.yml")
+    for name in ("LICENSE", "NOTICE.md", "CLAUDE.md"):
+        rm_if_untouched(target / name, payload / name)
+    rm_if_untouched(target / "wiki" / "agents" / "microwave.md",
+                    payload / "wiki" / "agents" / "microwave.md")
+    idx = target / "wiki" / "INDEX.md"
+    if idx.is_file() and idx.read_text(encoding="utf-8") == WIKI_INDEX:
+        idx.unlink()
+        removed += 1
+    co = target / "CODEOWNERS"
+    if co.is_file() and "@your-gatekeeper" in co.read_text(encoding="utf-8"):
+        co.unlink()
+        removed += 1
+    hook = target / ".git" / "hooks" / "pre-commit"
+    src_hook = payload / "hooks" / "pre-commit"
+    backup = target / ".git" / "hooks" / "pre-commit.pre-microwave"
+    if hook.is_file() and src_hook.is_file() and hook.read_bytes() == src_hook.read_bytes():
+        hook.unlink()
+        removed += 1
+        if backup.is_file():
+            shutil.copy2(backup, hook)
+            backup.unlink()
+            print("  restored your previous pre-commit hook")
+    for d in ("flows", "templates", "techniques", "slop", "gates", "embodiment",
+              "hooks", "harness", "wiki/agents", "wiki/adr", "wiki/projects",
+              "wiki/_staging", "wiki/_archive", "wiki", ".github/workflows", ".github"):
+        p = target / d
+        if p.is_dir() and not any(p.iterdir()):
+            p.rmdir()
+    print(f"\nUninstalled: removed {removed} untouched Microwave file(s) from")
+    print(f"{target}")
+    print("Your own atoms, your edits, and anything you changed were kept.")
+    print("Embodied agents: run `python embodiment/embody.py <card> --remove` first")
+    print("to also remove their desktop profiles.")
+
+
 def main() -> None:
     target = Path(os.environ.get("MICROWAVE_TARGET", os.getcwd())).resolve()
     payload = _payload()
+
+    if "--dry-run" in sys.argv or os.environ.get("MICROWAVE_DRY_RUN") == "1":
+        planned = _install_plan(target, payload)
+        print(f"\nMicrowave dry-run: {len(planned)} file(s) would be created in")
+        print(f"{target}")
+        print("(additive: existing files are never overwritten)\n")
+        for p in planned:
+            print(f"  + {p.relative_to(target)}")
+        print("\nNo files written. Run without --dry-run to install. On your yes it")
+        print("would also git-init if needed, wire the pre-commit hook, offer a")
+        print("desktop icon, and open the welcome flow. Uninstall: --uninstall.")
+        return
+
+    if "--uninstall" in sys.argv:
+        _uninstall(target, payload)
+        return
 
     _welcome(target, payload)
 

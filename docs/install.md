@@ -77,8 +77,26 @@ From zero to "the Microwave icon is on my desktop, my whole estate is mapped,
 and my first governed agent has its own icon too" is one install line plus two
 sentences said to your coding agent.
 
+## Try it in two minutes (no writes)
+
+See exactly which files would be created, with nothing touched:
+
+```bash
+uvx microwave-method --dry-run
+```
+
+It prints the additive file list and exits. Existing files are never in it,
+because the installer never overwrites.
+
 ## Uninstall
 
-Remove the copied directories and `.git/hooks/pre-commit`. Embodied agents:
-`python embodiment/embody.py <card> --remove` cleans profiles and launchers.
-The wiki is yours: plain markdown, keep it.
+One command removes every Microwave file that is still byte-identical to what it
+installed (it never deletes a file you edited, or your own atoms), and restores a
+backed-up pre-commit hook if it made one:
+
+```bash
+uvx microwave-method --uninstall
+```
+
+Embodied agents: run `python embodiment/embody.py <card> --remove` first to also
+clean their desktop profiles. The wiki is yours: plain markdown, keep it.

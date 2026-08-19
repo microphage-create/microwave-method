@@ -31,10 +31,12 @@ nobody can map?**
 > inventory, and a lifecycle that retires the dead. Open source you install in
 > your repo, not a SaaS you buy.
 
-Scope, honestly: it governs one repo at a time (a solo dev, a team, a product).
-The enterprise-wide rollup across hundreds of repos is a bigger problem Microwave
-does not claim to solve alone; it is the per-repo discipline such a rollup would
-need underneath.
+Scope, precisely: the governed memory and the anti-dup registry live in a repo,
+so each repo gets its own clean, git-native registry. An agent is not locked to
+one, though: install Microwave in as many repos as you want, and a
+contextualizing agent can span several. Cross-repo anti-dup (a shared or
+federated registry) is a natural extension, not a wall; the per-repo discipline
+is the layer an enterprise-wide rollup builds on, not a ceiling.
 
 ## Why "Microwave"
 

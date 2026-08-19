@@ -11,8 +11,8 @@
 uvx microwave-method
 ```
 
-**In one breath:** create AI agents without ending up with a pile nobody can
-map. Machine gates enforce the FORM of every creation, a human gatekeeper plus an
+**In one breath:** create AI agents and keep them mappable. Machine gates
+enforce the FORM of every creation, a human gatekeeper plus an
 adversarial pass review the substance, and a governed wiki of atoms (not a RAG)
 is the compounding memory.
 

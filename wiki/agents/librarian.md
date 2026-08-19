@@ -25,7 +25,7 @@ brief:
     - criterion: Every promotion candidate it stages carries all three promotion fields (source, target, rationale)
       check: for each candidate, grep -c "^source:\|^target:\|^rationale:" equals 3
     - criterion: It never writes outside wiki/_staging/ and its own report atoms
-      check: git diff --name-only shows only wiki/_staging/ and wiki/projects/*/reports paths
+      check: git diff --name-only shows only wiki/_staging/ and wiki/projects/*/learnings paths
   volume_cap: "5 promotion candidates per run before a gatekeeper checkpoint"
   abort_conditions:
     - A candidate would require editing a meta-plane file directly

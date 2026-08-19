@@ -59,7 +59,7 @@ the repo and runs the same Python installer.
    → scans wherever your agents sleep (.claude/, prompts/, repos)
    → one inventory entry per artifact in wiki/_archive/
    → the shopping list: wiki/_archive/BACKLOG.md
-3. prune the backlog (you decide: migrate / merge / keep-as-is / retire)
+3. prune the backlog (you decide: migrate / merge / keep-as-is / reshape / retire)
 4. tell your agent:  "run the Microwave create-agent flow for the first
    backlog entry"
    → the archived entry is the elicitation input: cheapest creation there is

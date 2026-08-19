@@ -54,8 +54,10 @@ One line per artifact: `- [type] id: one-line summary → path`
 EOF
 fi
 
-# CLAUDE.md (session-start context) + agent-zero card, additive (parity with uvx)
-[ -e "$DST/CLAUDE.md" ] || { [ -f "$SRC/CLAUDE.md" ] && cp "$SRC/CLAUDE.md" "$DST/CLAUDE.md"; }
+# session-start context (CLAUDE.md + AGENTS.md) + agent-zero card, additive (parity with uvx)
+for ctx in CLAUDE.md AGENTS.md; do
+  [ -e "$DST/$ctx" ] || { [ -f "$SRC/$ctx" ] && cp "$SRC/$ctx" "$DST/$ctx"; }
+done
 [ -e "$DST/wiki/agents/microwave.md" ] || { [ -f "$SRC/wiki/agents/microwave.md" ] && cp "$SRC/wiki/agents/microwave.md" "$DST/wiki/agents/microwave.md"; }
 
 echo "Microwave installed into $DST (flows, templates, techniques, slop, gates, embodiment, hooks, harness, CI workflow)"

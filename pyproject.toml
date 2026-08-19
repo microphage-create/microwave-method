@@ -44,4 +44,5 @@ packages = ["microwave_method"]
 "LICENSE" = "microwave_method/_payload/LICENSE"
 "NOTICE.md" = "microwave_method/_payload/NOTICE.md"
 "CLAUDE.md" = "microwave_method/_payload/CLAUDE.md"
+"AGENTS.md" = "microwave_method/_payload/AGENTS.md"
 "wiki/agents/microwave.md" = "microwave_method/_payload/wiki/agents/microwave.md"

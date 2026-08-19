@@ -336,8 +336,9 @@ generated reference (flows, gates, decisions) is `docs/reference.md`.
 
 This copies the flows, templates, technique banks, slop rules, gates,
 embodiment tooling, harness examples and hooks into your repo and seeds the
-wiki, and drops the CI workflow, a CODEOWNERS placeholder, a session-start
-CLAUDE.md, and the agent-zero card. On the `uvx` path,
+wiki, and drops the CI workflow, a CODEOWNERS placeholder, session-start context
+for your agent (`CLAUDE.md` for Claude Code, `AGENTS.md` for Codex/Cursor), and
+the agent-zero card. On the `uvx` path,
 the side effects (git setup, wiring the pre-commit hook, opening the welcome
 flow) run only after you confirm: nothing touches your machine without a yes.
 The piped shell bootstrap cannot prompt (its stdin is the script), so it wires

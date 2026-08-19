@@ -210,7 +210,7 @@ def _install_plan(target: Path, payload: Path) -> list[Path]:
                     continue
                 add(target / d / rel / name)
     add(target / ".github" / "workflows" / "gates.yml")
-    for name in ("CODEOWNERS", "LICENSE", "NOTICE.md", "CLAUDE.md"):
+    for name in ("CODEOWNERS", "LICENSE", "NOTICE.md", "CLAUDE.md", "AGENTS.md"):
         add(target / name)
     add(target / "wiki" / "INDEX.md")
     add(target / "wiki" / "agents" / "microwave.md")
@@ -267,7 +267,7 @@ def _uninstall(target: Path, payload: Path) -> None:
                 rm_if_untouched(target / d / rel / name, src / rel / name)
     rm_if_untouched(target / ".github" / "workflows" / "gates.yml",
                     payload / ".github" / "workflows" / "gates.yml")
-    for name in ("LICENSE", "NOTICE.md", "CLAUDE.md"):
+    for name in ("LICENSE", "NOTICE.md", "CLAUDE.md", "AGENTS.md"):
         rm_if_untouched(target / name, payload / name)
     rm_if_untouched(target / "wiki" / "agents" / "microwave.md",
                     payload / "wiki" / "agents" / "microwave.md")
@@ -354,15 +354,18 @@ def main() -> None:
     if not index.exists():
         index.write_text(WIKI_INDEX, encoding="utf-8", newline="\n")
     # CLAUDE.md (session-start context) and the agent-zero card, additive
-    claude = target / "CLAUDE.md"
-    src_claude = payload / "CLAUDE.md"
-    if src_claude.is_file():
-        if not claude.exists():
-            shutil.copy2(src_claude, claude)
-        elif "runs on Microwave" not in claude.read_text(encoding="utf-8"):
-            # host already has a CLAUDE.md: append our session-start block, never clobber
-            with claude.open("a", encoding="utf-8") as f:
-                f.write("\n\n---\n\n" + src_claude.read_text(encoding="utf-8"))
+    # session-start context for whichever agent runs here (Claude Code reads
+    # CLAUDE.md; Codex/Cursor read AGENTS.md). Append, never clobber, an existing one.
+    for ctx in ("CLAUDE.md", "AGENTS.md"):
+        dst = target / ctx
+        src = payload / ctx
+        if not src.is_file():
+            continue
+        if not dst.exists():
+            shutil.copy2(src, dst)
+        elif "runs on Microwave" not in dst.read_text(encoding="utf-8"):
+            with dst.open("a", encoding="utf-8") as f:
+                f.write("\n\n---\n\n" + src.read_text(encoding="utf-8"))
     zero_src = payload / "wiki" / "agents" / "microwave.md"
     zero = wiki / "agents" / "microwave.md"
     if not zero.exists() and zero_src.is_file():

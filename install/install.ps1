@@ -72,7 +72,7 @@ One line per artifact: `- [type] id: one-line summary → path`
 }
 
 # CLAUDE.md (session-start context) + agent-zero card, additive (parity with uvx)
-foreach ($f in @("CLAUDE.md", "wiki/agents/microwave.md")) {
+foreach ($f in @("CLAUDE.md", "AGENTS.md", "wiki/agents/microwave.md")) {
     $to = Join-Path $dst $f
     $fromf = Join-Path $src $f
     if ((-not (Test-Path $to)) -and (Test-Path $fromf)) {

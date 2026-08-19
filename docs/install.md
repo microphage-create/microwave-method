@@ -46,8 +46,9 @@ pre-commit). The `uvx` path asks before any side effect.
 
 1. Copies `flows/`, `templates/`, `techniques/`, `slop/`, `gates/`,
    `embodiment/`, `hooks/`, `harness/` into your repo and seeds `wiki/`.
-2. Drops a session-start `CLAUDE.md` and the agent-zero card
-   (`wiki/agents/microwave.md`), so no session opens wired to nothing.
+2. Drops session-start context (`CLAUDE.md` for Claude Code, `AGENTS.md` for
+   Codex/Cursor) and the agent-zero card (`wiki/agents/microwave.md`), so no
+   session opens wired to nothing.
 3. Wires the pre-commit hook (gates run on every committed agent card).
 4. Drops the CI workflow (`.github/workflows/gates.yml`) and a `CODEOWNERS`
    placeholder.

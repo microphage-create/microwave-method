@@ -9,11 +9,16 @@ Does, in order:
 3. append the registry line to wiki/INDEX.md
 4. re-run the full gate pipeline on the ACTIVATED card (post-check):
    the state that ships is the state that was validated
-On any post-check failure the activation is rolled back.
+
+Steps 2-4 are wrapped so that ANY failure (a failed post-check, an IO error, a
+missing heading) rolls the whole thing back to staging. Writes are atomic
+(temp + rename) so a crash mid-write cannot leave a half-written file.
 """
+import os
 import re
 import subprocess
 import sys
+import tempfile
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent))
@@ -25,6 +30,20 @@ GATE = "activate"
 def run_pipeline(card: Path) -> bool:
     res = subprocess.run([sys.executable, str(Path(__file__).parent / "run_gates.py"), str(card)])
     return res.returncode == 0
+
+
+def _atomic_write(path: Path, text: str) -> None:
+    fd, tmp = tempfile.mkstemp(dir=str(path.parent), suffix=".tmp")
+    try:
+        with os.fdopen(fd, "w", encoding="utf-8", newline="\n") as f:
+            f.write(text)
+        os.replace(tmp, path)
+    except BaseException:
+        try:
+            os.unlink(tmp)
+        except OSError:
+            pass
+        raise
 
 
 def main(card_arg: str) -> None:
@@ -46,37 +65,47 @@ def main(card_arg: str) -> None:
     if dst.exists():
         fail(GATE, f"{dst} already exists")
 
-    text = src.read_text(encoding="utf-8")
-    new_text, n = re.subn(r"^status: staging$", "status: active", text,
+    src_text = src.read_text(encoding="utf-8")
+    new_text, n = re.subn(r"^status: staging$", "status: active", src_text,
                           count=1, flags=re.M)
     if n != 1:
         fail(GATE, f"{src.name}: could not flip 'status: staging' to active")
-    dst.write_text(new_text, encoding="utf-8")
 
     index = root / "wiki" / "INDEX.md"
-    idx_text = index.read_text(encoding="utf-8-sig")
+    idx_before = index.read_text(encoding="utf-8-sig")
     line = f"- [agent] {slug}: {mission} → wiki/agents/{slug}.md"
-    inserted = False
-    if line not in idx_text:
-        if "## Agents\n" not in idx_text:
+
+    dst_created = idx_changed = src_removed = False
+
+    def rollback() -> None:
+        if dst_created and dst.exists():
             dst.unlink()
-            fail(GATE, "wiki/INDEX.md has no '## Agents' section: restore the "
-                       "heading before activating")
-        idx_text = idx_text.replace("## Agents\n", f"## Agents\n\n{line}\n", 1)
-        index.write_text(idx_text, encoding="utf-8")
-        inserted = True
+        if idx_changed:
+            _atomic_write(index, idx_before)
+        if src_removed and not src.exists():
+            _atomic_write(src, src_text)
 
-    src.unlink()
+    try:
+        _atomic_write(dst, new_text)
+        dst_created = True
 
-    if not run_pipeline(dst):
-        # rollback: restore staging state, symmetric with the insertion
-        dst_text = dst.read_text(encoding="utf-8")
-        src.write_text(dst_text.replace("status: active", "status: staging", 1),
-                       encoding="utf-8")
-        dst.unlink()
-        if inserted:
-            index.write_text(idx_text.replace(f"\n{line}\n", "", 1), encoding="utf-8")
-        fail(GATE, "post-check failed on the activated card: rolled back to staging")
+        if line not in idx_before:
+            if "## Agents\n" not in idx_before:
+                raise GateError("wiki/INDEX.md has no '## Agents' section: "
+                                "restore the heading before activating")
+            _atomic_write(index, idx_before.replace(
+                "## Agents\n", f"## Agents\n\n{line}\n", 1))
+            idx_changed = True
+
+        src.unlink()
+        src_removed = True
+
+        if not run_pipeline(dst):
+            raise GateError("post-check failed on the activated card")
+    except BaseException as exc:
+        rollback()
+        msg = str(exc) if isinstance(exc, GateError) else f"{type(exc).__name__}: {exc}"
+        fail(GATE, f"activation rolled back to staging ({msg})")
 
     ok(GATE, f"{slug} activated, registered, and re-validated in its final state")
 

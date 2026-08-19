@@ -23,7 +23,7 @@ def _hexpair(c: str) -> dict:
 
 def _dynamic_profile(ident) -> dict:
     launch = ident.launch or ""
-    cmd = f"cd '{ident.repo}'" + (f" && {launch}" if launch else "; exec $SHELL")
+    cmd = f"cd {shlex.quote(str(ident.repo))}" + (f" && {launch}" if launch else "; exec $SHELL")
     return {"Profiles": [{
         "Name": ident.name,
         "Guid": ident.guid,

@@ -5,6 +5,7 @@ $TERMINAL. The PNG icon is used natively (no conversion needed).
 """
 from __future__ import annotations
 
+import shlex
 import shutil
 from pathlib import Path
 
@@ -17,7 +18,7 @@ def _terminal_cmd(ident) -> str:
     concrete binaries found on PATH are usable; $TERMINAL would be run
     literally and can never work."""
     launch = ident.launch or "exec $SHELL"
-    inner = f"cd '{ident.repo}' && {launch}"
+    inner = f"cd {shlex.quote(str(ident.repo))} && {launch}"
     if shutil.which("kitty"):
         return f"kitty --title '{ident.name}' bash -lc \"{inner}\""
     if shutil.which("wezterm"):

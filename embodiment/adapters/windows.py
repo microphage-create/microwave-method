@@ -85,6 +85,12 @@ def _psq(s: object) -> str:
 
 def _profile(ident, ico: Path) -> dict:
     launch = ident.launch or ""
+    # defense in depth: launch is interpolated into a PowerShell command, so it
+    # must carry no shell metacharacter. gate_schema (LAUNCH_FORBIDDEN) enforces
+    # this on the card; re-check here in case embodiment runs on an ungated card.
+    if launch and set(";&|`$<>(){}[]\"'\\\n\r").intersection(launch):
+        raise RuntimeError("embodiment.launch has a shell metacharacter; it must "
+                           "pass gate_schema before embodiment")
     inner = f"cd '{_psq(ident.repo)}'" + (f"; {launch}" if launch else "")
     return {
         "name": ident.name,

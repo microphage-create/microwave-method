@@ -92,8 +92,10 @@ def main(card: str) -> None:
                        and not blob[mt.end():].lstrip().lower().startswith("nothing")})
         if hits:
             fail(GATE, f"{path.name}: blast_radius is 'read' but the card "
-                       f"declares write-signals: {', '.join(hits)}. "
-                       f"Raise the blast radius (full path) or fix the card.")
+                       f"declares write-signals: {', '.join(hits)}. This is a "
+                       f"heuristic tripwire, not the real guard: raise the blast "
+                       f"radius (full path, where the devil pass and gatekeeper "
+                       f"actually judge privilege) or fix the card.")
 
     ok(GATE, f"{path.name} conforms to the card contract")
 

@@ -116,4 +116,7 @@ def main(card: str | None) -> None:
 
 
 if __name__ == "__main__":
-    main(sys.argv[1] if len(sys.argv) > 1 else None)
+    try:
+        main(sys.argv[1] if len(sys.argv) > 1 else None)
+    except GateError as e:
+        fail(GATE, str(e))

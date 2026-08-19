@@ -1,7 +1,7 @@
 # Flow: devil-loop (autonomous adversarial convergence)
 
 The generic loop that hardens ANY artifact of the system until an adversary
-finds nothing: agent cards (the Devil guard of the full path (create-agent.md)), stories before close,
+finds nothing: agent cards, where it is the Devil guard of the full path in create-agent.md, stories before close,
 rule amendments, releases. `flows/devil-review.md` defines one attack pass;
 this flow defines the orchestration.
 
@@ -39,7 +39,7 @@ learning candidates).
 
 ## When to run it
 
-- Full-path agent creation: required (the Devil guard of the full path (create-agent.md)).
+- Full-path agent creation: required. It is the Devil guard of create-agent.md.
 - Stories whose done-criteria touch production: recommended before close.
 - Rule amendments (`flows/amend-rule.md`): required before gatekeeper
   judgment.

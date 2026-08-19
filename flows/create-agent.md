@@ -13,7 +13,7 @@ spends, or touches production):
    `wiki/_staging/<slug>.md`. Embodiment is OPTIONAL here (`embodied` may
    stay false): a throwaway read-only agent needs no desktop body.
 2. **Gate**: `python gates/run_gates.py wiki/_staging/<slug>.md` (anti-dup,
-   brief, schema, testable, slop, wiki, all bundled). Fix reds, re-run.
+   brief, schema, testable, embodiment, slop, wiki, all bundled). Fix reds, re-run.
 3. **Activate**: `python gates/activate.py wiki/_staging/<slug>.md`. Done,
    nobody to wait for.
 

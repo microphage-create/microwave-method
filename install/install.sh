@@ -48,7 +48,7 @@ EOF
 fi
 
 echo "Microwave installed into $DST (flows, templates, gates, embodiment, hooks, harness, CI workflow)"
-echo "Next: open your coding agent there and say 'run the Microwave create-agent flow'."
+echo "Next: open your coding agent there and say 'run the Microwave adopt flow'."
 echo "Hardening left to you (cannot be shipped as files):"
 echo "  1. edit CODEOWNERS with your gatekeeper's handle"
 echo "  2. adapt harness/claude-settings.example.json into your harness settings"

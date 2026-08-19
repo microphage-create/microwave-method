@@ -79,10 +79,20 @@ def commits() -> list[dict]:
     return recs
 
 
+def _root_shas() -> set[str]:
+    # root commits (the initial import) predate the naming rule; exempt them
+    out = git(["log", "--max-parents=0", "--format=%h"])
+    return {s.strip() for s in out.splitlines() if s.strip()}
+
+
 def orphans(recs: list[dict]) -> list[tuple[str, str, str, str]]:
-    # a commit that ADDS an atom file whose id it never names in the message
+    # a commit that ADDS an atom file whose id it never names in the message;
+    # root commits are exempt (the initial import predates the rule, ADR-020)
+    roots = _root_shas()
     out = []
     for r in recs:
+        if r["sha"] in roots:
+            continue
         for status, path in r["files"]:
             if status.startswith("A") and ATOM_PATH_RE.match(path):
                 aid = atom_of_path(path)
@@ -108,7 +118,10 @@ def main(argv: list[str]) -> None:
         return
 
     if "--atom" in argv:
-        want = argv[argv.index("--atom") + 1]
+        i = argv.index("--atom")
+        if i + 1 >= len(argv):
+            fail(GATE, "usage: python gates/trace.py --atom <id>")
+        want = argv[i + 1]
         hits = [r for r in recs
                 if want in r["named"] or any(atom_of_path(p) == want
                                              for _, p in r["files"])]

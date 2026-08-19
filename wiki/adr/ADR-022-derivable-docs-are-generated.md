@@ -7,7 +7,7 @@ date: 2026-08-19
 scope: meta
 ---
 
-# ADR-022: Derivable docs are generated views, gated for freshness
+# ADR-022: Derivable docs are generated views, gated for freshness (the README is a spreadsheet)
 
 ## Context
 

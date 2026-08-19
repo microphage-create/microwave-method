@@ -244,8 +244,9 @@ inviolable in execution and amendable only through process
 
 ## Agents as apps
 
-An agent that can do damage is not done until it has a body (a read-only
-one may stay bodiless): pass 1 generates its desktop presence: an icon, a short name, a themed terminal profile, a launcher. These
+An agent that can do damage is not done until it has a body; a read-only one
+may stay bodiless. For a powerful agent, pass 1 generates a desktop presence: an
+icon, a short name, a themed terminal profile, a launcher. These
 are **terminals dressed as apps, not apps replacing the terminal**: full
 terminal power, zero anonymity. With five sessions open in parallel you know
 who is who at a glance. One identity manifest, one adapter per OS

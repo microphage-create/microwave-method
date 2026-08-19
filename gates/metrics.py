@@ -110,7 +110,10 @@ def main(since: str | None, mode: str) -> None:
 if __name__ == "__main__":
     since = None
     if "--since" in sys.argv:
-        since = sys.argv[sys.argv.index("--since") + 1]
+        i = sys.argv.index("--since")
+        if i + 1 >= len(sys.argv):
+            fail(GATE, "usage: python gates/metrics.py --since <YYYY-MM-DD>")
+        since = sys.argv[i + 1]
     mode = "digest" if "--digest" in sys.argv else "report"
     try:
         main(since, mode)

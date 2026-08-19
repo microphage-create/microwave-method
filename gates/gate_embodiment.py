@@ -65,4 +65,7 @@ def main(card: str) -> None:
 if __name__ == "__main__":
     if len(sys.argv) != 2:
         fail(GATE, "usage: python gates/gate_embodiment.py <agent-card.md>")
-    main(sys.argv[1])
+    try:
+        main(sys.argv[1])
+    except GateError as e:
+        fail(GATE, str(e))

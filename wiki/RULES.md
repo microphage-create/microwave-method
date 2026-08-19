@@ -28,8 +28,8 @@ Doctrine distills, it does not accumulate (the anti-gas-factory rule).
 - Gates check form; the fresh-eyes devil checks substance; the gatekeeper
   judges opportunity. One human point, full path only.
 - A card committed to git is gate-green. Work-in-progress stays in the tree.
-- Durable artifacts ship without LLM tells: gate_slop sweeps docs, flows and
-  the wiki against `slop/slop-rules.csv`. The mechanism ships; an org's own
+- Durable artifacts ship without LLM tells: gate_slop sweeps the
+  wiki against `slop/slop-rules.csv`. The mechanism ships; an org's own
   rule corpus plugs in and stays private.
 - Rules are enforced at the harness level, amendable only through
   `flows/amend-rule.md`. Inviolable in execution, a constitution not a dogma.
@@ -75,8 +75,9 @@ Doctrine distills, it does not accumulate (the anti-gas-factory rule).
 - For the residue delivery cannot cover (unfinished work's resume point), a
   condensed save is a FALLBACK, not the mechanism: proposed on an objective
   trigger (context pressure AND unlogged consumable since the last save, one
-  nudge per threshold, reserving a save's own token cost as headroom). The
-  pre-commit hook catches the mechanical miss; the user may save anytime.
+  nudge per threshold, reserving a save's own token cost as headroom). A
+  pre-commit check for that miss is specified but not yet shipped; meanwhile the
+  user may save anytime.
 - Adoption is lossless: copy first, wrap never rewrite, originals kept.
 - Traceability is a VIEW derived from git, never a fourth registry. The
   vocabulary is locked: INDEX indexes atoms, REGISTER indexes saves, LEDGER

@@ -4,6 +4,8 @@
     "deny": [
       "Read(./.env)",
       "Read(./.env.*)",
+      "Read(./**/.env)",
+      "Read(./**/.env.*)",
       "Read(./**/secrets/**)",
       "Write(./wiki/agents/**)",
       "Write(./wiki/adr/**)",

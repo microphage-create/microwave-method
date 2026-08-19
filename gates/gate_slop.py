@@ -6,7 +6,7 @@ The shipped bank is a generic STARTER: organizations append their own
 proprietary rules to the CSV (or replace it), the mechanism does not change.
 Proprietary rule corpora stay private; the gate only needs the CSV rows.
 
-Scope: wiki atoms and docs, i.e. what agents write durably. Templates
+Scope: wiki atoms, i.e. what the agents write durably. Templates
 (placeholders are the point), techniques/ (imported banks), and this
 mechanism's own files are excluded.
 

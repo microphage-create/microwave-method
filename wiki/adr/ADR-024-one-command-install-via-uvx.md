@@ -30,13 +30,14 @@ ADR-007); uv provides the environment.
 One Python installer (`microwave_method/__init__.py`) becomes the canonical
 path, a single cross-platform source; the shell installers (install.sh/.ps1)
 stay only for the curl/irm bootstrap until it is repointed at the package. It
-copies the files additively (never overwrites), seeds the wiki, and wires the
-pre-commit hook. For a true one-command experience it also runs `git init` when
-the folder is not yet a repo, and hands straight off to the coding agent: it
-launches the detected agent (claude) on "run the Microwave welcome flow",
-falling back to printing that line when no known agent is found or
-`MICROWAVE_NO_LAUNCH=1` is set (tests, CI). The guided welcome itself is played
-by the agent (ADR-023), because Microwave is a method, not a runtime.
+copies the files additively (never overwrites) and seeds the wiki: always safe.
+Then, with a single confirmation (default yes), it sets up git if needed, wires
+the pre-commit hook (backing up any existing one), and launches the detected
+agent (claude) on "run the Microwave welcome flow". Decline, or run
+non-interactively or with `MICROWAVE_NO_LAUNCH=1`, and it just prints that line:
+no repo is created and no agent launched without a yes, so a stranger's first
+run holds no surprise. The guided welcome itself is played by the agent
+(ADR-023), because Microwave is a method, not a runtime.
 
 The core stays Python. The value is zero-dependency: a gate that needs
 `npm install` before it runs is a gate that does not run. Rewriting the core in

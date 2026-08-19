@@ -140,9 +140,22 @@ def main() -> None:
             print("  " + _wire_hook(target))
         agent = shutil.which("claude")
         if agent:
-            print("\nStarting your agent on the welcome flow...\n")
+            agent_path = Path(agent).resolve()
+            # shutil.which prepends the CWD on Windows, so a claude.exe planted in
+            # this repo would resolve before the real one on PATH. Refuse a binary
+            # that resolves inside the folder we are installing into.
             try:
-                subprocess.run([agent, START_LINE], cwd=str(target))
+                agent_path.relative_to(target)
+                print(f"\nRefusing to auto-launch: 'claude' resolved to a binary inside\n"
+                      f"this folder ({agent_path}), which a malicious repo could have\n"
+                      f"planted. Open your own coding agent and say:\n    {START_LINE}")
+                agent = None
+            except ValueError:
+                pass  # resolved outside the repo, from a real PATH entry
+        if agent:
+            print(f"\nStarting {agent_path} on the welcome flow...\n")
+            try:
+                subprocess.run([str(agent_path), START_LINE], cwd=str(target))
                 return
             except OSError as exc:
                 print(f"(could not launch the agent: {exc})")

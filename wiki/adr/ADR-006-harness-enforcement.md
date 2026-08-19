@@ -17,19 +17,22 @@ involved.
 
 ## Decision
 
-Rules are enforced structurally at three floors, shipped as installable
-artifacts: permission deny-rules (agents cannot read secrets, write main wiki
-spaces directly, or modify gates), blocking hooks (out-of-band creation
-refused at execution), repo protection (required checks + CODEOWNERS on
-`gates/`: humans cannot merge red). Rules are inviolable in execution and
-amendable ONLY through `flows/amend-rule.md`. Emergencies use a traced
-break-glass with mandatory post-mortem.
+Enforcement is split honestly (docs/governance.md). STRUCTURAL, a machine
+refuses: the pre-commit hook and CI run the gates and block a red commit, and
+CODEOWNERS plus branch protection gate the protected space (`gates/`, `hooks/`,
+CI, `CODEOWNERS`, the main wiki spaces) so no one merges red once branch
+protection is on. COOPERATIVE, the agent or harness must play along: the shipped
+permission deny-rules (`harness/`) cover the Read and Write TOOLS only, not the
+shell, so they are a hint, not a sandbox and not secret protection; the flows and
+the gatekeeper's judgment are convention. Rules are amendable only through
+`flows/amend-rule.md`; emergencies use a traced break-glass with a post-mortem.
 
 ## Consequences
 
-The system survives its operators' bad days. A rule frozen with no amendment
-path would push users to desert the system; the amendment flow prevents that
-while keeping zero bypass.
+The fence that actually holds is the commit boundary (CI plus branch
+protection); everything above it is discipline the flows encourage, stated as
+such rather than claimed as a guarantee. A rule frozen with no amendment path
+would push users to desert the system; the amendment flow prevents that.
 
 ## Links
 

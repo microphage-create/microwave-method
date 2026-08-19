@@ -10,8 +10,8 @@ flow (`gate_embodiment`).
 ## Why a body
 
 Adoption is the documented graveyard of every knowledge system: catalogs die in
-six months; NASA's lessons-learned system was unknown to 27% of its intended
-users. An agent you can see and launch like an app gets used; an agent invoked
+six months; NASA's much-studied lessons-learned system went largely unused by
+its intended audience. An agent you can see and launch like an app gets used; an agent invoked
 by a memorized command dies. Visual identity means zero cognitive load, and
 with five terminals open in parallel, each session is identifiable at a glance
 by its color and logo.

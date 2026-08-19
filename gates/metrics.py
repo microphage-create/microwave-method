@@ -74,14 +74,14 @@ def main(since: str | None, mode: str) -> None:
 
     events = Counter(r[1] for r in rows)
     created = [r for r in rows if r[1] == "created"]
-    minutes = [int(r[3]) for r in created if r[3].isdigit()]
+    minutes = [int(r[3]) for r in created if r[3].isascii() and r[3].isdigit()]
     intercepted = [r for r in rows if r[1] == "intercepted"]
 
     # detail is "source:count" (a batch, e.g. gate_slop:74) or "source:sev"
     # (a single defect, e.g. devil-r1:high). Sum the counts, count the rest.
     def weight(detail: str) -> int:
         tail = detail.split(":", 1)[1] if ":" in detail else ""
-        return int(tail) if tail.isdigit() else 1
+        return int(tail) if (tail.isascii() and tail.isdigit()) else 1
 
     total_defects = sum(weight(r[3]) for r in intercepted)
     by_source = Counter()

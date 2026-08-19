@@ -268,8 +268,8 @@ rely on are covered by a stdlib test suite (`tests/`), run in that same CI.
 elicitation, the devil pass, and the gatekeeper's judgment are conventions the
 method encourages, not code that exits non-zero. Whether a criterion's check
 actually ran is the agent's honest report. The shipped permission deny-rules
-(`harness/`) are an EXAMPLE, Claude-Code-specific, and cover the Read tool only,
-not the shell, so a determined agent can still `cat` a file: treat them as a
+(`harness/`) are an EXAMPLE, Claude-Code-specific, and cover the Read and Write tools (plus a token Bash rule),
+not the shell in general, so a determined agent can still `cat` a file: treat them as a
 hint, not a sandbox, and never as secret protection.
 
 So Microwave hard-gates the FORM of what enters your repo, and makes the

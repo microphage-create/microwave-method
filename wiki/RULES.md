@@ -24,7 +24,8 @@ Doctrine distills, it does not accumulate (the anti-gas-factory rule).
 ## Creation and governance
 
 - The factory is the single entry point of agent creation. Out-of-band
-  creation is refused at execution.
+  creation is discouraged by the write-deny rules and caught at the commit
+  boundary (CI + branch protection).
 - Gates check form; the fresh-eyes devil checks substance; the gatekeeper
   judges opportunity. One human point, full path only.
 - A card committed to git is gate-green. Work-in-progress stays in the tree.

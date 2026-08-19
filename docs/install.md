@@ -55,7 +55,7 @@ the repo and runs the same Python installer.
 
 ```
 1. install (one line above)
-2. tell your agent:  "run the Microwave adopt flow"
+2. tell your agent:  "run the Microwave welcome flow"  (it runs adopt for you)
    → scans wherever your agents sleep (.claude/, prompts/, repos)
    → one inventory entry per artifact in wiki/_archive/
    → the shopping list: wiki/_archive/BACKLOG.md

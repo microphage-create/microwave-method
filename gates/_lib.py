@@ -94,6 +94,8 @@ def _split_inline(inner: str) -> list[str]:
 
 def _scalar(raw: str):
     raw = raw.strip()
+    if raw.count("[") > 32:
+        raise GateError(f"inline list nested too deep: {raw[:40]!r}")
     if raw.startswith("["):
         if not raw.endswith("]"):
             raise GateError(f"malformed inline list (no closing ]): {raw!r}")

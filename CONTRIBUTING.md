@@ -13,9 +13,10 @@ python3 embodiment/embody.py wiki/agents/factory.md --remove
 
 ## Pull requests
 
-- Run the gates before pushing: `python gates/gate_wiki.py && python
-  gates/gate_slop.py` (the pre-commit hook does this if you ran
-  `hooks/install-hooks.sh`). CI runs them on every PR.
+- Run the gates and tests before pushing: `python gates/gate_wiki.py && python
+  gates/gate_slop.py && python gates/gate_docs.py && python -m unittest discover
+  tests` (the pre-commit hook runs the gates if you ran
+  `hooks/install-hooks.sh`). CI runs all of them on every PR.
 - Changes to `gates/`, `flows/`, `hooks/`, `harness/` or `wiki/adr/` go
   through the amend-rule flow (`flows/amend-rule.md`) and require gatekeeper
   review (see CODEOWNERS).

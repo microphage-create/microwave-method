@@ -22,7 +22,7 @@ PAYLOAD_DIRS = ["flows", "templates", "techniques", "slop", "gates",
 WIKI_SPACES = ["agents", "adr", "projects", "_staging", "_archive"]
 WIKI_INDEX = (
     "# Registry index\n\n"
-    "One line per artifact: `- [type] id: one-line summary -> path`\n\n"
+    "One line per artifact: `- [type] id: one-line summary → path`\n\n"
     "## Agents\n\n## ADR (meta)\n\n## Projects\n"
 )
 START_LINE = "run the Microwave welcome flow"

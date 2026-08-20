@@ -87,8 +87,28 @@ class Identity:
         ra, rb = self._rgb(a), self._rgb(b)
         return self._hex(tuple(round(x + (y - x) * t) for x, y in zip(ra, rb)))
 
+    # The default palette's exact, hand-tuned 16-color scheme (the one also
+    # used for the Brevo terminal): reused verbatim so the two match to the
+    # pixel, not just approximately via the generic mixer below.
+    _DEEP_TEAL_EXACT = {
+        "red": "#E07A6B", "brightRed": "#F0998B",
+        "green": "#2DB380", "brightGreen": "#4FD6A2",
+        "yellow": "#D9C06B", "brightYellow": "#EBD58A",
+        "blue": "#5FA8A0", "brightBlue": "#7FC4BC",
+        "purple": "#9BB8A8", "brightPurple": "#B5D1C2",
+        "cyan": "#6FC7AD", "brightCyan": "#8FDEC6",
+        "brightBlack": "#33544A", "brightWhite": "#EFF8F3",
+        "selectionBackground": "#1B3A2E",
+    }
+
     def scheme(self) -> dict:
         """Derive a 16-color terminal scheme from the 3-color palette."""
+        if (self.bg, self.fg, self.accent) == ("#0B1712", "#DCEDE4", "#2DB380"):
+            return {
+                "name": self.name, "background": self.bg, "foreground": self.fg,
+                "cursorColor": self.accent, "black": self.bg, "white": self.fg,
+                **self._DEEP_TEAL_EXACT,
+            }
         m = self.mix
         return {
             "name": self.name,

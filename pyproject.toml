@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "microwave-method"
-version = "0.1.15"
+version = "0.1.17"
 description = "An agent factory with a governed memory. One command drops it into your repo and hands you to your coding agent for a guided welcome."
 readme = "README.md"
 requires-python = ">=3.10"
@@ -38,6 +38,7 @@ packages = ["microwave_method"]
 "embodiment" = "microwave_method/_payload/embodiment"
 "hooks" = "microwave_method/_payload/hooks"
 "harness" = "microwave_method/_payload/harness"
+".claude/commands" = "microwave_method/_payload/.claude/commands"
 "install/banner.txt" = "microwave_method/_payload/banner.txt"
 ".github/workflows/gates.yml" = "microwave_method/_payload/.github/workflows/gates.yml"
 "CODEOWNERS" = "microwave_method/_payload/CODEOWNERS"

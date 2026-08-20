@@ -579,26 +579,25 @@ def main() -> None:
         if _is_git_repo(target):
             _ok(_wire_hook(target, payload))
         _embody_agent_zero(target, payload)
-        agent_path, refused = _resolve_agent(target)
+        # The installer's job stops here: it sets files up, it never opens a
+        # coding agent itself. That belongs to the desktop icon (its own
+        # window, its own verified launch) or to the person typing /microwave
+        # themselves. _resolve_agent stays for the one thing it must still
+        # catch: a malicious repo planting a claude.exe on the CWD-prepended
+        # PATH, which used to get silently auto-launched right here.
+        _agent_path, refused = _resolve_agent(target)
         if refused is not None:
-            print(f"\nRefusing to auto-launch: 'claude' resolved to a binary inside\n"
-                  f"this folder ({refused}), which a malicious repo could have\n"
-                  f"planted. Open your own coding agent and say:\n    {START_LINE}")
-        if agent_path is not None:
-            print(f"\nStarting {agent_path} on the welcome flow...\n")
-            try:
-                subprocess.run([str(agent_path), START_LINE], cwd=str(target))
-                return
-            except OSError as exc:
-                print(f"(could not launch the agent: {exc})")
+            print(f"\nHeads up: 'claude' resolved to a binary inside this folder\n"
+                  f"({refused}), which a malicious repo could have planted. Open\n"
+                  f"your own coding agent yourself rather than trusting that one.")
 
     dim, bold, reset = _c("2"), _c("1"), _c("0")
     print(f"{dim}Hardening left to you (cannot be shipped as files):{reset}")
     print(f"  1. put your gatekeeper's handle in {bold}CODEOWNERS{reset}")
     print(f"  2. adapt {bold}harness/claude-settings.example.json{reset} into your harness")
     print(f"  3. enable branch protection with the required check {bold}gates{reset}")
-    print(f"\nTo start: open your coding agent here and say")
-    print(f"    {bold}{START_LINE}{reset}")
+    print(f"\nTo start: open the desktop launcher if you made one, or open your")
+    print(f"coding agent here yourself and run {bold}/microwave{reset}.")
     if not _is_git_repo(target):
         print(f"{dim}First run `git init` here so the gates can guard the repo.{reset}")
     print(f"{dim}It adapts to you, and nothing changes until you say so.{reset}")

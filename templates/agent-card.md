@@ -1,7 +1,11 @@
 ---
 type: agent-card
+# kind: context guards one repo (also set repo:); service is transversal (no repo)
+kind: service
 name: Example Agent
 slug: example-agent
+# when kind is context, set the repo this agent guards (uncomment, keep it clean):
+# repo: my-repo
 status: staging
 blast_radius: read
 mission: One sentence stating what this agent does and for whom.
@@ -10,6 +14,8 @@ outputs: [what it produces]
 definition_path: path/to/the/agent/definition
 owner: "@your-gatekeeper"
 synonyms: [alternative, words, for, anti-dup, search]
+# transversal services this agent calls; each must resolve (gate_uses):
+# uses: [service-slug]
 anti_dup_rationale: ""
 created_in_minutes: 0
 # embodiment: REQUIRED only for write/spend/prod agents (a read-only agent

@@ -371,6 +371,15 @@ class TestTaxonomy(unittest.TestCase):
                            write_card(CONTEXT_CARD, slug="my-repo-guard"))
         self.assertEqual(rc, 0, out)
 
+    def test_shipped_template_kind_is_clean(self):
+        # the YAML subset does not strip inline comments, so 'kind: service # x'
+        # would pollute the value; the shipped template must parse to a real enum.
+        sys.path.insert(0, str(GATES))
+        from _lib import read_frontmatter
+        root = Path(__file__).resolve().parent.parent
+        fm, _ = read_frontmatter(root / "templates" / "agent-card.md")
+        self.assertIn(fm.get("kind"), {"context", "service"})
+
 
 class TestGateUses(unittest.TestCase):
     def _card_in(self, index_body, card_text=CONTEXT_CARD, name="my-repo-guard"):

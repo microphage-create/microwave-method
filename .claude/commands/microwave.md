@@ -9,43 +9,36 @@ session opens here.
 Print this immediately, before reading a file or running anything: no Bash
 call, no file search comes before it, not even the bootstrap check below.
 Print the fenced block below exactly, character for character, nothing
-added or reflowed inside it: a bordered frame with the M centered, then the
-agent's name and a one-line title of what it does printed inside the same
-frame, same as the CLI installer's own splash. This is the visual signature,
-not decoration: the same framed M every time is how someone opening ten
-different agents this week still recognizes the family at a glance, and
-seeing it first is what makes the tool calls that follow feel like part of
-something, not raw noise. **Every skill in this method follows this exact
+added or reflowed inside it: the M centered in a rounded frame, then the
+skill's slug and version, then one plain line of what it does. Factual and
+fast, not marketing copy. Skills get edited and reworked over time, hence
+the version number; bump it in this file's own text whenever the skill's
+behavior changes. **Every skill in this method follows this exact
 nomenclature**, no exceptions: `flows/create-agent.md` must give every agent
-it makes this same frame, its own name, and its own one-line title; agent
-zero is not a special case, it is the template the others copy.
+it makes this same frame, its own slug + version, and its own one-line
+description; agent zero is not a special case, it is the template the
+others copy.
 
 ```
-+----------------------------------------------+
-|                                              |
-|     ⣾⣿⣿⣿⣿⣿⣿⣿⣧⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢰⣿⣿⣿⣿⣿⣿⣿⣿⡄⠀⠀⠀⠀     |
-|     ⣿⣿⣿⣿⣿⣿⣿⣿⣿⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢸⣿⣿⣿⣿⣿⣿⣿⣿⡇⠀⠀⠀⠀     |
-|     ⠈⠉⠉⠉⠉⠉⠉⠉⠙⣷⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⡟⠉⠉⠉⠉⠉⠉⠉⠉⢻⣶⣶⣶⣤     |
-|     ⠀⠀⠀⠀⠀⠀⠀⠀⠀⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡇⠀⠀⠀⠀⠀⠀⠀⠀⢸⣿⣿⣿⣿     |
-|     ⠀⠀⠀⠀⢀⣤⣤⣤⣴⣿⣿⣿⣿⡿⠛⠛⠛⠛⠛⠛⠛⠛⠁⠀⠀⠀⠀⣠⣤⣤⣤⡾⠛⠛⠛⠉     |
-|     ⠀⠀⠀⠀⢸⣿⣿⣿⣿⣿⣿⣿⣿⡇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣿⣿⣿⣿⡇⠀⠀⠀⠀     |
-|     ⠀⠀⠀⠀⠘⠿⠿⠿⢿⣿⣿⣿⣿⣧⣀⣀⣀⡀⠀⠀⠀⠀⠀⣀⣀⣀⣠⣿⣿⣿⣿⡇⠀⠀⠀⠀     |
-|     ⠀⠀⠀⠀⠀⠀⠀⠀⠀⣿⣿⣿⣿⣿⣿⣿⣿⣿⠀⠀⠀⠀⢸⣿⣿⣿⣿⣿⣿⣿⣿⡇⠀⠀⠀⠀     |
-|     ⠀⠀⠀⠀⠀⠀⠀⠀⢀⣿⣿⣿⣿⣿⣿⣿⣿⣿⠀⠀⠀⠀⢸⣿⣿⣿⣿⣿⣿⣿⣿⣇⠀⠀⠀⠀     |
-|     ⠀⠀⠀⠀⢰⣿⣿⣿⣿⠁⠀⠀⠀⢹⣿⣿⣿⣿⠀⠀⠀⠀⢸⣿⣿⣿⣿⠁⠀⠀⠀⢹⣿⣿⣿⣷     |
-|     ⠀⠀⠀⠀⢸⣿⣿⣿⣿⠀⠀⠀⠀⢸⣿⣿⣿⣿⠀⠀⠀⠀⢸⣿⣿⣿⡿⠀⠀⠀⠀⢸⣿⣿⣿⣿     |
-|     ⣴⣶⣶⣶⣿⣿⣿⣿⣿⠀⠀⠀⠀⠀⠉⠉⠉⠙⣷⣶⣶⣶⡟⠉⠉⠉⠀⠀⠀⠀⠀⢸⣿⣿⣿⣿     |
-|     ⣿⣿⣿⣿⣿⣿⣿⣿⣿⠀⠀⠀⠀⠀⠀⠀⠀⠀⣿⣿⣿⣿⡇⠀⠀⠀⠀⠀⠀⠀⠀⢸⣿⣿⣿⣿     |
-|     ⣿⣿⣿⣿⣿⣿⣿⣿⣿⠀⠀⠀⠀⠀⠀⠀⠀⠀⠙⠛⠛⠋⠀⠀⠀⠀⠀⠀⠀⠀⠀⢸⣿⣿⣿⣿     |
-|     ⣿⣿⣿⣿⣿⣿⣿⣿⣿⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢸⣿⣿⣿⣿     |
-|     ⠛⠿⠿⠿⣿⣿⣿⣿⣿⣄⣀⣀⣀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣀⣀⣀⣼⠿⠿⠿⠛     |
-|     ⠀⠀⠀⠀⢸⣿⣿⣿⣿⣿⣿⣿⣿⡇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣿⣿⣿⣿⡇⠀⠀⠀⠀     |
-|     ⠀⠀⠀⠀⠘⣿⣿⣿⣿⣿⣿⣿⣿⠃⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢿⣿⣿⣿⠃⠀⠀⠀⠀     |
-|                                              |
-|  Microwave                                   |
-|  the front door, makes every other agent     |
-|                                              |
-+----------------------------------------------+
+╭────────────────────────────────────────────────────────────────╮
+│                                                                │
+│                     ⣿⣿⣿⣿⣿⡇⠀⠀⠀⠀⠀⠀⠀⢰⣿⣿⣿⣿⣿⡆⠀⠀                     │
+│                     ⠛⠛⠛⠛⠛⢷⣤⣤⣤⣤⣤⣤⣤⣾⠟⠛⠛⠛⠻⣷⣤⣤                     │
+│                     ⠀⠀⠀⠀⠀⣸⣿⣿⣿⣿⣿⣿⣿⡿⠀⠀⠀⠀⢀⣿⣿⣿                     │
+│                     ⠀⠀⢰⣿⣿⣿⣿⣿⡏⠀⠀⠀⠀⠀⠀⠀⢸⣿⣿⡏⠀⠀                     │
+│                     ⠀⠀⠈⠛⠛⢿⣿⣿⣷⣤⣤⠀⠀⢀⣤⣤⣾⣿⣿⡇⠀⠀                     │
+│                     ⠀⠀⠀⠀⠀⣸⣿⣿⣿⣿⣿⠀⠀⢸⣿⣿⣿⣿⣿⣇⠀⠀                     │
+│                     ⠀⠀⢰⣿⣿⡏⠀⠈⣿⣿⣿⠀⠀⢸⣿⣿⡏⠀⠈⣿⣿⣿                     │
+│                     ⣤⣤⣾⣿⣿⡇⠀⠀⠙⠛⠻⣦⣤⣾⠟⠛⠃⠀⠀⣿⣿⣿                     │
+│                     ⣿⣿⣿⣿⣿⡇⠀⠀⠀⠀⠀⣿⣿⡿⠀⠀⠀⠀⠀⣿⣿⣿                     │
+│                     ⣿⣿⣿⣿⣿⡇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣿⣿⣿                     │
+│                     ⠛⠛⢿⣿⣿⣷⣤⣤⡀⠀⠀⠀⠀⠀⠀⠀⢠⣤⣴⡿⠛⠛                     │
+│                     ⠀⠀⠸⣿⣿⣿⣿⣿⠇⠀⠀⠀⠀⠀⠀⠀⢸⣿⣿⠇⠀⠀                     │
+│                                                                │
+│  microwave  v1                                                 │
+│  agent zero, the front door: makes every other agent           │
+│                                                                │
+╰────────────────────────────────────────────────────────────────╯
 ```
 
 ## Step 1: bootstrap, if you are not installed yet
@@ -72,13 +65,20 @@ ask first, just start `flows/welcome.md` right now, before the user has
 typed a word. You drive, the user only answers simple questions and says yes.
 
 **Otherwise**, you are contextualized. Say what's registered in one plain
-sentence, then ask what we are building. From here:
+sentence, then offer a short numbered menu, not an open question:
 
-- New agent? Run `flows/create-agent.md`. Never create one on the side, that
-  is the anti-sprawl invariant.
-- Onboarding an existing folder of prompts/skills? Run `flows/adopt.md`.
-- Anything else: proceed normally, the registry and ADRs above are your
-  context now.
+1. Create a new agent/skill (guided, spec first, anti-duplication checked)
+   → `flows/create-agent.md`.
+2. Add a feature to an agent that already exists → `flows/create-feature.md`.
+3. Bring in agents/prompts scattered elsewhere (a `.claude/`, a prompts
+   folder, another repo) → `flows/adopt.md`.
+4. Resume a paused session → `flows/resume.md`.
+5. Something else: say it in your own words, no need to pick a number.
+
+There is no "new repo from scratch" option: Microwave always starts from an
+existing folder, even an empty one works, never from a blank slate outside
+one. Never create an agent on the side, only through option 1: that is the
+anti-sprawl invariant.
 
 ## Rules
 

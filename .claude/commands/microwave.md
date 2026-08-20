@@ -35,7 +35,7 @@ others copy.
 │                     ⠛⠛⢿⣿⣿⣷⣤⣤⡀⠀⠀⠀⠀⠀⠀⠀⢠⣤⣴⡿⠛⠛                     │
 │                     ⠀⠀⠸⣿⣿⣿⣿⣿⠇⠀⠀⠀⠀⠀⠀⠀⢸⣿⣿⠇⠀⠀                     │
 │                                                                │
-│  microwave  v1                                                 │
+│  microwave  v2                                                 │
 │  agent zero, the front door: makes every other agent           │
 │                                                                │
 ╰────────────────────────────────────────────────────────────────╯
@@ -73,7 +73,10 @@ sentence, then offer a short numbered menu, not an open question:
 3. Bring in agents/prompts scattered elsewhere (a `.claude/`, a prompts
    folder, another repo) → `flows/adopt.md`.
 4. Resume a paused session → `flows/resume.md`.
-5. Something else: say it in your own words, no need to pick a number.
+5. Improve the method itself: run the continuous-improvement loop, or drop a
+   friction/idea in the idea-box → `flows/improve.md`. Default is semi-auto
+   (autonomous work, you gatekeep every ship).
+6. Something else: say it in your own words, no need to pick a number.
 
 There is no "new repo from scratch" option: Microwave always starts from an
 existing folder, even an empty one works, never from a blank slate outside

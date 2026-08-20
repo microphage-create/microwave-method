@@ -123,9 +123,15 @@ def _desktop_lnk(ident, ico: Path) -> Path:
     # ident.name is revalidated by Identity (no quotes); everything else is
     # escaped anyway: defense in depth.
     lnk = Path.home() / "Desktop" / f"{ident.name}.lnk"
+    # wt.exe is a Windows App Execution Alias: a .lnk with TargetPath='wt.exe'
+    # saves fine but launches NOTHING from Explorer. Point at the real stub under
+    # WindowsApps so a double-click actually opens the terminal.
+    local = os.environ.get("LOCALAPPDATA") or str(Path.home() / "AppData" / "Local")
+    wt = Path(local) / "Microsoft" / "WindowsApps" / "wt.exe"
+    target = str(wt) if wt.exists() else "wt.exe"
     ps = (
         f"$s=(New-Object -ComObject WScript.Shell).CreateShortcut('{_psq(lnk)}');"
-        f"$s.TargetPath='wt.exe';"
+        f"$s.TargetPath='{_psq(target)}';"
         f"$s.Arguments='-p \"{_psq(ident.name)}\"';"
         f"$s.IconLocation='{_psq(ico)}';"
         f"$s.Save()"

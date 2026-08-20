@@ -36,7 +36,7 @@ try:
     from importlib.metadata import version as _pkg_version
     VERSION = _pkg_version("microwave-method")
 except Exception:
-    VERSION = "0.1.9"
+    VERSION = "0.1.10"
 
 
 def _enable_ansi() -> bool:
@@ -364,6 +364,10 @@ def _embody_agent_zero(target: Path, payload: Path) -> None:
     if r.returncode == 0:
         extra = "  (permissions pre-approved)" if "skip-permissions" in launch else ""
         print(f"  {_c('32')}+{_c('0')} launcher on your desktop{extra}")
+        perks = "its themed terminal" + (" and the pre-approved permissions"
+                                          if "skip-permissions" in launch else "")
+        print(f"  from now on, open Microwave from that desktop icon to get {perks}:")
+        print("  this window started before the launcher, so it doesn't have them yet.")
     else:
         tail = (r.stderr or r.stdout).strip().splitlines()
         print(f"  (couldn't place the launcher this time: {tail[-1] if tail else 'embodiment skipped'})")

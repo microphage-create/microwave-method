@@ -12,16 +12,26 @@ Fluidity above everything. One action at a time, never a blank prompt. After eac
 step, say what just happened in one plain sentence, then propose the next with a
 default the user can accept by just agreeing. Always offer a clean stop.
 
-## Step 1: Scan everything
+## Step 1: Scan everything (offer places, never a blank question)
 
-Ask, prefilled with a guess from what you can see (the parent of the current
-folder is usually the repos directory):
+The user often does not know where their agents live, so do not ask an open
+question they cannot answer. Offer concrete places and let them pick, or just say
+"go". Prefill the most likely from what you can see, and include the usual homes
+even across drives: Microwave may be installed on one drive while the agents sit
+on another.
 
-> Where do your repos live? (e.g. `~/Documents/GitHub`)
+> Where should I look for your agents? I can:
+> A) look in the usual places for you: your home folder `~/.claude/`, `~/Documents/`,
+>    any GitHub or repos folder, and common prompt folders. Pick this if unsure.
+> B) scan this repo and its parent folder.
+> C) a specific path you give me: a `.claude/`, a prompts folder, another repo,
+>    even on another drive (say `C:\...` when you installed Microwave on `D:\`).
 
-Run `python gates/scan_estate.py <that folder>`. It writes nothing. Present the
-result as a short human summary, not the raw output: "I found N repos. Here they
-are with the stack I detected."
+Default to A the moment they hesitate. For each chosen root, run
+`python gates/scan_estate.py <folder>` (it writes nothing). Present the result as
+a short human summary, not the raw output: "I found N repos. Here they are with
+the stack I detected." If a root turns up nothing, say so plainly and offer the
+next place, never a dead end.
 
 ### Recommend a tool only when the estate shows its need
 

@@ -74,8 +74,12 @@ moment), never the mechanics.
 
 When the first agent activates: "Done. <name> is governed and has an icon on
 your desktop. That is the whole loop, and every next agent is the same three
-steps." Then hand back control: "You can keep going now, stop and resume
-anytime, or run the whole backlog at your own pace. What would you like?"
+steps." Then hand back control, and spell out how to pause and return in plain
+words: "You can keep going, run the whole backlog at your own pace, or stop here.
+To stop at any moment, just tell me to save: I checkpoint everything cleanly. To
+pick up later, tell me to resume and we continue from exactly here. What would
+you like?" (Say it in that register; do not assume slash-command shortcuts exist
+unless this install defines them.)
 
 ## When something breaks (the user is not a debugger)
 

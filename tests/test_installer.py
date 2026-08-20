@@ -44,6 +44,22 @@ class ResolveAgent(unittest.TestCase):
         self.assertIsNone(refused)
 
 
+class SeedConsistency(unittest.TestCase):
+    def test_agent_zero_index_line_in_all_three_installers(self):
+        # the INDEX seed lives in 3 places (WIKI_INDEX + install.sh + install.ps1);
+        # a divergence would mean a shell-installed repo has a different registry
+        root = Path(__file__).resolve().parent.parent
+        line = ("- [agent] microwave: agent zero, the desktop front door that "
+                "opens a context-loaded session on this repo")
+        sh = (root / "install" / "install.sh").read_text(encoding="utf-8")
+        ps = (root / "install" / "install.ps1").read_text(encoding="utf-8")
+        py = (root / "microwave_method" / "__init__.py").read_text(encoding="utf-8")
+        self.assertIn(line, sh)
+        self.assertIn(line, ps)
+        self.assertIn("- [agent] microwave: agent zero", py)
+        self.assertIn("wiki/agents/microwave.md", py)
+
+
 class UninstallSafety(unittest.TestCase):
     def test_uninstall_keeps_an_edited_file(self):
         import os
@@ -66,6 +82,35 @@ class UninstallSafety(unittest.TestCase):
             self.assertEqual(edited.read_text(encoding="utf-8"), "MY EDITS, keep me\n")
         finally:
             microwave_method._payload = orig_payload
+            os.environ.pop("MICROWAVE_TARGET", None)
+            os.environ.pop("MICROWAVE_NO_LAUNCH", None)
+            sys.argv = ["mw"]
+
+    def test_uninstall_keeps_an_edited_codeowners(self):
+        import contextlib
+        import io
+        import os
+        import tempfile
+        repo = Path(__file__).resolve().parent.parent
+        tmp = Path(tempfile.mkdtemp())
+        orig = microwave_method._payload
+        microwave_method._payload = lambda: repo
+        os.environ["MICROWAVE_TARGET"] = str(tmp)
+        os.environ["MICROWAVE_NO_LAUNCH"] = "1"
+        try:
+            with contextlib.redirect_stdout(io.StringIO()):
+                sys.argv = ["mw"]
+                microwave_method.main()
+                co = tmp / "CODEOWNERS"
+                # keep the placeholder, add a real rule (the natural mid-setup state)
+                co.write_text(co.read_text(encoding="utf-8") + "\ndocs/ @marcel-edited\n",
+                              encoding="utf-8")
+                sys.argv = ["mw", "--uninstall"]
+                microwave_method.main()
+            self.assertTrue(co.exists(), "uninstall must keep an edited CODEOWNERS")
+            self.assertIn("@marcel-edited", co.read_text(encoding="utf-8"))
+        finally:
+            microwave_method._payload = orig
             os.environ.pop("MICROWAVE_TARGET", None)
             os.environ.pop("MICROWAVE_NO_LAUNCH", None)
             sys.argv = ["mw"]

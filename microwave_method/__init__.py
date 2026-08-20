@@ -147,11 +147,13 @@ def _confirm(question: str, default: bool = True) -> bool:
     return answer in ("y", "yes", "o", "oui")
 
 
-def _wire_hook(target: Path) -> str:
-    """Install the pre-commit hook, backing up any existing, different hook to
+def _wire_hook(target: Path, payload: Path) -> str:
+    """Install the pre-commit hook FROM THE TRUSTED PAYLOAD, not target/hooks/
+    which a cloned repo controls (wiring a repo-planted hook would run its code
+    on the next commit). Back up any existing, different hook to
     pre-commit.pre-microwave first (never silently clobber or skip)."""
     hooks_dir = target / ".git" / "hooks"
-    src_hook = target / "hooks" / "pre-commit"
+    src_hook = payload / "hooks" / "pre-commit"
     if not (hooks_dir.is_dir() and src_hook.is_file()):
         return "pre-commit hook not wired (no .git/hooks or payload hook found)"
     dest = hooks_dir / "pre-commit"
@@ -217,14 +219,20 @@ def _install_plan(target: Path, payload: Path) -> list[Path]:
     return planned
 
 
-def _embody_agent_zero(target: Path) -> None:
+def _embody_agent_zero(target: Path, payload: Path) -> None:
     """Agent zero: put the Microwave icon on the desktop (the front door).
 
-    Additive, gated behind its own yes, and never fatal: an OS with no Windows
-    Terminal / Desktop to write to just prints why and moves on."""
+    Additive, gated behind its own yes, never fatal. Refuses to run a target
+    embody.py that differs from the shipped one (a cloned repo could have planted
+    code there), mirroring the claude-binary guard."""
     card = target / "wiki" / "agents" / "microwave.md"
     embodier = target / "embodiment" / "embody.py"
+    trusted = payload / "embodiment" / "embody.py"
     if not (card.is_file() and embodier.is_file()):
+        return
+    if trusted.is_file() and embodier.read_bytes() != trusted.read_bytes():
+        print("  (skipping the desktop icon: this repo's embodiment/embody.py differs")
+        print("   from the shipped one; run it yourself if you trust it)")
         return
     if not _confirm("Put a Microwave icon on your desktop (opens this repo in a terminal)?"):
         return
@@ -276,9 +284,13 @@ def _uninstall(target: Path, payload: Path) -> None:
         idx.unlink()
         removed += 1
     co = target / "CODEOWNERS"
-    if co.is_file() and "@your-gatekeeper" in co.read_text(encoding="utf-8"):
-        co.unlink()
-        removed += 1
+    co_src = payload / "CODEOWNERS"
+    if co.is_file() and co_src.is_file():
+        installed = co_src.read_text(encoding="utf-8").replace(
+            "@microphage-create", "@your-gatekeeper")
+        if co.read_text(encoding="utf-8") == installed:
+            co.unlink()
+            removed += 1
     hook = target / ".git" / "hooks" / "pre-commit"
     src_hook = payload / "hooks" / "pre-commit"
     backup = target / ".git" / "hooks" / "pre-commit.pre-microwave"
@@ -391,8 +403,8 @@ def main() -> None:
             _ok("git repo initialized" if init.returncode == 0
                 else "git not found (install git so the gates can guard the repo)")
         if _is_git_repo(target):
-            _ok(_wire_hook(target))
-        _embody_agent_zero(target)
+            _ok(_wire_hook(target, payload))
+        _embody_agent_zero(target, payload)
         agent_path, refused = _resolve_agent(target)
         if refused is not None:
             print(f"\nRefusing to auto-launch: 'claude' resolved to a binary inside\n"

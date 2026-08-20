@@ -540,5 +540,58 @@ class TestJsoncStrip(unittest.TestCase):
         self.assertEqual(d["b"], [1, 2])           # a real trailing comma dropped
 
 
+EMBODIED_STAGING_CARD = """---
+type: agent-card
+kind: service
+name: test-body
+slug: test-body
+status: staging
+blast_radius: write
+mission: sorts and moves files and logs what it changed
+definition_path: flows/test-body.md
+owner: "@me"
+synonyms: [writer, body, mover]
+embodiment:
+  display_name: test-body
+  icon: embodiment/icons/test-body.png
+  palette:
+    bg: "#14181a"
+    fg: "#e6ebeb"
+    accent: "#7f93a8"
+  embodied: false
+brief:
+  success_criteria:
+    - "the change is logged (check: a test greps the log for today's date)"
+  volume_cap: 10 files per run
+  abort_conditions: stop if a path escapes the target folder
+---
+
+# test-body
+
+## Interfaces
+
+Writes moved files under the target folder and logs each change.
+"""
+
+
+class TestGateEmbodiment(unittest.TestCase):
+    """Regression: the pre-commit hook copies the staged card into a bare tmp
+    dir (no repo above it) and runs the per-file gates on it. gate_embodiment
+    must locate the repo root via cwd there, or NO embodied agent can ever be
+    committed. write_card() reproduces that exact tmp-dir layout."""
+
+    def test_embodied_card_in_tmpdir_does_not_crash_on_repo_root(self):
+        rc, out = run_gate("gate_embodiment.py",
+                           write_card(EMBODIED_STAGING_CARD, slug="test-body"))
+        self.assertNotIn("cannot locate repo root", out)
+        self.assertEqual(rc, 0, out)
+
+    def test_read_only_bodiless_card_in_tmpdir_passes(self):
+        # a bodiless read card must also survive the tmp-dir root lookup
+        rc, out = run_gate("gate_embodiment.py", write_card(VALID_READ_CARD))
+        self.assertNotIn("cannot locate repo root", out)
+        self.assertEqual(rc, 0, out)
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -22,7 +22,17 @@ def main(card: str) -> None:
         fm, _ = read_frontmatter(path)
     except GateError as e:
         fail(GATE, str(e))
-    root = repo_root(path.parent)
+    # The pre-commit hook validates a staged blob copied into a tmp dir, so the
+    # card's own parent has no repo above it; fall back to cwd (the repo root at
+    # commit time), the same tolerance gate_testable uses. CI re-runs on the real
+    # tree. Without this, no embodied agent can ever pass the hook.
+    root = None
+    for start in (path.resolve().parent, Path.cwd()):
+        try:
+            root = repo_root(start)
+            break
+        except GateError:
+            continue
     powerful = get(fm, "blast_radius") in ("write", "spend", "prod")
 
     name = str(get(fm, "embodiment.display_name") or "").strip()
@@ -42,7 +52,7 @@ def main(card: str) -> None:
         if not HEX.match(val):
             fail(GATE, f"{path.name}: embodiment.palette.{key}={val!r} is not #rrggbb")
 
-    if get(fm, "embodiment.embodied") is True and not (root / icon).exists():
+    if get(fm, "embodiment.embodied") is True and root is not None and not (root / icon).exists():
         fail(GATE, f"{path.name}: embodied is true but icon file not found: {icon}")
     # Embodiment is mandatory only for agents that can do damage (ADR-003):
     # a read-only agent may activate bodiless. write/spend/prod must have a
@@ -53,7 +63,7 @@ def main(card: str) -> None:
             fail(GATE, f"{path.name}: a {get(fm, 'blast_radius')} agent must be "
                        f"embodied before activation. Run: "
                        f"python embodiment/embody.py {card}")
-        if not (root / icon).exists():
+        if root is not None and not (root / icon).exists():
             fail(GATE, f"{path.name}: icon file not found: {icon}")
     embodied = get(fm, "embodiment.embodied") is True
     ok(GATE, f"{path.name}: body manifest ok"

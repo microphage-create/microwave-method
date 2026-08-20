@@ -1,5 +1,6 @@
 ---
 type: agent-card
+kind: service
 name: Librarian
 slug: librarian
 status: active

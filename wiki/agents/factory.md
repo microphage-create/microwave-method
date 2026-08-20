@@ -1,5 +1,6 @@
 ---
 type: agent-card
+kind: service
 name: Factory
 slug: factory
 status: active

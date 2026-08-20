@@ -49,6 +49,13 @@ def write_card(text: str, slug: str = "test-reader") -> Path:
     return p
 
 
+def repo_with_index(index_body: str) -> Path:
+    root = Path(tempfile.mkdtemp())
+    (root / "wiki").mkdir()
+    (root / "wiki" / "INDEX.md").write_text(index_body, encoding="utf-8")
+    return root
+
+
 class TestGateSchema(unittest.TestCase):
     def test_valid_read_card_passes(self):
         rc, out = run_gate("gate_schema.py", write_card(VALID_READ_CARD))
@@ -193,6 +200,94 @@ class TestSlopBlanking(unittest.TestCase):
         # the offsets in a slop report must stay accurate: blank, don't delete
         src = "one\n```\ntwo\nthree\n```\nfour\n"
         self.assertEqual(gate_slop._blank_quoted(src).count("\n"), src.count("\n"))
+
+
+FED_CARD = """---
+type: agent-card
+name: Invoice Parser
+slug: invoice-parser
+status: staging
+blast_radius: read
+mission: parse invoices and extract line totals from pdfs
+definition_path: flows/invoice-parser.md
+owner: "@me"
+synonyms: []
+brief:
+  success_criteria:
+    - "totals match (check: a test sums line items and compares)"
+  volume_cap: 10 files per run
+  abort_conditions: stop if a path escapes the target folder
+---
+
+# Invoice Parser
+
+Reads PDFs. Writes nothing.
+"""
+
+FED_AGENT_LINE = ("- [agent] invoice-parser: parse invoices and extract line "
+                  "totals from pdfs → flows/invoice-parser.md\n")
+
+
+class TestFederatedIndex(unittest.TestCase):
+    """A card overlapping an agent that lives ONLY in a federated repo must be
+    caught, and the hit must name the repo that already holds it. Without the
+    federation manifest, the same card is green: proof it is federation, not the
+    local registry, doing the catching."""
+
+    def _local_with_card(self, federated=None):
+        local = repo_with_index("# Registry index\n")  # no agent lines locally
+        agents = local / "wiki" / "agents"
+        agents.mkdir()
+        card = agents / "invoice-parser.md"
+        card.write_text(FED_CARD, encoding="utf-8")
+        if federated is not None:
+            (local / ".microwave").mkdir()
+            (local / ".microwave" / "federation").write_text(
+                str(federated) + "\n", encoding="utf-8")
+        return local, card
+
+    def test_no_manifest_is_local_only(self):
+        import federated_index
+        local = repo_with_index("- [agent] a: x → p\n- [agent] b: y → q\n")
+        lines = federated_index.federated_index_lines(local)
+        self.assertEqual(len(lines), 2)
+        self.assertTrue(all(src is None for src, _ in lines))
+
+    def test_manifest_tags_foreign_lines_with_repo_name(self):
+        import federated_index
+        fed = repo_with_index(FED_AGENT_LINE)
+        local, _ = self._local_with_card(federated=fed)
+        foreign = [(s, l) for s, l in federated_index.federated_index_lines(local)
+                   if s is not None]
+        self.assertEqual(len(foreign), 1)
+        self.assertEqual(foreign[0][0], fed.name)
+
+    def test_absent_federated_repo_is_skipped_not_fatal(self):
+        import federated_index
+        local, _ = self._local_with_card(federated=Path(tempfile.mkdtemp()) / "gone")
+        lines = federated_index.federated_index_lines(local)  # must not raise
+        self.assertTrue(all(src is None for src, _ in lines))
+
+    def test_self_reference_in_manifest_is_excluded(self):
+        import federated_index
+        local = repo_with_index("- [agent] a: x → p\n")
+        (local / ".microwave").mkdir()
+        (local / ".microwave" / "federation").write_text(
+            str(local) + "\n", encoding="utf-8")  # points at itself
+        lines = federated_index.federated_index_lines(local)
+        self.assertEqual(len(lines), 1)  # not doubled
+
+    def test_antidup_catches_cross_repo_duplicate(self):
+        fed = repo_with_index(FED_AGENT_LINE)
+        _, card = self._local_with_card(federated=fed)
+        rc, out = run_gate("gate_antidup.py", card)
+        self.assertEqual(rc, 1, out)
+        self.assertIn(fed.name, out)  # the message names the repo holding the dup
+
+    def test_antidup_green_without_federation(self):
+        _, card = self._local_with_card(federated=None)
+        rc, out = run_gate("gate_antidup.py", card)
+        self.assertEqual(rc, 0, out)
 
 
 if __name__ == "__main__":

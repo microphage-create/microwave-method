@@ -13,7 +13,8 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent))
-from _lib import GateError, fail, get, index_lines, ok, read_frontmatter, repo_root, tokenize
+from _lib import GateError, fail, get, ok, read_frontmatter, repo_root, tokenize
+from federated_index import federated_index_lines
 
 GATE = "gate_antidup"
 THRESHOLD = 0.34
@@ -34,15 +35,19 @@ def main(card: str) -> None:
         fail(GATE, f"{path.name}: empty mission/synonyms, nothing to compare")
 
     hits = []
-    for line in index_lines(root):
-        if f"] {slug}:" in line or f"] {slug} " in line or line.endswith(f"/{path.name}"):
-            continue  # the card's own line
+    for src, line in federated_index_lines(root):
+        if src is None and (
+            f"] {slug}:" in line or f"] {slug} " in line or line.endswith(f"/{path.name}")
+        ):
+            continue  # the card's own line (local only; a same-slug line in a
+            # federated repo is the cross-repo duplicate we want to surface)
         line_words = tokenize(line)
         if not line_words:
             continue
         jaccard = len(words & line_words) / len(words | line_words)
         if jaccard >= THRESHOLD:
-            hits.append((round(jaccard, 2), line))
+            shown = line if src is None else f"[{src}] {line}"
+            hits.append((round(jaccard, 2), shown))
 
     if hits:
         rationale = str(get(fm, "anti_dup_rationale") or "").strip()

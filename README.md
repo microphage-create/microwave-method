@@ -31,12 +31,17 @@ nobody can map?**
 > inventory, and a lifecycle that retires the dead. Open source you install in
 > your repo, not a SaaS you buy.
 
-Scope, precisely: the governed memory and the anti-dup registry live in a repo,
-so each repo gets its own clean, git-native registry. An agent is not locked to
-one, though: install Microwave in as many repos as you want, and a
-contextualizing agent can span several. Cross-repo anti-dup (a shared or
-federated registry) is a natural extension, not a wall; the per-repo discipline
-is the layer an enterprise-wide rollup builds on, not a ceiling.
+Scope, precisely. There are two layers, don't conflate them. The **agent** is
+never bound to a single repo: a contextualizing agent (a skill that carries a
+repo's conventions into a session) already spans as many repos as the work needs.
+That is the design, not a workaround. The governed memory and the lexical anti-dup
+**registry** live inside a repo, so every repo gets a clean, git-native inventory
+with no server to run. Rolling those per-repo registries into one org-wide anti-dup
+is shipped, not promised: declare sibling repos in `.microwave/federation` and
+`gate_antidup` checks a new card against every one of them at once, naming the repo
+that already holds an overlap; `python gates/federated_index.py` prints the
+cross-repo map. The per-repo registry is the unit an enterprise view aggregates,
+not a ceiling it hits.
 
 ## Why "Microwave"
 

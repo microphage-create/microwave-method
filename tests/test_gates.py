@@ -525,5 +525,20 @@ class TestScanEstate(unittest.TestCase):
         self.assertEqual(scan_estate._duplicate_slugs(plan["contexts"]), ["my-app"])
 
 
+class TestJsoncStrip(unittest.TestCase):
+    """The Windows adapter rewrites the user's settings.json; stripping trailing
+    commas must not reach inside string values (silent corruption)."""
+
+    def test_string_interior_preserved_trailing_comma_removed(self):
+        import json
+        adapters = Path(__file__).resolve().parent.parent / "embodiment" / "adapters"
+        sys.path.insert(0, str(adapters))
+        import windows
+        src = '{"a": "Solarized, ]", "b": [1, 2,], }'
+        d = json.loads(windows._strip_jsonc(src))
+        self.assertEqual(d["a"], "Solarized, ]")  # comma+bracket inside a string kept
+        self.assertEqual(d["b"], [1, 2])           # a real trailing comma dropped
+
+
 if __name__ == "__main__":
     unittest.main()

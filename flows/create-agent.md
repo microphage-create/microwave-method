@@ -8,12 +8,15 @@ is set by the agent's blast radius, not your mood (ADR-003). Two paths.
 For an agent whose `blast_radius` is `read` (reads only, never writes,
 spends, or touches production):
 
-1. **Spec** the card (`templates/agent-card.md`): mission, I/O, the
-   3-section brief, done-criteria with executable checks. Write it to
-   `wiki/_staging/<slug>.md`. Embodiment is OPTIONAL here (`embodied` may
-   stay false): a throwaway read-only agent needs no desktop body.
+1. **Spec** the card (`templates/agent-card.md`). First set `kind` (ADR-028): a
+   **context** agent guards one repo, so set `kind: context` and name it with
+   `repo:`; a **service** is transversal and reusable, so `kind: service` and no
+   `repo:`. Then: mission, I/O, the 3-section brief, done-criteria with executable
+   checks, and `uses:` listing any services it calls (each must resolve). Write it
+   to `wiki/_staging/<slug>.md`. Embodiment is OPTIONAL here (`embodied` may stay
+   false): a throwaway read-only agent needs no desktop body.
 2. **Gate**: `python gates/run_gates.py wiki/_staging/<slug>.md` (anti-dup,
-   brief, schema, testable, embodiment, slop, wiki, all bundled). Fix reds, re-run.
+   brief, schema, testable, embodiment, uses, slop, wiki, all bundled). Fix reds, re-run.
 3. **Activate**: `python gates/activate.py wiki/_staging/<slug>.md`. Done,
    nobody to wait for.
 

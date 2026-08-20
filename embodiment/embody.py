@@ -44,11 +44,21 @@ class Identity:
         if not schema.SLUG_RE.match(self.slug):
             raise GateError(f"{card_path.name}: slug {self.slug!r} must match "
                             f"{schema.SLUG_RE.pattern} (it names files and profiles)")
+        if get(fm, "embodiment") in (None, "", {}):
+            raise GateError(f"{card_path.name}: no embodiment block, nothing to embody. "
+                            f"A read-only agent stays bodiless; only write/spend/prod "
+                            f"agents are embodied.")
         self.name = str(get(fm, "embodiment.display_name"))
         if not schema.NAME_RE.match(self.name):
             raise GateError(f"{card_path.name}: display_name {self.name!r} must "
                             f"match {schema.NAME_RE.pattern}")
-        self.icon_src = ROOT / str(get(fm, "embodiment.icon"))
+        icon_rel = str(get(fm, "embodiment.icon") or "")
+        self.icon_src = (ROOT / icon_rel).resolve()
+        try:
+            self.icon_src.relative_to(ROOT.resolve())
+        except ValueError:
+            raise GateError(f"{card_path.name}: embodiment.icon must live inside the "
+                            f"repo (got {icon_rel!r}); no absolute or ../ paths")
         self.bg = str(get(fm, "embodiment.palette.bg"))
         self.fg = str(get(fm, "embodiment.palette.fg"))
         self.accent = str(get(fm, "embodiment.palette.accent"))

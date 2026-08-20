@@ -19,12 +19,15 @@ def _terminal_cmd(ident) -> str:
     literally and can never work."""
     launch = ident.launch or "exec $SHELL"
     inner = f"cd {shlex.quote(str(ident.repo))} && {launch}"
+    # freedesktop Exec quotes with double quotes, not single; a multi-word
+    # display_name in single quotes would split. NAME_RE forbids ", $, \, `,
+    # so double-quoting the name is safe.
     if shutil.which("kitty"):
-        return f"kitty --title '{ident.name}' bash -lc \"{inner}\""
+        return f'kitty --title "{ident.name}" bash -lc "{inner}"'
     if shutil.which("wezterm"):
-        return f"wezterm start -- bash -lc \"{inner}\""
+        return f'wezterm start -- bash -lc "{inner}"'
     if shutil.which("gnome-terminal"):
-        return f"gnome-terminal --title='{ident.name}' -- bash -lc \"{inner}\""
+        return f'gnome-terminal --title="{ident.name}" -- bash -lc "{inner}"'
     for candidate in ("x-terminal-emulator", "xdg-terminal-exec", "konsole", "xterm"):
         if shutil.which(candidate):
             return f"{candidate} -e bash -lc \"{inner}\""

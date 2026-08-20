@@ -26,6 +26,7 @@ def _strip_jsonc(text: str) -> str:
     Comments are NOT preserved on rewrite; the timestamped backup keeps the
     original."""
     out, i, in_str, esc = [], 0, False, False
+    pending = None  # index in `out` of a comma that may be trailing (outside strings)
     while i < len(text):
         ch = text[i]
         if in_str:
@@ -39,7 +40,7 @@ def _strip_jsonc(text: str) -> str:
             i += 1
             continue
         if ch == '"':
-            in_str, esc = True, False
+            in_str, esc, pending = True, False, None  # a value ends any trailing comma
             out.append(ch)
             i += 1
         elif text.startswith("//", i):
@@ -48,10 +49,26 @@ def _strip_jsonc(text: str) -> str:
         elif text.startswith("/*", i):
             j = text.find("*/", i + 2)
             i = len(text) if j == -1 else j + 2
+        elif ch == ",":
+            out.append(ch)
+            pending = len(out) - 1
+            i += 1
+        elif ch in "}]":
+            if pending is not None:
+                out[pending] = ""  # drop a genuine trailing comma
+            out.append(ch)
+            pending = None
+            i += 1
+        elif ch.isspace():
+            out.append(ch)  # whitespace keeps a pending comma alive
+            i += 1
         else:
             out.append(ch)
+            pending = None
             i += 1
-    return re.sub(r",(\s*[}\]])", r"\1", "".join(out))
+    # trailing commas are handled in-scan (string-aware); a comma inside a string
+    # value like "Solarized, ]" is never touched.
+    return "".join(out)
 
 
 def _load() -> dict:

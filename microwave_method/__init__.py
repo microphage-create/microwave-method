@@ -19,7 +19,7 @@ import sys
 from pathlib import Path
 
 PAYLOAD_DIRS = ["flows", "templates", "techniques", "slop", "gates",
-                "embodiment", "hooks", "harness"]
+                "embodiment", "hooks", "harness", ".claude/commands"]
 WIKI_SPACES = ["agents", "adr", "projects", "_staging", "_archive"]
 WIKI_INDEX = (
     "# Registry index\n\n"
@@ -340,19 +340,12 @@ def _embody_agent_zero(target: Path, payload: Path) -> None:
 
     # A tiny wizard: permissions, terminal colour, icon. Every step has a safe
     # default, so pressing Enter through it all gives the classic Microwave look.
-    #
-    # `claude` alone opens an empty prompt and waits: a fresh terminal session
-    # never acts on its own just because CLAUDE.md says so, it needs a first
-    # message. So the launch line always ends with one, self-checking: on a
-    # fresh install it starts the welcome flow, on every later open it is a
-    # one-file read that goes nowhere. LAUNCH_FORBIDDEN (gate_schema) bars
-    # quotes/shell metacharacters here, hence the punctuation-free phrasing.
-    first_turn = ("If wiki/INDEX.md lists only microwave under Agents start "
-                  "flows/welcome.md now otherwise wait for my next message")
-    launch = f"claude {first_turn}"
+    # The windows adapter primes any 'claude' launch with a first message
+    # (a session never acts on CLAUDE.md alone), so this stays plain here.
+    launch = "claude"
     if _confirm("  Start Claude with permissions pre-approved "
                 "(skips the per-action prompts)?", default=False):
-        launch = f"claude --dangerously-skip-permissions {first_turn}"
+        launch = "claude --dangerously-skip-permissions"
 
     palette = _choose("Terminal colour:", _PALETTES, default=0)
 

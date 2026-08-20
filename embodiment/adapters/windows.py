@@ -100,6 +100,24 @@ def _psq(s: object) -> str:
     return str(s).replace("'", "''")
 
 
+def _prime_claude_launch(launch: str, slug: str) -> str:
+    """`claude` alone opens an interactive prompt and waits: a session never
+    acts on its own, it needs a first message. `claude --help` shows a single
+    positional `[prompt]` argument, not variadic words, so it must arrive
+    quoted as one token. ident.launch itself stays gate-restricted (no quotes
+    allowed, checked by the caller); the quoting happens here, in trusted
+    code, around `/<slug>` - the actual Claude Code skill this agent ships as
+    (embody.py's caller is responsible for that skill file existing). This is
+    the real entry point, not a free-text nudge: every embodied agent gets its
+    own slash command invoked the same way, agent zero included."""
+    stripped = launch.strip()
+    if stripped != "claude" and not stripped.startswith("claude "):
+        return launch
+    flags = stripped[len("claude"):].strip()
+    quoted = f"'/{_psq(slug)}'"
+    return f"claude {flags} {quoted}".replace("  ", " ") if flags else f"claude {quoted}"
+
+
 def _profile(ident, ico: Path) -> dict:
     launch = ident.launch or ""
     # defense in depth: launch is interpolated into a PowerShell command, so it
@@ -108,6 +126,7 @@ def _profile(ident, ico: Path) -> dict:
     if launch and set(";&|`$<>(){}[]\"'\\\n\r").intersection(launch):
         raise RuntimeError("embodiment.launch has a shell metacharacter; it must "
                            "pass gate_schema before embodiment")
+    launch = _prime_claude_launch(launch, ident.slug)
     inner = f"cd '{_psq(ident.repo)}'" + (f"; {launch}" if launch else "")
     return {
         "name": ident.name,

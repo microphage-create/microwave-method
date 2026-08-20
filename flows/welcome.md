@@ -27,24 +27,23 @@ Confirm the basics quietly and fix or explain, do not fail in their face:
 
 Report readiness in one friendly sentence. Do not list what you checked.
 
-## Step 1: Calibrate to the person, in one fluid question
+## Step 1: Open plainly, no calibration quiz
 
-Do not ask "are you a beginner or an expert" (nobody rates themselves well).
-Show the choice and read which one they pick:
+Do not quiz the person about their level, and never disguise a register-check as
+a choice of actions. A menu whose options secretly do the same thing reads as a
+trick and breaks trust on the very first screen. Default to plain, concrete
+language: name things by what the user would recognize, not by their internal
+term. Read how much detail they want from how they actually write to you, and
+just offer more when it fits ("I can go into the technical detail whenever you
+want"). If they write in dense technical shorthand, match it; otherwise stay
+plain. No A/B, no meta-instructions to memorize.
 
-> Quick thing so I match how you like to work. Which sounds better?
-> A) "I'll scan your `.claude/` directory and index your agents into the registry."
-> B) "I'll look at the tools you already have and make you a clean list."
+Open with what happens next, and a single yes:
 
-A leans expert: keep the vocabulary, go denser, explain less. B leans plain: no
-jargon, name things by what they recognize, explain a little more, hold their
-hand more. Set the whole flow's register from that one answer, and say they can
-switch anytime ("tell me 'go simpler' or 'go expert' whenever"). One question,
-no form, it flows.
+> Microwave maps the agents you already have and brings them under one roof, one
+> at a time. First I only look, nothing is changed or deleted. Ready?
 
-Then, in that register: "Microwave maps the agents you already have and brings
-them under one roof, one at a time. First I just look, nothing is changed or
-deleted. Ready?" Wait for yes.
+Wait for yes.
 
 ## Step 2: The first scan (delegate to adopt)
 

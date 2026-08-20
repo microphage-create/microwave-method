@@ -12,6 +12,7 @@ from __future__ import annotations
 
 import importlib.resources as resources
 import os
+import re
 import shutil
 import subprocess
 import sys
@@ -35,7 +36,7 @@ try:
     from importlib.metadata import version as _pkg_version
     VERSION = _pkg_version("microwave-method")
 except Exception:
-    VERSION = "0.1.5"
+    VERSION = "0.1.6"
 
 
 def _enable_ansi() -> bool:
@@ -106,7 +107,7 @@ def _copy_tree(src: Path, dst: Path) -> int:
         return 0
     for root, _dirs, files in os.walk(src):
         rel = Path(root).relative_to(src)
-        if "icons" in rel.parts or "__pycache__" in rel.parts:
+        if "__pycache__" in rel.parts or ("icons" in rel.parts and "build" in rel.parts):
             continue
         for name in files:
             if name.endswith((".pyc", ".pyo")):
@@ -145,6 +146,52 @@ def _confirm(question: str, default: bool = True) -> bool:
     if not answer:
         return default
     return answer in ("y", "yes", "o", "oui")
+
+
+def _ask(question: str) -> str:
+    """Free-text prompt. Non-interactive, piped, or MICROWAVE_NO_LAUNCH=1: return
+    "" so an unattended run stays inert and takes every default."""
+    if os.environ.get("MICROWAVE_NO_LAUNCH") == "1":
+        return ""
+    if not (sys.stdin and sys.stdin.isatty()):
+        return ""
+    try:
+        return input(f"{question} ").strip()
+    except (EOFError, KeyboardInterrupt):
+        return ""
+
+
+def _png_256(p: Path) -> bool:
+    """True if p is a 256x256 PNG (what embody.py requires), read from the header
+    with no third-party lib."""
+    try:
+        data = p.read_bytes()[:24]
+    except OSError:
+        return False
+    if data[:8] != b"\x89PNG\r\n\x1a\n" or data[12:16] != b"IHDR":
+        return False
+    w = int.from_bytes(data[16:20], "big")
+    h = int.from_bytes(data[20:24], "big")
+    return (w, h) == (256, 256)
+
+
+def _patch_card(card: Path, launch: str, icon_rel: str) -> None:
+    """Rewrite only the agent-zero card's launch/icon lines, in place, to the
+    values the user chose. Leaves the rest of the card untouched."""
+    try:
+        lines = card.read_text(encoding="utf-8").splitlines(keepends=True)
+    except OSError:
+        return
+    out = []
+    for ln in lines:
+        m = re.match(r"^(\s*)(launch|icon):\s", ln)
+        if m and m.group(2) == "launch":
+            out.append(f"{m.group(1)}launch: {launch}\n")
+        elif m and m.group(2) == "icon":
+            out.append(f"{m.group(1)}icon: {icon_rel}\n")
+        else:
+            out.append(ln)
+    card.write_text("".join(out), encoding="utf-8")
 
 
 def _wire_hook(target: Path, payload: Path) -> str:
@@ -238,19 +285,46 @@ def _embody_agent_zero(target: Path, payload: Path) -> None:
         print("  (skipping the desktop icon: this repo's embodiment/embody.py differs")
         print("   from the shipped one; run it yourself if you trust it)")
         return
-    if not _confirm("Put a Microwave icon on your desktop (opens this repo in a terminal)?"):
+    if not _confirm("Put a Microwave launcher on your desktop (opens this repo in a terminal)?"):
         return
+
+    # Two quick choices, each with a safe default so pressing Enter just works.
+    launch = "claude"
+    if _confirm("  Start Claude with permissions pre-approved "
+                "(skips the per-action prompts)?", default=False):
+        launch = "claude --dangerously-skip-permissions"
+
+    icon_rel = "embodiment/icons/microwave.png"
+    want = _ask("  Icon: press Enter for the Microwave M, or paste a path to your "
+                "own 256x256 .png:")
+    if want:
+        src = Path(want.strip('"').strip("'")).expanduser()
+        if _png_256(src):
+            safe = re.sub(r"[^A-Za-z0-9._-]", "-", src.stem)[:40] or "custom"
+            dst = target / "embodiment" / "icons" / f"{safe}.png"
+            try:
+                dst.parent.mkdir(parents=True, exist_ok=True)
+                shutil.copy2(src, dst)
+                icon_rel = f"embodiment/icons/{safe}.png"
+            except OSError as exc:
+                print(f"  (couldn't use that image, keeping the Microwave M: {exc})")
+        else:
+            print("  (that file isn't a 256x256 PNG, keeping the Microwave M)")
+
+    _patch_card(card, launch, icon_rel)
+
     try:
         r = subprocess.run([sys.executable, str(embodier), str(card)],
                            cwd=str(target), capture_output=True, text=True)
     except OSError as exc:
-        print(f"  (no desktop icon: {exc})")
+        print(f"  (couldn't place the launcher this time: {exc})")
         return
     if r.returncode == 0:
-        print(f"  {_c('32')}+{_c('0')} Microwave icon on your desktop")
+        extra = "  (permissions pre-approved)" if "skip-permissions" in launch else ""
+        print(f"  {_c('32')}+{_c('0')} launcher on your desktop{extra}")
     else:
         tail = (r.stderr or r.stdout).strip().splitlines()
-        print(f"  (no desktop icon this time: {tail[-1] if tail else 'embodiment skipped'})")
+        print(f"  (couldn't place the launcher this time: {tail[-1] if tail else 'embodiment skipped'})")
 
 
 def _uninstall(target: Path, payload: Path) -> None:
@@ -404,11 +478,12 @@ def main() -> None:
     zero = wiki / "agents" / "microwave.md"
     if not zero.exists() and zero_src.is_file():
         shutil.copy2(zero_src, zero)
-    _ok(f"{copied} files copied, wiki seeded, CI + CODEOWNERS dropped")
+    _ok(f"{copied} files installed: memory, quality gates, and CODEOWNERS in place")
 
     # Side effects (git init, hook, launching your agent) only with a yes.
     proceed = _confirm(
-        "Set up git here (if needed), wire the hook, and open the welcome flow now?")
+        "Set up git here (if needed), install the pre-commit check, and start the "
+        "guided setup now?")
     if proceed:
         if not _is_git_repo(target):
             init = subprocess.run(["git", "-C", str(target), "init"],

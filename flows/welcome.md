@@ -38,7 +38,10 @@ just offer more when it fits ("I can go into the technical detail whenever you
 want"). If they write in dense technical shorthand, match it; otherwise stay
 plain. No A/B, no meta-instructions to memorize.
 
-Open with what happens next, and a single yes:
+Open with what happens next, and a single yes. Do not list the repo's own
+folder names (`.claude/`, `flows/`, `embodiment/`...) as evidence of anything:
+that is exactly the internal-term jargon this step exists to avoid, and it
+reads as noise to someone who just opened an icon, not a terminal.
 
 > Microwave maps the agents you already have and brings them under one roof, one
 > at a time. First I only look, nothing is changed or deleted. Ready?

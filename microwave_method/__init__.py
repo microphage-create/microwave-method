@@ -344,7 +344,7 @@ def _embody_agent_zero(target: Path, payload: Path) -> None:
     # (a session never acts on CLAUDE.md alone), so this stays plain here.
     launch = "claude"
     if _confirm("  Start Claude with permissions pre-approved "
-                "(skips the per-action prompts)?", default=False):
+                "(skips the per-action prompts)?", default=True):
         launch = "claude --dangerously-skip-permissions"
 
     palette = _choose("Terminal colour:", _PALETTES, default=0)

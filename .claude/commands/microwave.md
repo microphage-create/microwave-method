@@ -4,7 +4,51 @@ This is the entry point of a Microwave-governed repo: the skill that creates
 and modifies every other agent in it. Run this first thing, every time a
 session opens here.
 
-## Step 0: bootstrap, if you are not installed yet
+## Step 0: the banner, always, before a single tool call
+
+Print this immediately, before reading a file or running anything: no Bash
+call, no file search comes before it, not even the bootstrap check below.
+Print the fenced block below exactly, character for character, nothing
+added or reflowed inside it: a bordered frame with the M centered, then the
+agent's name and a one-line title of what it does printed inside the same
+frame, same as the CLI installer's own splash. This is the visual signature,
+not decoration: the same framed M every time is how someone opening ten
+different agents this week still recognizes the family at a glance, and
+seeing it first is what makes the tool calls that follow feel like part of
+something, not raw noise. **Every skill in this method follows this exact
+nomenclature**, no exceptions: `flows/create-agent.md` must give every agent
+it makes this same frame, its own name, and its own one-line title; agent
+zero is not a special case, it is the template the others copy.
+
+```
++----------------------------------------------+
+|                                              |
+|     ⣾⣿⣿⣿⣿⣿⣿⣿⣧⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢰⣿⣿⣿⣿⣿⣿⣿⣿⡄⠀⠀⠀⠀     |
+|     ⣿⣿⣿⣿⣿⣿⣿⣿⣿⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢸⣿⣿⣿⣿⣿⣿⣿⣿⡇⠀⠀⠀⠀     |
+|     ⠈⠉⠉⠉⠉⠉⠉⠉⠙⣷⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⡟⠉⠉⠉⠉⠉⠉⠉⠉⢻⣶⣶⣶⣤     |
+|     ⠀⠀⠀⠀⠀⠀⠀⠀⠀⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡇⠀⠀⠀⠀⠀⠀⠀⠀⢸⣿⣿⣿⣿     |
+|     ⠀⠀⠀⠀⢀⣤⣤⣤⣴⣿⣿⣿⣿⡿⠛⠛⠛⠛⠛⠛⠛⠛⠁⠀⠀⠀⠀⣠⣤⣤⣤⡾⠛⠛⠛⠉     |
+|     ⠀⠀⠀⠀⢸⣿⣿⣿⣿⣿⣿⣿⣿⡇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣿⣿⣿⣿⡇⠀⠀⠀⠀     |
+|     ⠀⠀⠀⠀⠘⠿⠿⠿⢿⣿⣿⣿⣿⣧⣀⣀⣀⡀⠀⠀⠀⠀⠀⣀⣀⣀⣠⣿⣿⣿⣿⡇⠀⠀⠀⠀     |
+|     ⠀⠀⠀⠀⠀⠀⠀⠀⠀⣿⣿⣿⣿⣿⣿⣿⣿⣿⠀⠀⠀⠀⢸⣿⣿⣿⣿⣿⣿⣿⣿⡇⠀⠀⠀⠀     |
+|     ⠀⠀⠀⠀⠀⠀⠀⠀⢀⣿⣿⣿⣿⣿⣿⣿⣿⣿⠀⠀⠀⠀⢸⣿⣿⣿⣿⣿⣿⣿⣿⣇⠀⠀⠀⠀     |
+|     ⠀⠀⠀⠀⢰⣿⣿⣿⣿⠁⠀⠀⠀⢹⣿⣿⣿⣿⠀⠀⠀⠀⢸⣿⣿⣿⣿⠁⠀⠀⠀⢹⣿⣿⣿⣷     |
+|     ⠀⠀⠀⠀⢸⣿⣿⣿⣿⠀⠀⠀⠀⢸⣿⣿⣿⣿⠀⠀⠀⠀⢸⣿⣿⣿⡿⠀⠀⠀⠀⢸⣿⣿⣿⣿     |
+|     ⣴⣶⣶⣶⣿⣿⣿⣿⣿⠀⠀⠀⠀⠀⠉⠉⠉⠙⣷⣶⣶⣶⡟⠉⠉⠉⠀⠀⠀⠀⠀⢸⣿⣿⣿⣿     |
+|     ⣿⣿⣿⣿⣿⣿⣿⣿⣿⠀⠀⠀⠀⠀⠀⠀⠀⠀⣿⣿⣿⣿⡇⠀⠀⠀⠀⠀⠀⠀⠀⢸⣿⣿⣿⣿     |
+|     ⣿⣿⣿⣿⣿⣿⣿⣿⣿⠀⠀⠀⠀⠀⠀⠀⠀⠀⠙⠛⠛⠋⠀⠀⠀⠀⠀⠀⠀⠀⠀⢸⣿⣿⣿⣿     |
+|     ⣿⣿⣿⣿⣿⣿⣿⣿⣿⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢸⣿⣿⣿⣿     |
+|     ⠛⠿⠿⠿⣿⣿⣿⣿⣿⣄⣀⣀⣀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣀⣀⣀⣼⠿⠿⠿⠛     |
+|     ⠀⠀⠀⠀⢸⣿⣿⣿⣿⣿⣿⣿⣿⡇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣿⣿⣿⣿⡇⠀⠀⠀⠀     |
+|     ⠀⠀⠀⠀⠘⣿⣿⣿⣿⣿⣿⣿⣿⠃⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢿⣿⣿⣿⠃⠀⠀⠀⠀     |
+|                                              |
+|  Microwave                                   |
+|  the front door, makes every other agent     |
+|                                              |
++----------------------------------------------+
+```
+
+## Step 1: bootstrap, if you are not installed yet
 
 This skill file can exist on its own, dropped into a fresh repo before
 anything else. Check: does `gates/gate_wiki.py` exist here? If not, you are

@@ -475,6 +475,17 @@ class TestSlopSeverity(unittest.TestCase):
         self.assertFalse(rejects, "em-dash must not block")
         self.assertTrue(warns, "em-dash should still warn")
 
+    def test_dive_warns_not_blocks(self):
+        # 'deep dive' / 'dive into' is the sibling tell of 'delve'; warn, not block
+        rejects, warns = self._scan("Let's deep dive into the module.\n")
+        self.assertFalse(rejects, "dive must not block")
+        self.assertTrue(warns, "deep dive should warn")
+
+    def test_plain_prose_without_dive_is_clean(self):
+        # control: ordinary prose must not trip the new rule
+        rejects, warns = self._scan("The module parses the file and returns totals.\n")
+        self.assertFalse(warns, "clean prose must not warn on the dive rule")
+
     def test_placeholder_still_blocks(self):
         rejects, _ = self._scan("Lorem ipsum dolor\n")
         self.assertTrue(rejects, "a leftover placeholder is an objective defect")

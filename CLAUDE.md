@@ -4,8 +4,8 @@ Microwave governs how agents get made here and what they remember. On session
 start, before anything else, get your bearings so you are never wired to
 nothing:
 
-1. Read `wiki/INDEX.md` — the registry. One line per agent: who does what.
-2. Skim the headings in `wiki/adr/` — the decisions that bind this repo.
+1. Read `wiki/INDEX.md`, the registry: one line per agent, who does what.
+2. Skim the headings in `wiki/adr/`: the decisions that bind this repo.
 
 That is the whole ceremony: seconds, not an interrogation. Now you are
 contextualized.

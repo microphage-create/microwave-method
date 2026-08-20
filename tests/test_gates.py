@@ -379,6 +379,32 @@ class TestGateUses(unittest.TestCase):
         self.assertEqual(rc, 0, out)
 
 
+class TestSlopSeverity(unittest.TestCase):
+    """Opinionated style rules warn (never block); objective defects still block.
+    Uses the real shipped slop-rules.csv, so a reclassification regression trips."""
+
+    def _scan(self, text):
+        import gate_slop
+        root = Path(__file__).resolve().parent.parent
+        rules = gate_slop.load_rules(root)
+        p = Path(tempfile.mkdtemp()) / "x.md"
+        p.write_text(text, encoding="utf-8")
+        return gate_slop.scan(p, rules)  # (rejects, warns)
+
+    def test_em_dash_warns_not_blocks(self):
+        rejects, warns = self._scan("a — b\n")
+        self.assertFalse(rejects, "em-dash must not block")
+        self.assertTrue(warns, "em-dash should still warn")
+
+    def test_placeholder_still_blocks(self):
+        rejects, _ = self._scan("Lorem ipsum dolor\n")
+        self.assertTrue(rejects, "a leftover placeholder is an objective defect")
+
+    def test_as_an_ai_still_blocks(self):
+        rejects, _ = self._scan("As an AI, here is the answer.\n")
+        self.assertTrue(rejects, "assistant leakage is an objective defect")
+
+
 class TestScanEstate(unittest.TestCase):
     def _estate(self):
         root = Path(tempfile.mkdtemp())

@@ -54,7 +54,7 @@ pre-commit). The `uvx` path asks before any side effect.
    placeholder.
 5. On the `uvx` path, after your yes: offers to put a Microwave desktop icon
    (agent zero) on your machine, and prints the three hardening steps that
-   cannot be shipped as files — your gatekeeper's handle in CODEOWNERS, adapting
+   cannot be shipped as files: your gatekeeper's handle in CODEOWNERS, adapting
    `harness/claude-settings.example.json` into your harness, and branch
    protection (command provided).
 

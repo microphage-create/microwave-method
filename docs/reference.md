@@ -112,6 +112,7 @@ below is the log of decisions and their current lifecycle status.
 | ADR-026 | Decay gives the wiki an end-of-life, so it does not only grow | accepted |
 | ADR-027 | A federated index carries anti-dup across the repo boundary | accepted |
 | ADR-028 | Agents are context or service, and the model carries the anti-sprawl | accepted |
+| ADR-029 | Self-improvement loop and federated idea-box | proposed |
 
 <!-- microwave:adrs end -->
 

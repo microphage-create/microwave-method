@@ -379,5 +379,38 @@ class TestGateUses(unittest.TestCase):
         self.assertEqual(rc, 0, out)
 
 
+class TestScanEstate(unittest.TestCase):
+    def _estate(self):
+        root = Path(tempfile.mkdtemp())
+        a = root / "my-app"
+        (a / ".git").mkdir(parents=True)
+        (a / "package.json").write_text("{}", encoding="utf-8")
+        (a / "next.config.js").write_text("", encoding="utf-8")
+        b = root / "my-api"
+        (b / ".git").mkdir(parents=True)
+        (b / "pyproject.toml").write_text("", encoding="utf-8")
+        (root / "not-a-repo").mkdir()  # no .git: must be ignored
+        return root
+
+    def test_finds_only_git_repos(self):
+        import scan_estate
+        names = {r.name for r in scan_estate.find_repos(self._estate())}
+        self.assertEqual(names, {"my-app", "my-api"})
+
+    def test_detects_stack_per_repo(self):
+        import scan_estate
+        stacks = {c["repo"]: c["stack"]
+                  for c in scan_estate.propose(self._estate())["contexts"]}
+        self.assertIn("Next.js", stacks["my-app"])
+        self.assertIn("Python", stacks["my-api"])
+
+    def test_proposes_one_context_per_repo_plus_services(self):
+        import scan_estate
+        plan = scan_estate.propose(self._estate())
+        self.assertEqual(len(plan["contexts"]), 2)
+        self.assertTrue(all(c["slug"] for c in plan["contexts"]))
+        self.assertTrue(plan["services"])
+
+
 if __name__ == "__main__":
     unittest.main()

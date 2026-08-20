@@ -44,6 +44,7 @@ agent's blast radius, never the creator's mood (the fast path is 3 steps).
 | `devil-review` | adversarial pass on a creation |
 | `librarian` | wiki curation run |
 | `metrics` | read the ROI, log the invisible |
+| `propose-estate` | scan the user's repos, propose a context/service map |
 | `resume` | pick up where you left off |
 | `save` | atomic session checkpoint |
 | `welcome` | guided onboarding, take the user by the hand |

@@ -46,11 +46,17 @@ class ResolveAgent(unittest.TestCase):
 
 class ShellInstall(unittest.TestCase):
     def test_install_sh_end_to_end(self):
-        import shutil as sh
         import subprocess
         import tempfile
-        if not sh.which("bash"):
+        # Probe a *working* bash, not just one on PATH: on Windows the name
+        # resolves to the WSL launcher, which fails if no distro is installed.
+        try:
+            probe = subprocess.run(["bash", "-c", "echo ok"],
+                                   capture_output=True, text=True)
+        except (OSError, ValueError):
             self.skipTest("bash not available")
+        if probe.returncode != 0 or probe.stdout.strip() != "ok":
+            self.skipTest("no working bash (WSL stub or broken shell)")
         repo = Path(__file__).resolve().parent.parent
         tmp = Path(tempfile.mkdtemp())
         subprocess.run(["git", "-C", str(tmp), "init", "-q"], check=True)

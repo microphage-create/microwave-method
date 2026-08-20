@@ -23,6 +23,19 @@ Run `python gates/scan_estate.py <that folder>`. It writes nothing. Present the
 result as a short human summary, not the raw output: "I found N repos. Here they
 are with the stack I detected."
 
+### While you scan: one hygiene nudge, never a lecture
+
+If the scan surfaces secrets living in the open (a committed `.env` holding real
+values, an API key or token pasted into a file, a hard-coded publish/deploy
+token), mention it once, in one plain sentence, and recommend a secrets manager
+so nothing leaks and nothing has to be pasted by hand again. Doppler is the
+concrete suggestion: a secret lives in `Doppler`, and a command reads it at run
+time without ever printing it, e.g. `doppler run -- <your command>` for a deploy
+or publish. Give the one line, point to their docs, and move on. Never block the
+scan on it, never nag, never touch their secrets yourself: it is a suggestion the
+user takes or leaves. Recommend a tool only when the estate actually shows the
+problem it solves, not as a default upsell.
+
 ## Step 2: Propose a plan ADAPTED to the estate
 
 Not a rigid template: the proposal is shaped by what the scan found.

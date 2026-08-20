@@ -1,6 +1,6 @@
 # Notices
 
-Microwave Method is an original work by Microphage SASU (Romain Bigache), MIT licensed.
+Microwave Method is an original work by Microphage Intelligence (Romain Bigache), MIT licensed.
 
 ## Attribution
 

@@ -325,15 +325,34 @@ def _embody_agent_zero(target: Path, payload: Path) -> None:
         print("  (skipping the desktop icon: this repo's embodiment/embody.py differs")
         print("   from the shipped one; run it yourself if you trust it)")
         return
+    print()
+    print("  One more thing, and it matters more than it looks: this icon becomes")
+    print("  your front door. From now on you open Microwave from here, not from a")
+    print("  plain terminal, so every session already knows the method and the")
+    print("  registry instead of you rebuilding that context by hand each time.")
+    print("  It is agent zero: the one that makes every other agent, skill, or")
+    print("  repo from here on, and it may add more icons of its own as you build")
+    print("  things worth their own launcher. Lose this one and you lose the door")
+    print("  back in, so it is worth the ten seconds below.")
+    print()
     if not _confirm("Put a Microwave launcher on your desktop (opens this repo in a terminal)?"):
         return
 
     # A tiny wizard: permissions, terminal colour, icon. Every step has a safe
     # default, so pressing Enter through it all gives the classic Microwave look.
-    launch = "claude"
+    #
+    # `claude` alone opens an empty prompt and waits: a fresh terminal session
+    # never acts on its own just because CLAUDE.md says so, it needs a first
+    # message. So the launch line always ends with one, self-checking: on a
+    # fresh install it starts the welcome flow, on every later open it is a
+    # one-file read that goes nowhere. LAUNCH_FORBIDDEN (gate_schema) bars
+    # quotes/shell metacharacters here, hence the punctuation-free phrasing.
+    first_turn = ("If wiki/INDEX.md lists only microwave under Agents start "
+                  "flows/welcome.md now otherwise wait for my next message")
+    launch = f"claude {first_turn}"
     if _confirm("  Start Claude with permissions pre-approved "
                 "(skips the per-action prompts)?", default=False):
-        launch = "claude --dangerously-skip-permissions"
+        launch = f"claude --dangerously-skip-permissions {first_turn}"
 
     palette = _choose("Terminal colour:", _PALETTES, default=0)
 

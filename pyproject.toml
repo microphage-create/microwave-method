@@ -9,7 +9,7 @@ description = "An agent factory with a governed memory. One command drops it int
 readme = "README.md"
 requires-python = ">=3.10"
 license = "MIT"
-authors = [{ name = "Microphage" }]
+authors = [{ name = "Microphage Intelligence" }]
 keywords = ["agents", "governance", "wiki", "factory", "llm"]
 
 # No runtime dependencies: the installer and the gates are Python stdlib only

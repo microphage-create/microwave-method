@@ -329,11 +329,20 @@ def main() -> None:
 
     if "--dry-run" in sys.argv or os.environ.get("MICROWAVE_DRY_RUN") == "1":
         planned = _install_plan(target, payload)
-        print(f"\nMicrowave dry-run: {len(planned)} file(s) would be created in")
-        print(f"{target}")
-        print("(additive: existing files are never overwritten)\n")
+        appends = []
+        for ctx in ("CLAUDE.md", "AGENTS.md"):
+            dst = target / ctx
+            if (dst.exists() and (payload / ctx).is_file()
+                    and "runs on Microwave" not in dst.read_text(encoding="utf-8", errors="replace")):
+                appends.append(dst)
+        print(f"\nMicrowave dry-run in {target}\n")
+        print(f"{len(planned)} file(s) would be CREATED (an existing file is never overwritten):")
         for p in planned:
             print(f"  + {p.relative_to(target)}")
+        if appends:
+            print("\nand its session-start block would be APPENDED to your existing:")
+            for p in appends:
+                print(f"  ~ {p.relative_to(target)}  (appended, not overwritten)")
         print("\nNo files written. Run without --dry-run to install. On your yes it")
         print("would also git-init if needed, wire the pre-commit hook, offer a")
         print("desktop icon, and open the welcome flow. Uninstall: --uninstall.")

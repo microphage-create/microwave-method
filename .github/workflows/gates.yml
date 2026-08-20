@@ -21,8 +21,13 @@ jobs:
         run: python gates/gate_slop.py
       - name: Generated docs are fresh
         run: python gates/gate_docs.py
-      - name: Unit and integration tests
-        run: python -m unittest discover tests -v
+      - name: Unit and integration tests (only if this repo ships them)
+        run: |
+          if [ -d tests ]; then
+            python -m unittest discover tests -v
+          else
+            echo "no tests/ directory (adopter repo); skipping"
+          fi
       - name: All agent cards (active and staged)
         run: |
           set -e

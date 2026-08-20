@@ -1,0 +1,20 @@
+# Full-auto arming file (flows/improve.md).
+# Presence of this file arms full-auto within the scope below. Delete it to
+# disarm immediately (the kill switch).
+# Armed by: microphage-create, 2026-08-20.
+
+scope:
+  - bug-fix          # a defect with a regression test
+  - slop-rule        # a slop-rules.csv row with a test
+  - docs             # regenerated or edited docs
+
+excludes:
+  # PyPI release stays a human decision. The GitHub repo is private, but PyPI
+  # releases are public: auto-publishing would still ship to the world.
+  - pypi-release
+  - new-flow
+  - new-gate
+  - adapter
+  - rule-or-adr
+  - dependency
+  - breaking-change

@@ -92,8 +92,11 @@ foreach ($ctx in @("CLAUDE.md", "AGENTS.md")) {
 }
 
 if ($isRepo) {
+    # Wire the hook from the TRUSTED source ($src), never from the target tree.
+    # Running $dst/hooks/install-hooks.ps1 would execute a repo-planted script:
+    # the exact RCE the uvx path guards against.
     Push-Location $dst
-    try { & (Join-Path $dst "hooks/install-hooks.ps1") }
+    try { & (Join-Path $src "hooks/install-hooks.ps1") }
     finally { Pop-Location }
 }
 

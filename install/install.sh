@@ -34,7 +34,10 @@ for f in LICENSE NOTICE.md; do
 done
 
 if git -C "$DST" rev-parse --is-inside-work-tree >/dev/null 2>&1; then
-  (cd "$DST" && bash hooks/install-hooks.sh)
+  # Wire the hook from the TRUSTED source ($SRC), never from the target tree.
+  # Running $DST/hooks/install-hooks.sh (or sourcing $DST/hooks/pre-commit) would
+  # execute a repo-planted script: the exact RCE the uvx path guards against.
+  (cd "$DST" && bash "$SRC/hooks/install-hooks.sh")
 fi
 
 mkdir -p "$DST/wiki/agents" "$DST/wiki/adr" "$DST/wiki/projects" "$DST/wiki/_staging" "$DST/wiki/_archive"

@@ -45,11 +45,10 @@ class ResolveAgent(unittest.TestCase):
 
 
 class ShellInstall(unittest.TestCase):
-    def test_install_sh_end_to_end(self):
+    def _require_bash(self):
+        # A *working* bash, not just one on PATH: on Windows the name resolves to
+        # the WSL launcher, which fails if no distro is installed.
         import subprocess
-        import tempfile
-        # Probe a *working* bash, not just one on PATH: on Windows the name
-        # resolves to the WSL launcher, which fails if no distro is installed.
         try:
             probe = subprocess.run(["bash", "-c", "echo ok"],
                                    capture_output=True, text=True)
@@ -57,6 +56,11 @@ class ShellInstall(unittest.TestCase):
             self.skipTest("bash not available")
         if probe.returncode != 0 or probe.stdout.strip() != "ok":
             self.skipTest("no working bash (WSL stub or broken shell)")
+
+    def test_install_sh_end_to_end(self):
+        import subprocess
+        import tempfile
+        self._require_bash()
         repo = Path(__file__).resolve().parent.parent
         tmp = Path(tempfile.mkdtemp())
         subprocess.run(["git", "-C", str(tmp), "init", "-q"], check=True)
@@ -68,6 +72,32 @@ class ShellInstall(unittest.TestCase):
         self.assertTrue((tmp / "wiki" / "agents" / "microwave.md").is_file())
         self.assertFalse(list(tmp.rglob("*.pyc")), "shell install must not ship bytecode")
         self.assertIn("agent zero", (tmp / "wiki" / "INDEX.md").read_text(encoding="utf-8"))
+
+    def test_install_sh_does_not_run_target_planted_hooks(self):
+        # RCE guard, shell path: a repo can ship its own hooks/ (git never
+        # auto-installs them). Microwave must wire the hook from its trusted
+        # source, never execute or install the target's copy.
+        import subprocess
+        import tempfile
+        self._require_bash()
+        repo = Path(__file__).resolve().parent.parent
+        tmp = Path(tempfile.mkdtemp())
+        subprocess.run(["git", "-C", str(tmp), "init", "-q"], check=True)
+        (tmp / "hooks").mkdir()
+        marker = tmp / "PWNED"
+        payload = f"#!/usr/bin/env bash\ntouch '{marker.as_posix()}'\n"
+        (tmp / "hooks" / "install-hooks.sh").write_text(payload, encoding="utf-8")
+        (tmp / "hooks" / "pre-commit").write_text(payload, encoding="utf-8")
+        r = subprocess.run(["bash", str(repo / "install" / "install.sh"), str(tmp)],
+                           capture_output=True, text=True)
+        self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+        self.assertFalse(marker.exists(),
+                         "install ran a target-planted hook script (RCE)")
+        wired = tmp / ".git" / "hooks" / "pre-commit"
+        self.assertTrue(wired.is_file(), "the Microwave hook was not wired")
+        trusted = (repo / "hooks" / "pre-commit").read_bytes()
+        self.assertEqual(wired.read_bytes(), trusted,
+                         "wired hook is not the trusted one (target pre-commit slipped in)")
 
 
 class SeedConsistency(unittest.TestCase):

@@ -10,6 +10,12 @@ nothing:
 That is the whole ceremony: seconds, not an interrogation. Now you are
 contextualized.
 
+**Fresh install, second half.** If the Agents section of `wiki/INDEX.md` lists
+only `microwave` and nothing else, the CLI wizard finished but the guided part
+never ran: this is a first session after install. Don't announce it, don't ask
+first, just start `flows/welcome.md` right now, before the user has typed a
+word. You drive, the user only answers simple questions and says yes.
+
 - Create an agent only through the factory (`flows/create-agent.md`), never on
   the side. That is the anti-sprawl invariant.
 - New here? `flows/welcome.md` takes you by the hand.

@@ -186,11 +186,15 @@ def main() -> None:
                 ident.set_embodied(False)
             print(f"[embody] removed body of '{ident.name}'")
         else:
-            adapter.apply(ident, dry_run=args.dry_run)
+            result = adapter.apply(ident, dry_run=args.dry_run)
             if not args.dry_run:
                 ident.set_embodied(True)
             print(f"[embody] '{ident.name}' embodied"
                   + (" (dry-run, no flag written)" if args.dry_run else ""))
+            # Only adapters that actually live-test the launcher (windows so
+            # far) return True/False here; others return None and stay silent.
+            if result is not None:
+                print(f"[embody] launcher_verified={bool(result)}")
     except (GateError, OSError, ValueError, RuntimeError) as e:
         print(f"[embody] FAIL: {e}")
         sys.exit(1)

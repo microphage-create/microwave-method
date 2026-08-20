@@ -119,34 +119,94 @@ def _profile(ident, ico: Path) -> dict:
     }
 
 
+def _wt_launch_args(name: str) -> str:
+    """The exact 'open Windows Terminal on this profile' command line, shared
+    by the desktop shortcut and the live verification launch so testing one
+    genuinely tests the other."""
+    return f'/c start "" wt.exe -p "{name}"'
+
+
 def _desktop_lnk(ident, ico: Path) -> Path:
     # ident.name is revalidated by Identity (no quotes); everything else is
     # escaped anyway: defense in depth.
     lnk = Path.home() / "Desktop" / f"{ident.name}.lnk"
-    # wt.exe is a Windows App Execution Alias: a .lnk with TargetPath='wt.exe'
-    # saves fine but launches NOTHING from Explorer. Point at the real stub under
-    # WindowsApps so a double-click actually opens the terminal.
-    local = os.environ.get("LOCALAPPDATA") or str(Path.home() / "AppData" / "Local")
-    wt = Path(local) / "Microsoft" / "WindowsApps" / "wt.exe"
-    target = str(wt) if wt.exists() else "wt.exe"
+    # wt.exe is a Windows App Execution Alias (a reparse-point stub). Pointing a
+    # .lnk's TargetPath directly at it - even at the real stub under WindowsApps -
+    # launches nothing from Explorer for some users: a known Windows quirk where
+    # shell shortcut resolution doesn't reliably follow App Execution Aliases.
+    # cmd.exe is a real binary; Explorer launches it fine, and cmd's own PATH
+    # lookup resolves the wt.exe alias correctly. `start ""` detaches the
+    # terminal so cmd exits immediately instead of lingering.
     ps = (
         f"$s=(New-Object -ComObject WScript.Shell).CreateShortcut('{_psq(lnk)}');"
-        f"$s.TargetPath='{_psq(target)}';"
-        f"$s.Arguments='-p \"{_psq(ident.name)}\"';"
+        f"$s.TargetPath='{_psq(_cmd_exe())}';"
+        f"$s.Arguments='{_psq(_wt_launch_args(ident.name))}';"
         f"$s.IconLocation='{_psq(ico)}';"
+        f"$s.WindowStyle=7;"  # minimized: hides the flash of the cmd.exe window
         f"$s.Save()"
     )
     subprocess.run(["powershell", "-NoProfile", "-Command", ps], check=True)
     return lnk
 
 
-def apply(ident, dry_run: bool = False) -> None:
+def _cmd_exe() -> str:
+    root = os.environ.get("SystemRoot") or r"C:\Windows"
+    return str(Path(root) / "System32" / "cmd.exe")
+
+
+def _visible_windows() -> set:
+    """Top-level visible window handles, right now. stdlib-only (ctypes), used
+    to detect 'did a new window just appear' without extra dependencies."""
+    import ctypes
+    user32 = ctypes.windll.user32
+    hwnds: list = []
+    WNDENUMPROC = ctypes.WINFUNCTYPE(ctypes.c_bool, ctypes.c_void_p, ctypes.c_void_p)
+
+    def _collect(hwnd, _lparam):
+        if user32.IsWindowVisible(hwnd):
+            hwnds.append(hwnd)
+        return True
+
+    user32.EnumWindows(WNDENUMPROC(_collect), 0)
+    return set(hwnds)
+
+
+def verify_launch(ident, timeout: float = 6.0) -> bool:
+    """Actually open the shortcut's target command and watch for a new
+    top-level window within `timeout` seconds. This is the same command the
+    desktop .lnk runs, so a pass here means the .lnk works too, not a guess."""
+    try:
+        before = _visible_windows()
+    except OSError:
+        return False
+    try:
+        # shell=True on Windows runs this through cmd.exe (COMSPEC) itself, so
+        # the string is parsed exactly as cmd.exe parses it from a shortcut's
+        # Arguments field: no argv-splitting mismatch between the two paths.
+        subprocess.Popen(_wt_launch_args(ident.name)[len("/c "):], shell=True,
+                          stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    except OSError:
+        return False
+    deadline = time.time() + timeout
+    while time.time() < deadline:
+        time.sleep(0.3)
+        try:
+            if _visible_windows() - before:
+                return True
+        except OSError:
+            continue
+    return False
+
+
+def apply(ident, dry_run: bool = False) -> bool | None:
+    """Returns True/False once the launcher has been live-tested, None in
+    dry-run (nothing was created, so nothing to test)."""
     if dry_run:
         ident.png_bytes()  # validate the icon source, write nothing
         print(f"[windows] would write {ident.build_dir / (ident.slug + '-' + ident.icon_src.stem + '.ico')}")
         print(f"[windows] would add scheme+profile '{ident.name}' to {WT_SETTINGS}")
         print(f"[windows] would create desktop shortcut '{ident.name}.lnk'")
-        return
+        return None
 
     ico = ident.write_ico()
     scheme = ident.scheme()
@@ -164,6 +224,10 @@ def apply(ident, dry_run: bool = False) -> None:
 
     lnk = _desktop_lnk(ident, ico)
     print(f"[windows] desktop shortcut: {lnk}")
+
+    verified = verify_launch(ident)
+    print(f"[windows] launcher {'verified: a new window opened' if verified else 'could not be verified: no new window detected'}")
+    return verified
 
 
 def remove(ident, dry_run: bool = False) -> None:

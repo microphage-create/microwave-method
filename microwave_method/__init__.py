@@ -368,8 +368,19 @@ def _embody_agent_zero(target: Path, payload: Path) -> None:
         print(f"  {_c('32')}+{_c('0')} launcher on your desktop{extra}")
         perks = "its themed terminal" + (" and the pre-approved permissions"
                                           if "skip-permissions" in launch else "")
-        print(f"  from now on, open Microwave from that launcher to get {perks}:")
-        print("  this window started before it, so it doesn't have them yet.")
+        verified = "launcher_verified=True" in r.stdout
+        tested = "launcher_verified=" in r.stdout
+        if tested and verified:
+            print(f"  {_c('32')}✓{_c('0')} just tested it: a new window opened with {perks}.")
+            print("  continue onboarding over there, you can close this window.")
+        elif tested:
+            print(f"  from now on, open Microwave from that launcher to get {perks}:")
+            print("  I tried launching it just now and didn't see a new window open.")
+            print("  double-click the desktop icon once yourself; tell me if nothing")
+            print("  happens and I'll fix it for your setup.")
+        else:
+            print(f"  from now on, open Microwave from that launcher to get {perks}:")
+            print("  this window started before it, so it doesn't have them yet.")
         if sys.platform != "win32":
             print("  (launchers are newer on macOS/Linux: open it once to check it")
             print("   works. If it doesn't, tell me and I'll fix it for your setup.)")

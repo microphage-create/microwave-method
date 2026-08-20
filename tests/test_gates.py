@@ -617,5 +617,24 @@ class TestGateSlopRoot(unittest.TestCase):
         self.assertEqual(rc, 0, out)
 
 
+class TestEmbodyDeadShell(unittest.TestCase):
+    """embody warns when an agent is embodied with no launch: the profile opens
+    a terminal but invokes nothing (a dead shell). Pure helper, no machine touch."""
+
+    def _embody(self):
+        sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "embodiment"))
+        import embody
+        return embody
+
+    def test_no_launch_returns_a_note(self):
+        note = self._embody().dead_shell_note("", "ops")
+        self.assertIsNotNone(note)
+        self.assertIn("ops", note)
+        self.assertIn("launch", note)
+
+    def test_launch_set_is_silent(self):
+        self.assertIsNone(self._embody().dead_shell_note("claude", "ops"))
+
+
 if __name__ == "__main__":
     unittest.main()

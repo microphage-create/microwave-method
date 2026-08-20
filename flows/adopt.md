@@ -21,6 +21,14 @@ Ask the human where their agents sleep. Typical answers: a `.claude/`
 directory (commands, agents, skills), a `prompts/` folder, a GitHub repo, a
 Notion export, scattered `*.md` system prompts. Take ALL locations given.
 
+If the folder Microwave is running in is not the same place their agents
+actually live (a subst'd drive, a demo copy, a symlink), say that plainly
+before offering a choice: name the two places in full, and say in one
+sentence what each option concretely means for what happens next (what gets
+scanned, what gets committed, where). Never present a numbered menu whose
+options are just short labels ("repo neuf", "scanner C: quand même") without
+that sentence: a choice that sounds like jargon is not a real choice.
+
 ## Step 2: Scan and archive (one entry per artifact, no judgment)
 
 Walk every location. For EVERY artifact found, write one

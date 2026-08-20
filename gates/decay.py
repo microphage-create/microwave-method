@@ -26,9 +26,8 @@ import time
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent))
-from _lib import GateError, read_text, repo_root  # noqa: E402
-
-SKIP = {"INDEX.md", "README.md", "BACKLOG.md"}
+from _lib import GateError, repo_root  # noqa: E402
+from gate_wiki import SKIP_NAMES as SKIP  # noqa: E402  (one source of truth)
 ID_RE = re.compile(r"^([A-Za-z]{2,6}-\d+)")  # ADR-008, LRN-012, ...
 
 
@@ -49,9 +48,12 @@ def _atoms(root: Path) -> list[Path]:
 
 
 def _last_commit_age_days(root: Path, path: Path) -> float | None:
-    r = subprocess.run(
-        ["git", "-C", str(root), "log", "-1", "--format=%ct", "--", str(path)],
-        capture_output=True, text=True)
+    try:
+        r = subprocess.run(
+            ["git", "-C", str(root), "log", "-1", "--format=%ct", "--", str(path)],
+            capture_output=True, text=True)
+    except OSError:
+        return None  # git not available
     out = r.stdout.strip()
     if r.returncode != 0 or not out:
         return None  # untracked (never committed): not our call to reap
@@ -60,7 +62,7 @@ def _last_commit_age_days(root: Path, path: Path) -> float | None:
 
 def find_stale(root: Path, days: float) -> list[dict]:
     files = _atoms(root)
-    texts = {p: read_text(p) for p in files}
+    texts = {p: p.read_text(encoding="utf-8", errors="replace") for p in files}
     stale = []
     for p in files:
         keys = _reheat_keys(p)
@@ -89,6 +91,16 @@ def main(argv: list[str]) -> None:
         root = repo_root()
     except GateError as e:
         print(f"[decay] {e}")
+        sys.exit(1)
+    try:
+        probe = subprocess.run(["git", "-C", str(root), "rev-parse",
+                                "--is-inside-work-tree"], capture_output=True, text=True)
+        git_ok = probe.returncode == 0
+    except OSError:
+        git_ok = False
+    if not git_ok:
+        print("[decay] git history is unavailable here, so atom age cannot be "
+              "assessed (no confident all-clear). Run decay in a git repo.")
         sys.exit(1)
     stale = find_stale(root, days)
     if as_json:

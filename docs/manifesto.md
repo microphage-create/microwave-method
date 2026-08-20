@@ -5,13 +5,19 @@ if the short version made you curious, skip it if you just want to install.
 
 ## Why "Microwave"
 
-A microwave oven does not cook your dish from scratch. It excites the water
-molecules already present in it. That is the whole thesis: **your wiki atoms are
-the water molecules.** The expensive work (specifying an agent, curating what it
-learned) is done once and stored. Every subsequent feature just reheats context
-that already exists, at cache-read price, instead of rediscovering it from scratch
-on every session. The name is a bet on that one idea; if it bothers you, the tool
-does not care what you call it.
+The name has two readings, and both are the method.
+
+**Micro-wave, the oven.** A microwave does not cook your dish from scratch; it
+excites the water molecules already present in it. Your wiki atoms are the water
+molecules. The expensive work (specifying an agent, curating what it learned) is
+done once and stored, and every subsequent feature reheats context that already
+exists, at cache-read price, instead of rediscovering it from scratch.
+
+**Micro + wave, the ripples.** Small waves of continuous improvement. Each pass is
+one small wave that leaves the wiki richer and the next pass cheaper and
+better-decided. The loop is a swell, not a one-off.
+
+Reheat and ripple: reuse what is already there, and let each pass raise the tide.
 
 ## The middle you were missing
 

@@ -58,6 +58,12 @@ def main(card_arg: str) -> None:
     slug = str(get(fm, "slug"))
     mission = str(get(fm, "mission") or "").rstrip(".")
 
+    if os.environ.get("MICROWAVE_SHADOW") == "1":
+        # fail() is report-only in shadow, so exit directly: the gates are not
+        # actually validating, so activating on them cannot be trusted.
+        print(f"[{GATE}] shadow mode is on: gates are report-only, so activation is "
+              f"not safe. Unset MICROWAVE_SHADOW to validate and activate.")
+        sys.exit(1)
     if not run_pipeline(src):
         fail(GATE, "pre-check failed: fix the gates before activating")
 

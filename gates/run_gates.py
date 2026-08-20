@@ -4,6 +4,7 @@ anti-dup → brief → schema → testable → embodiment → slop → wiki.
 Exit code 0 = all green = the card may activate (fast path) or go to the
 gatekeeper (full path). Any red gate stops the pipeline with its message.
 """
+import os
 import subprocess
 import sys
 from pathlib import Path
@@ -26,8 +27,13 @@ def main(card: str) -> None:
         if res.returncode != 0:
             print(f"\n[run_gates] STOPPED at {gate}. Fix and re-run.")
             sys.exit(res.returncode)
-    print(f"\n[run_gates] ALL GREEN for {card}. "
-          f"Fast path: activate. Full path: request gatekeeper judgment.")
+    if os.environ.get("MICROWAVE_SHADOW") == "1":
+        print(f"\n[run_gates] SHADOW MODE: gates ran report-only. Any 'would block' "
+              f"line above is NOT enforced; unset MICROWAVE_SHADOW to enforce. "
+              f"This is not a green result.")
+    else:
+        print(f"\n[run_gates] ALL GREEN for {card}. "
+              f"Fast path: activate. Full path: request gatekeeper judgment.")
 
 
 if __name__ == "__main__":

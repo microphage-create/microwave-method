@@ -260,9 +260,12 @@ clean devil report. On the fast path, green gates = `gates/activate.py`,
 nobody to wait for.
 
 **Rolling out to a live team?** Set `MICROWAVE_SHADOW=1` and the gates report
-what they *would* block without blocking, so people learn the rules before the CI
-ever turns red. Unset it to enforce. It is the opposite of the Friday-night
-`--no-verify`: the discipline arrives with a grace period, not a wall.
+what they *would* block without exiting non-zero, wherever you set it: the local
+pre-commit hook, and the CI job too if you add it there for a grace period. Unset
+it to enforce. It is the opposite of the Friday-night `--no-verify`: the
+discipline arrives with a grace period, not a wall. (The shipped CI does not set
+it, so CI stays strict by default; shadow is something you opt a repo into, and
+activation refuses to run while it is on, since the gates are only reporting.)
 
 ### What is actually enforced, and what is not
 

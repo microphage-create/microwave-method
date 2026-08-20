@@ -143,7 +143,7 @@ def _desktop_lnk(ident, ico: Path) -> Path:
 def apply(ident, dry_run: bool = False) -> None:
     if dry_run:
         ident.png_bytes()  # validate the icon source, write nothing
-        print(f"[windows] would write {ident.build_dir / (ident.slug + '.ico')}")
+        print(f"[windows] would write {ident.build_dir / (ident.slug + '-' + ident.icon_src.stem + '.ico')}")
         print(f"[windows] would add scheme+profile '{ident.name}' to {WT_SETTINGS}")
         print(f"[windows] would create desktop shortcut '{ident.name}.lnk'")
         return

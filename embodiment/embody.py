@@ -120,7 +120,10 @@ class Identity:
 
     def write_ico(self) -> Path:
         png = self.png_bytes()
-        out = self.build_dir / f"{self.slug}.ico"
+        # Name the container after the icon source, not just the slug, so switching
+        # icon variant changes the file path. Windows caches desktop icons by path;
+        # a stable path would keep showing the previous icon after a change.
+        out = self.build_dir / f"{self.slug}-{self.icon_src.stem}.ico"
         out.parent.mkdir(parents=True, exist_ok=True)
         # ICONDIR + one ICONDIRENTRY wrapping the PNG (0 = 256px)
         header = struct.pack("<HHH", 0, 1, 1)
@@ -130,7 +133,7 @@ class Identity:
 
     def write_icns(self) -> Path:
         png = self.png_bytes()
-        out = self.build_dir / f"{self.slug}.icns"
+        out = self.build_dir / f"{self.slug}-{self.icon_src.stem}.icns"
         out.parent.mkdir(parents=True, exist_ok=True)
         body = b"ic08" + struct.pack(">I", 8 + len(png)) + png  # 256x256 PNG
         out.write_bytes(b"icns" + struct.pack(">I", 8 + len(body)) + body)

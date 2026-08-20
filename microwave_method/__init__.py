@@ -36,7 +36,7 @@ try:
     from importlib.metadata import version as _pkg_version
     VERSION = _pkg_version("microwave-method")
 except Exception:
-    VERSION = "0.1.6"
+    VERSION = "0.1.7"
 
 
 def _enable_ansi() -> bool:
@@ -161,6 +161,24 @@ def _ask(question: str) -> str:
         return ""
 
 
+def _choose(prompt: str, options: list, default: int = 0):
+    """Numbered pick. options is a list of (label, value). Non-interactive, piped,
+    or NO_LAUNCH: return the default's value. Enter or a bad answer also defaults."""
+    if os.environ.get("MICROWAVE_NO_LAUNCH") == "1" or not (sys.stdin and sys.stdin.isatty()):
+        return options[default][1]
+    print(f"  {prompt}")
+    for i, (label, _v) in enumerate(options, 1):
+        print(f"    {i}) {label}" + ("  (default)" if i - 1 == default else ""))
+    ans = _ask(f"  Number [Enter for {default + 1}]:")
+    try:
+        idx = int(ans) - 1
+        if 0 <= idx < len(options):
+            return options[idx][1]
+    except ValueError:
+        pass
+    return options[default][1]
+
+
 def _png_256(p: Path) -> bool:
     """True if p is a 256x256 PNG (what embody.py requires), read from the header
     with no third-party lib."""
@@ -175,23 +193,43 @@ def _png_256(p: Path) -> bool:
     return (w, h) == (256, 256)
 
 
-def _patch_card(card: Path, launch: str, icon_rel: str) -> None:
-    """Rewrite only the agent-zero card's launch/icon lines, in place, to the
-    values the user chose. Leaves the rest of the card untouched."""
+def _patch_card(card: Path, launch=None, icon_rel=None, palette=None) -> None:
+    """Rewrite only the agent-zero card's launch / icon / palette lines, in place,
+    to the values the user chose. Leaves everything else untouched. palette is a
+    (bg, fg, accent) triple of #rrggbb strings, or None to leave the colours."""
     try:
         lines = card.read_text(encoding="utf-8").splitlines(keepends=True)
     except OSError:
         return
+    bg, fg, accent = (palette or (None, None, None))
+    fields = {"launch": launch, "icon": icon_rel, "bg": bg, "fg": fg, "accent": accent}
     out = []
     for ln in lines:
-        m = re.match(r"^(\s*)(launch|icon):\s", ln)
-        if m and m.group(2) == "launch":
-            out.append(f"{m.group(1)}launch: {launch}\n")
-        elif m and m.group(2) == "icon":
-            out.append(f"{m.group(1)}icon: {icon_rel}\n")
+        m = re.match(r"^(\s*)([A-Za-z_]+):\s", ln)
+        if m and fields.get(m.group(2)) is not None:
+            key, val = m.group(2), fields[m.group(2)]
+            quoted = f'"{val}"' if key in ("bg", "fg", "accent") else val
+            out.append(f"{m.group(1)}{key}: {quoted}\n")
         else:
             out.append(ln)
     card.write_text("".join(out), encoding="utf-8")
+
+
+# Terminal colour presets (bg, fg, accent) and desktop-icon variants, offered by
+# the launcher wizard. The icon PNGs ship in embodiment/icons/.
+_PALETTES = [
+    ("Petrol", ("#475559", "#E8EEEE", "#7FB0B0")),
+    ("Charcoal", ("#1A1D1E", "#E8EEE9", "#7FB8A3")),
+    ("Forest green", ("#14211C", "#E8EEE9", "#3FBE8E")),
+    ("Slate blue", ("#1B2430", "#E6ECF2", "#7FA3C8")),
+    ("Plum", ("#241B2E", "#ECE6F2", "#AC9CC8")),
+]
+_ICON_CHOICES = [
+    ("Microwave M on a petrol tile", "embodiment/icons/microwave.png"),
+    ("Microwave M, white, no background", "embodiment/icons/microwave-white.png"),
+    ("Microwave M, black, no background", "embodiment/icons/microwave-black.png"),
+    ("Your own 256x256 .png", "__own__"),
+]
 
 
 def _wire_hook(target: Path, payload: Path) -> str:
@@ -288,30 +326,34 @@ def _embody_agent_zero(target: Path, payload: Path) -> None:
     if not _confirm("Put a Microwave launcher on your desktop (opens this repo in a terminal)?"):
         return
 
-    # Two quick choices, each with a safe default so pressing Enter just works.
+    # A tiny wizard: permissions, terminal colour, icon. Every step has a safe
+    # default, so pressing Enter through it all gives the classic Microwave look.
     launch = "claude"
     if _confirm("  Start Claude with permissions pre-approved "
                 "(skips the per-action prompts)?", default=False):
         launch = "claude --dangerously-skip-permissions"
 
-    icon_rel = "embodiment/icons/microwave.png"
-    want = _ask("  Icon: press Enter for the Microwave M, or paste a path to your "
-                "own 256x256 .png:")
-    if want:
-        src = Path(want.strip('"').strip("'")).expanduser()
-        if _png_256(src):
-            safe = re.sub(r"[^A-Za-z0-9._-]", "-", src.stem)[:40] or "custom"
-            dst = target / "embodiment" / "icons" / f"{safe}.png"
-            try:
-                dst.parent.mkdir(parents=True, exist_ok=True)
-                shutil.copy2(src, dst)
-                icon_rel = f"embodiment/icons/{safe}.png"
-            except OSError as exc:
-                print(f"  (couldn't use that image, keeping the Microwave M: {exc})")
-        else:
-            print("  (that file isn't a 256x256 PNG, keeping the Microwave M)")
+    palette = _choose("Terminal colour:", _PALETTES, default=0)
 
-    _patch_card(card, launch, icon_rel)
+    icon_rel = _choose("Desktop icon:", _ICON_CHOICES, default=0)
+    if icon_rel == "__own__":
+        icon_rel = "embodiment/icons/microwave.png"
+        want = _ask("  Path to your own 256x256 .png:")
+        if want:
+            src = Path(want.strip('"').strip("'")).expanduser()
+            if _png_256(src):
+                safe = re.sub(r"[^A-Za-z0-9._-]", "-", src.stem)[:40] or "custom"
+                dst = target / "embodiment" / "icons" / f"{safe}.png"
+                try:
+                    dst.parent.mkdir(parents=True, exist_ok=True)
+                    shutil.copy2(src, dst)
+                    icon_rel = f"embodiment/icons/{safe}.png"
+                except OSError as exc:
+                    print(f"  (couldn't use that image, keeping the Microwave M: {exc})")
+            else:
+                print("  (that file isn't a 256x256 PNG, keeping the Microwave M)")
+
+    _patch_card(card, launch=launch, icon_rel=icon_rel, palette=palette)
 
     try:
         r = subprocess.run([sys.executable, str(embodier), str(card)],

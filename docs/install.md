@@ -91,9 +91,10 @@ because the installer never overwrites.
 
 ## Uninstall
 
-One command removes every Microwave file that is still byte-identical to what it
-installed (it never deletes a file you edited, or your own atoms), and restores a
-backed-up pre-commit hook if it made one:
+One command removes every Microwave file still matching exactly what it installed
+(byte-identical for copied files; the generated `CODEOWNERS` and `wiki/INDEX.md`
+are matched against the exact text it wrote). It never deletes a file you edited
+or your own atoms, and it restores a backed-up pre-commit hook if it made one:
 
 ```bash
 uvx microwave-method --uninstall

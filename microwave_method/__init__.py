@@ -36,7 +36,7 @@ try:
     from importlib.metadata import version as _pkg_version
     VERSION = _pkg_version("microwave-method")
 except Exception:
-    VERSION = "0.1.12"
+    VERSION = "0.1.13"
 
 
 def _enable_ansi() -> bool:
@@ -296,7 +296,7 @@ def _install_plan(target: Path, payload: Path) -> list[Path]:
             continue
         for root, _dirs, files in os.walk(src):
             rel = Path(root).relative_to(src)
-            if "icons" in rel.parts or "__pycache__" in rel.parts:
+            if "__pycache__" in rel.parts or ("icons" in rel.parts and "build" in rel.parts):
                 continue
             for name in files:
                 if name.endswith((".pyc", ".pyo")):

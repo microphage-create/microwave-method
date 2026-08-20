@@ -12,26 +12,31 @@ Fluidity above everything. One action at a time, never a blank prompt. After eac
 step, say what just happened in one plain sentence, then propose the next with a
 default the user can accept by just agreeing. Always offer a clean stop.
 
-## Step 1: Scan everything (offer places, never a blank question)
+## Step 1: Find the repos AND the agents already inside them (never a blank question)
 
-The user often does not know where their agents live, so do not ask an open
-question they cannot answer. Offer concrete places and let them pick, or just say
-"go". Prefill the most likely from what you can see, and include the usual homes
-even across drives: Microwave may be installed on one drive while the agents sit
-on another.
+The core value is NOT greenfield. It is taking the agents, skills and commands the
+user already hand-built, scattered and inconsistent across repos, and bringing
+them under one governed roof, normalized. Some users have dozens. So look for two
+things at once, and never ask a blank question: prefill the likely repos folder and
+let the user accept with a word.
 
-> Where should I look for your agents? I can:
-> A) look in the usual places for you: your home folder `~/.claude/`, `~/Documents/`,
->    any GitHub or repos folder, and common prompt folders. Pick this if unsure.
-> B) scan this repo and its parent folder.
-> C) a specific path you give me: a `.claude/`, a prompts folder, another repo,
->    even on another drive (say `C:\...` when you installed Microwave on `D:\`).
+> Where do your repos live? I'll scan the folder, and for each repo I'll also pull
+> out the agents you already made. Most likely `~/Documents/GitHub` (or the folder
+> holding this repo). Say "go", or give another path, even on another drive
+> (`C:\...` when you installed Microwave on `D:\`).
 
-Default to A the moment they hesitate. For each chosen root, run
-`python gates/scan_estate.py <folder>` (it writes nothing). Present the result as
-a short human summary, not the raw output: "I found N repos. Here they are with
-the stack I detected." If a root turns up nothing, say so plainly and offer the
-next place, never a dead end.
+For every repo found, inspect it for existing agent-like assets and treat them as
+things to ADOPT, never to ignore:
+- `.claude/commands/*.md` (slash-commands / skills), `.claude/agents/*.md`,
+  `.claude/skills/`, a `prompts/` folder, agent instructions embedded in a
+  CLAUDE.md. These are the user's real work; they are the point.
+
+Run `python gates/scan_estate.py <folder>` for the repo map (it writes nothing),
+and read those asset folders yourself to list the existing agents. Present the full
+inventory as one short human summary: "I found N repos and M agents you already
+built across them. Here they are." Never report an empty "found nothing" when a
+repo plainly holds commands or skills: if one location is empty, say which and move
+to the next.
 
 ### Recommend a tool only when the estate shows its need
 
@@ -63,6 +68,11 @@ automated, governed one. Suggest, never impose.
 ## Step 2: Propose a plan ADAPTED to the estate
 
 Not a rigid template: the proposal is shaped by what the scan found.
+- **Adopt and homogenize the existing agents first.** Each hand-built command,
+  skill or prompt you found becomes a normalized card in the registry, run through
+  the factory so they all share one shape (mission, scope, verifiable criteria)
+  instead of the drift they have now. Dedup near-identical ones, flag the dead. This
+  is the main event, not an afterthought: it is why the user came.
 - One **context** agent per repo (the guard that carries that repo's conventions),
   its `repo:` set, its stack hint carried into the mission.
 - The transversal **services** to create once and share (`code-review`,

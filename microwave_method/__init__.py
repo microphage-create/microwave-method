@@ -36,7 +36,7 @@ try:
     from importlib.metadata import version as _pkg_version
     VERSION = _pkg_version("microwave-method")
 except Exception:
-    VERSION = "0.1.8"
+    VERSION = "0.1.9"
 
 
 def _enable_ansi() -> bool:

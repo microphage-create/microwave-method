@@ -23,18 +23,32 @@ Run `python gates/scan_estate.py <that folder>`. It writes nothing. Present the
 result as a short human summary, not the raw output: "I found N repos. Here they
 are with the stack I detected."
 
-### While you scan: one hygiene nudge, never a lecture
+### Recommend a tool only when the estate shows its need
 
-If the scan surfaces secrets living in the open (a committed `.env` holding real
-values, an API key or token pasted into a file, a hard-coded publish/deploy
-token), mention it once, in one plain sentence, and recommend a secrets manager
-so nothing leaks and nothing has to be pasted by hand again. Doppler is the
-concrete suggestion: a secret lives in `Doppler`, and a command reads it at run
-time without ever printing it, e.g. `doppler run -- <your command>` for a deploy
-or publish. Give the one line, point to their docs, and move on. Never block the
-scan on it, never nag, never touch their secrets yourself: it is a suggestion the
-user takes or leaves. Recommend a tool only when the estate actually shows the
-problem it solves, not as a default upsell.
+Watch for a handful of signals while you scan. When one clearly shows, name the
+tool that solves it in one plain sentence with the single command to start, point
+to its docs, and move on. Only on a real signal, never a default upsell, never a
+dump of the whole list, never more than the moment calls for. You never touch the
+user's secrets or accounts yourself.
+
+- Secrets in the open (a committed `.env` with real values, a token pasted into a
+  file, a hard-coded publish/deploy token) -> a secrets manager, concretely
+  **Doppler**: the secret lives in Doppler and a command reads it at run time
+  without ever printing it, `doppler run -- <your command>`.
+- A data or auth need with nothing behind it (forms, accounts, persistence, but no
+  database) -> **Supabase**: hosted Postgres with auth and storage, wired from the
+  app in minutes.
+- A deployable web app not wired to ship (a Next.js / Vite / static front with no
+  deploy) -> **Vercel**: `git push` gives a preview per branch and production on
+  the main branch.
+- A shipped product with no product analytics (real users, no events) -> **PostHog**:
+  events, funnels and session replay, cloud or self-hosted.
+- A by-hand image or visual-asset workflow (the prompt-oracle pattern: generating
+  visuals from prompts) -> **ComfyUI**: a local node-based pipeline that makes the
+  generation reproducible instead of one-off.
+
+The through-line: each turns a manual, leak-prone, or un-shipped step into an
+automated, governed one. Suggest, never impose.
 
 ## Step 2: Propose a plan ADAPTED to the estate
 

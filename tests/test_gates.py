@@ -604,5 +604,18 @@ class TestGateEmbodiment(unittest.TestCase):
         self.assertEqual(rc, 0, out)
 
 
+class TestGateSlopRoot(unittest.TestCase):
+    """A single file passed on the command line may live outside any repo; the
+    gate must fall back to cwd for the rules bank, like its sibling gates, not
+    crash on 'cannot locate repo root'."""
+
+    def test_out_of_tree_file_falls_back_to_cwd(self):
+        p = Path(tempfile.mkdtemp()) / "note.md"
+        p.write_text("The parser reads the file and returns totals.\n", encoding="utf-8")
+        rc, out = run_gate("gate_slop.py", p)
+        self.assertNotIn("cannot locate repo root", out)
+        self.assertEqual(rc, 0, out)
+
+
 if __name__ == "__main__":
     unittest.main()

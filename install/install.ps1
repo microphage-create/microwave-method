@@ -22,7 +22,7 @@ foreach ($d in $dirs) {
     $from = Join-Path $src $d
     $to = Join-Path $dst $d
     New-Item -ItemType Directory -Force -Path $to | Out-Null
-    Get-ChildItem -Recurse -File $from | Where-Object { $_.FullName -notmatch '[\\/]icons[\\/]' } | ForEach-Object {
+    Get-ChildItem -Recurse -File $from | Where-Object { $_.FullName -notmatch '[\\/](icons|__pycache__)[\\/]' -and $_.Extension -ne '.pyc' } | ForEach-Object {
         $rel = $_.FullName.Substring($from.Length + 1)
         $out = Join-Path $to $rel
         if (-not (Test-Path $out)) {
@@ -72,12 +72,22 @@ One line per artifact: `- [type] id: one-line summary → path`
 }
 
 # CLAUDE.md (session-start context) + agent-zero card, additive (parity with uvx)
-foreach ($f in @("CLAUDE.md", "AGENTS.md", "wiki/agents/microwave.md")) {
-    $to = Join-Path $dst $f
-    $fromf = Join-Path $src $f
-    if ((-not (Test-Path $to)) -and (Test-Path $fromf)) {
-        New-Item -ItemType Directory -Force -Path (Split-Path $to) | Out-Null
+# agent-zero card: copy if absent
+$cardTo = Join-Path $dst "wiki/agents/microwave.md"
+$cardFrom = Join-Path $src "wiki/agents/microwave.md"
+if ((-not (Test-Path $cardTo)) -and (Test-Path $cardFrom)) {
+    New-Item -ItemType Directory -Force -Path (Split-Path $cardTo) | Out-Null
+    Copy-Item $cardFrom $cardTo
+}
+# session-start context: copy if absent, else append (never clobber), matching uvx
+foreach ($ctx in @("CLAUDE.md", "AGENTS.md")) {
+    $to = Join-Path $dst $ctx
+    $fromf = Join-Path $src $ctx
+    if (-not (Test-Path $fromf)) { continue }
+    if (-not (Test-Path $to)) {
         Copy-Item $fromf $to
+    } elseif (-not (Select-String -Path $to -Pattern "runs on Microwave" -Quiet)) {
+        Add-Content -Path $to -Value "`n`n---`n`n$(Get-Content $fromf -Raw)"
     }
 }
 

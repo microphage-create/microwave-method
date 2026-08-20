@@ -12,7 +12,7 @@ git -C "$DST" rev-parse --is-inside-work-tree >/dev/null 2>&1 || echo "warning: 
 
 for d in flows templates techniques slop gates embodiment hooks harness; do
   mkdir -p "$DST/$d"
-  (cd "$SRC/$d" && find . -type f ! -path "./icons/*") | while read -r f; do
+  (cd "$SRC/$d" && find . -type f ! -path "./icons/*" ! -path "*/__pycache__/*" ! -name "*.pyc") | while read -r f; do
     out="$DST/$d/${f#./}"
     if [ ! -e "$out" ]; then
       mkdir -p "$(dirname "$out")"
@@ -56,7 +56,11 @@ fi
 
 # session-start context (CLAUDE.md + AGENTS.md) + agent-zero card, additive (parity with uvx)
 for ctx in CLAUDE.md AGENTS.md; do
-  [ -e "$DST/$ctx" ] || { [ -f "$SRC/$ctx" ] && cp "$SRC/$ctx" "$DST/$ctx"; }
+  if [ ! -e "$DST/$ctx" ]; then
+    [ -f "$SRC/$ctx" ] && cp "$SRC/$ctx" "$DST/$ctx"
+  elif ! grep -q "runs on Microwave" "$DST/$ctx"; then
+    { printf '\n\n---\n\n'; cat "$SRC/$ctx"; } >> "$DST/$ctx"
+  fi
 done
 [ -e "$DST/wiki/agents/microwave.md" ] || { [ -f "$SRC/wiki/agents/microwave.md" ] && cp "$SRC/wiki/agents/microwave.md" "$DST/wiki/agents/microwave.md"; }
 

@@ -18,4 +18,4 @@ bash "$TMP/microwave-method/install/install.sh" "$TARGET"
 
 echo ""
 echo "Done. Next: open your coding agent in $TARGET and say:"
-echo "  \"run the Microwave adopt flow\"   (scans your existing agents into the archive)"
+echo "  \"run the Microwave welcome flow\"   (guides you, scans your existing agents)"

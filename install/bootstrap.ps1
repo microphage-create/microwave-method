@@ -33,4 +33,4 @@ finally {
 
 Write-Host ""
 Write-Host "Done. Next: open your coding agent in $target and say:"
-Write-Host '  "run the Microwave adopt flow"   (scans your existing agents into the archive)'
+Write-Host '  "run the Microwave welcome flow"   (guides you, scans your existing agents)'

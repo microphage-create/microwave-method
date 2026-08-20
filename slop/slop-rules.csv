@@ -14,3 +14,4 @@ placeholder,\b(Lorem ipsum|TBD|TODO:|\[insert)\b,reject,Placeholder left in a fi
 emoji-heading,"^#{1,6} .*[☀-➿\U0001F300-\U0001FAFF]",warn,Emoji in a heading. Headings carry words.
 aims-to,\b(This (document|README|guide|page) (aims|seeks) to)\b,warn,"Say what it does, not what it aims at."
 not-only,\bnot only\b.*\bbut also\b,warn,LLM symmetry tic. One clause usually suffices.
+buzzword-dive,\b(deep dive|div(e|ing) into)\b,warn,LLM tell like delve. Name what is examined.

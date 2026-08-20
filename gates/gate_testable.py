@@ -10,7 +10,7 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent))
-from _lib import GateError, fail, get, ok, read_frontmatter, repo_root
+from _lib import GateError, fail, get, ok, read_frontmatter, repo_root_or_cwd
 
 GATE = "gate_testable"
 GATE_REF_RE = re.compile(r"\bgates/(\w+\.py)\b")
@@ -39,13 +39,7 @@ def main(card: str) -> None:
     crits = get(fm, "brief.success_criteria") or []
     if not crits:
         fail(GATE, f"{path.name}: no success criteria to check")
-    root = None
-    for start in (path.resolve().parent, Path.cwd()):
-        try:
-            root = repo_root(start)
-            break
-        except GateError:
-            continue
+    root = repo_root_or_cwd(path.resolve().parent)
     # None only for a truly isolated card (unit test in a bare tmp dir); the hook
     # validates a staged blob in a tmp path, so the Path.cwd() fallback finds the
     # real repo and the ref-check still runs at commit time.

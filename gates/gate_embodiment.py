@@ -10,7 +10,7 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent))
-from _lib import GateError, fail, get, ok, read_frontmatter, repo_root
+from _lib import GateError, fail, get, ok, read_frontmatter, repo_root_or_cwd
 
 GATE = "gate_embodiment"
 HEX = re.compile(r"^#[0-9a-fA-F]{6}$")
@@ -22,17 +22,9 @@ def main(card: str) -> None:
         fm, _ = read_frontmatter(path)
     except GateError as e:
         fail(GATE, str(e))
-    # The pre-commit hook validates a staged blob copied into a tmp dir, so the
-    # card's own parent has no repo above it; fall back to cwd (the repo root at
-    # commit time), the same tolerance gate_testable uses. CI re-runs on the real
-    # tree. Without this, no embodied agent can ever pass the hook.
-    root = None
-    for start in (path.resolve().parent, Path.cwd()):
-        try:
-            root = repo_root(start)
-            break
-        except GateError:
-            continue
+    # Isolated-path tolerant: the hook validates a staged blob in a tmp dir with
+    # no repo above it, so fall back to cwd (repo_root_or_cwd, shared in _lib).
+    root = repo_root_or_cwd(path.resolve().parent)
     powerful = get(fm, "blast_radius") in ("write", "spend", "prod")
 
     name = str(get(fm, "embodiment.display_name") or "").strip()

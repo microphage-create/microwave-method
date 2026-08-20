@@ -201,6 +201,23 @@ def repo_root(start: Path | None = None) -> Path:
     raise GateError("cannot locate repo root (wiki/INDEX.md not found)")
 
 
+def repo_root_or_cwd(start: Path | None = None) -> Path | None:
+    """repo_root, tolerant of an isolated path: try `start`, then cwd, and return
+    None instead of raising when neither sits under a repo.
+
+    The pre-commit hook validates a staged blob copied into a tmp dir with no
+    repo above it, so a gate handed that path must fall back to cwd (the repo
+    root at commit time). Centralized here so a new gate cannot forget the
+    fallback and reintroduce the 'cannot locate repo root' crash that hit
+    gate_embodiment and gate_slop."""
+    for s in ([start] if start is not None else []) + [None]:
+        try:
+            return repo_root(s)
+        except GateError:
+            continue
+    return None
+
+
 def index_lines(root: Path) -> list[str]:
     idx = read_text(root / "wiki" / "INDEX.md")
     return [l.strip() for l in idx.splitlines() if l.strip().startswith("- [")]

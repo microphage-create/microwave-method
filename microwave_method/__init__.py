@@ -24,7 +24,7 @@ WIKI_INDEX = (
     "# Registry index\n\n"
     "One line per artifact: `- [type] id: one-line summary → path`\n\n"
     "## Agents\n\n"
-    "- [agent] microwave: agent zero, the desktop front door that opens a "
+    "- [service] microwave: agent zero, the desktop front door that opens a "
     "context-loaded session on this repo → wiki/agents/microwave.md\n\n"
     "## ADR (meta)\n\n## Projects\n"
 )

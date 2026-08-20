@@ -16,7 +16,7 @@ from _lib import GateError, fail, get, ok, read_frontmatter
 GATE = "gate_schema"
 
 REQUIRED = [
-    "type", "name", "slug", "status", "blast_radius", "mission",
+    "type", "kind", "name", "slug", "status", "blast_radius", "mission",
     "definition_path", "owner", "synonyms",
     "brief.success_criteria", "brief.volume_cap", "brief.abort_conditions",
 ]
@@ -28,6 +28,7 @@ EMBODIMENT_REQUIRED = [
 ]
 ENUMS = {
     "type": {"agent-card"},
+    "kind": {"context", "service"},
     "status": {"staging", "active", "rejected"},
     "blast_radius": {"read", "write", "spend", "prod"},
 }
@@ -65,6 +66,11 @@ def main(card: str) -> None:
         fail(GATE, f"{path.name}: filename must equal slug '{slug}'")
     if not SLUG_RE.match(slug):
         fail(GATE, f"{path.name}: slug {slug!r} must match {SLUG_RE.pattern}")
+    # a context agent guards one repo, so it must name it; a service is
+    # transversal and names none. (kind is enum-checked above.)
+    if get(fm, "kind") == "context" and get(fm, "repo") in (None, "", []):
+        fail(GATE, f"{path.name}: a context agent must name the repo it guards "
+                   f"(add 'repo: <name-or-path>'); a service agent omits it.")
     # embodiment identity is validated only when the block is present
     # (mandatory for powerful agents, optional for read-only)
     if get(fm, "embodiment.display_name") not in (None, ""):

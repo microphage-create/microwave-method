@@ -1,5 +1,6 @@
 ---
 type: agent-card
+kind: service
 name: Microwave
 slug: microwave
 status: active

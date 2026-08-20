@@ -1,4 +1,4 @@
-# CLAUDE.md — this repo runs on Microwave
+# CLAUDE.md: this repo runs on Microwave
 
 Microwave governs how agents get made here and what they remember. On session
 start, before anything else, get your bearings so you are never wired to

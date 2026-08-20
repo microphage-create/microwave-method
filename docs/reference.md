@@ -65,6 +65,7 @@ activate; the full path adds the devil loop and one human gatekeeper.
 | `gate_schema` | the agent card matches the template contract |
 | `gate_testable` | every done-criterion names a real check, not a filler word |
 | `gate_embodiment` | the agent has a body when it needs one |
+| `gate_uses` | an agent's declared services actually exist in the registry |
 | `gate_slop` | durable artifacts do not read like slop |
 | `gate_wiki` | the wiki is linked, indexed, and its atoms carry their contract |
 | `gate_docs` | generated doc sections match their source |
@@ -109,6 +110,7 @@ below is the log of decisions and their current lifecycle status.
 | ADR-025 | Shadow mode so gates roll out with a grace period, not a wall | accepted |
 | ADR-026 | Decay gives the wiki an end-of-life, so it does not only grow | accepted |
 | ADR-027 | A federated index carries anti-dup across the repo boundary | accepted |
+| ADR-028 | Agents are context or service, and the model carries the anti-sprawl | accepted |
 
 <!-- microwave:adrs end -->
 

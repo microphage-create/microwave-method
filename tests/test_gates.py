@@ -13,6 +13,7 @@ GATES = Path(__file__).resolve().parent.parent / "gates"
 
 VALID_READ_CARD = """---
 type: agent-card
+kind: service
 name: Test Reader
 slug: test-reader
 status: staging
@@ -93,6 +94,7 @@ class TestGateSchema(unittest.TestCase):
 
 GHOST_GATE_CARD = """---
 type: agent-card
+kind: service
 name: Ghost Ref
 slug: ghost-ref
 status: staging
@@ -204,6 +206,7 @@ class TestSlopBlanking(unittest.TestCase):
 
 FED_CARD = """---
 type: agent-card
+kind: service
 name: Invoice Parser
 slug: invoice-parser
 status: staging
@@ -287,6 +290,92 @@ class TestFederatedIndex(unittest.TestCase):
     def test_antidup_green_without_federation(self):
         _, card = self._local_with_card(federated=None)
         rc, out = run_gate("gate_antidup.py", card)
+        self.assertEqual(rc, 0, out)
+
+
+CONTEXT_CARD = """---
+type: agent-card
+kind: context
+name: My Repo Guard
+slug: my-repo-guard
+status: staging
+blast_radius: read
+repo: my-repo
+mission: guard the my-repo repository and drive its conventions
+definition_path: flows/my-repo-guard.md
+owner: "@me"
+synonyms: [my-repo, guard]
+uses: [copywriter]
+brief:
+  success_criteria:
+    - "loads repo conventions (check: a test asserts the card names the repo)"
+  volume_cap: 1 per repo
+  abort_conditions: stop if the repo path is missing
+---
+
+# My Repo Guard
+
+## Interfaces
+
+Reads the repo. Writes nothing.
+"""
+
+
+class TestTaxonomy(unittest.TestCase):
+    def test_missing_kind_fails(self):
+        bad = VALID_READ_CARD.replace("kind: service\n", "")
+        rc, out = run_gate("gate_schema.py", write_card(bad))
+        self.assertEqual(rc, 1)
+        self.assertIn("kind", out)
+
+    def test_bad_kind_fails(self):
+        bad = VALID_READ_CARD.replace("kind: service", "kind: sidekick")
+        rc, out = run_gate("gate_schema.py", write_card(bad))
+        self.assertEqual(rc, 1)
+
+    def test_context_without_repo_fails(self):
+        bad = CONTEXT_CARD.replace("repo: my-repo\n", "")
+        rc, out = run_gate("gate_schema.py", write_card(bad, slug="my-repo-guard"))
+        self.assertEqual(rc, 1, out)
+        self.assertIn("repo", out)
+
+    def test_context_with_repo_passes(self):
+        rc, out = run_gate("gate_schema.py",
+                           write_card(CONTEXT_CARD, slug="my-repo-guard"))
+        self.assertEqual(rc, 0, out)
+
+
+class TestGateUses(unittest.TestCase):
+    def _card_in(self, index_body, card_text=CONTEXT_CARD, name="my-repo-guard"):
+        root = repo_with_index(index_body)
+        agents = root / "wiki" / "agents"
+        agents.mkdir()
+        card = agents / f"{name}.md"
+        card.write_text(card_text, encoding="utf-8")
+        return card
+
+    def test_uses_resolves_to_service(self):
+        card = self._card_in(
+            "- [service] copywriter: writes copy → wiki/agents/copywriter.md\n")
+        rc, out = run_gate("gate_uses.py", card)
+        self.assertEqual(rc, 0, out)
+
+    def test_uses_missing_service_fails(self):
+        card = self._card_in("- [service] other: x → p\n")  # no copywriter
+        rc, out = run_gate("gate_uses.py", card)
+        self.assertEqual(rc, 1, out)
+        self.assertIn("copywriter", out)
+
+    def test_uses_pointing_at_a_context_does_not_resolve(self):
+        # only [service] lines satisfy uses; a [context] slug does not
+        card = self._card_in("- [context] copywriter: x → p\n")
+        rc, out = run_gate("gate_uses.py", card)
+        self.assertEqual(rc, 1, out)
+
+    def test_no_uses_is_green(self):
+        card = self._card_in("- [service] copywriter: x → p\n",
+                             card_text=VALID_READ_CARD, name="test-reader")
+        rc, out = run_gate("gate_uses.py", card)
         self.assertEqual(rc, 0, out)
 
 

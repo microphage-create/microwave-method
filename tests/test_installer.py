@@ -105,14 +105,14 @@ class SeedConsistency(unittest.TestCase):
         # the INDEX seed lives in 3 places (WIKI_INDEX + install.sh + install.ps1);
         # a divergence would mean a shell-installed repo has a different registry
         root = Path(__file__).resolve().parent.parent
-        line = ("- [agent] microwave: agent zero, the desktop front door that "
+        line = ("- [service] microwave: agent zero, the desktop front door that "
                 "opens a context-loaded session on this repo")
         sh = (root / "install" / "install.sh").read_text(encoding="utf-8")
         ps = (root / "install" / "install.ps1").read_text(encoding="utf-8")
         py = (root / "microwave_method" / "__init__.py").read_text(encoding="utf-8")
         self.assertIn(line, sh)
         self.assertIn(line, ps)
-        self.assertIn("- [agent] microwave: agent zero", py)
+        self.assertIn("- [service] microwave: agent zero", py)
         self.assertIn("wiki/agents/microwave.md", py)
 
 

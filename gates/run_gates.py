@@ -1,6 +1,6 @@
 """run_gates: the full pipeline on one agent card.
 
-anti-dup → brief → schema → testable → embodiment → slop → wiki.
+anti-dup → brief → schema → testable → embodiment → uses → slop → wiki.
 Exit code 0 = all green = the card may activate (fast path) or go to the
 gatekeeper (full path). Any red gate stops the pipeline with its message.
 """
@@ -15,6 +15,7 @@ GATES = [
     "gate_schema.py",
     "gate_testable.py",
     "gate_embodiment.py",
+    "gate_uses.py",
     "gate_slop.py",
     "gate_wiki.py",
 ]

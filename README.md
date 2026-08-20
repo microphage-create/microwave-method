@@ -245,6 +245,7 @@ creation. No committee, no ceremony:
 | `gate_schema` | the agent card matches the template contract |
 | `gate_testable` | every done-criterion names a real check, not a filler word |
 | `gate_embodiment` | the agent has a body when it needs one |
+| `gate_uses` | an agent's declared services actually exist in the registry |
 | `gate_slop` | durable artifacts do not read like slop |
 | `gate_wiki` | the wiki is linked, indexed, and its atoms carry their contract |
 | `gate_docs` | generated doc sections match their source |

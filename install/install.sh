@@ -49,7 +49,7 @@ One line per artifact: `- [type] id: one-line summary → path`
 
 ## Agents
 
-- [agent] microwave: agent zero, the desktop front door that opens a context-loaded session on this repo → wiki/agents/microwave.md
+- [service] microwave: agent zero, the desktop front door that opens a context-loaded session on this repo → wiki/agents/microwave.md
 
 ## ADR (meta)
 

@@ -50,3 +50,17 @@ adds, around the three steps above:
 **When in doubt about blast radius, take the full path.** `gate_schema`
 cross-checks a `read` declaration against write-signals, but the devil and
 the gatekeeper are the real guard.
+
+## The oracle: the done-criteria matter twice
+
+An agent's executable done-criteria are not only the activation gate. They are
+its **improvement oracle**: the pass/fail signal `flows/improve.md` reads to know
+a change actually improved the agent and did not merely run. Self-improvement is
+a birthright of every governed agent, not a bolt-on: an agent has a source (its
+card and definition) and is exercised on a real estate, so the two-plane loop
+that improves the method itself (ADR-030) applies to any agent the factory
+makes. This is the second reason `gate_testable` rejects a hollow check: a weak
+criterion still lets an agent activate, but it leaves the agent unimprovable,
+because the loop would have no trustworthy signal to optimize toward. The hard
+part of improving anything is the oracle, not the duplication; the factory
+refuses to create an agent without one.

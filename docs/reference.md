@@ -114,6 +114,7 @@ below is the log of decisions and their current lifecycle status.
 | ADR-027 | A federated index carries anti-dup across the repo boundary | accepted |
 | ADR-028 | Agents are context or service, and the model carries the anti-sprawl | accepted |
 | ADR-029 | Self-improvement loop and federated idea-box | proposed |
+| ADR-030 | Self-improvement is a birthright; the done-criteria are the oracle | proposed |
 
 <!-- microwave:adrs end -->
 

@@ -108,6 +108,7 @@ below is the log of decisions and their current lifecycle status.
 | ADR-024 | One-command install via uvx; distribution follows the Python core | accepted |
 | ADR-025 | Shadow mode so gates roll out with a grace period, not a wall | accepted |
 | ADR-026 | Decay gives the wiki an end-of-life, so it does not only grow | accepted |
+| ADR-027 | A federated index carries anti-dup across the repo boundary | accepted |
 
 <!-- microwave:adrs end -->
 

@@ -94,7 +94,18 @@ def targets(root: Path) -> list[Path]:
 
 
 def main(arg: str | None) -> None:
-    root = repo_root(Path(arg).parent if arg else None)
+    # A single file given on the command line may sit outside any repo (the same
+    # case gate_testable and gate_embodiment handle): fall back to cwd, where the
+    # rules bank lives, rather than crash. arg=None already resolves from cwd.
+    root = None
+    for start in ([Path(arg).parent] if arg else []) + [Path.cwd()]:
+        try:
+            root = repo_root(start)
+            break
+        except GateError:
+            continue
+    if root is None:
+        fail(GATE, "cannot locate repo root (slop/slop-rules.csv not found)")
     rules = load_rules(root)
     files = [Path(arg)] if arg else targets(root)
     files = [f for f in files if not EXCLUDED_PARTS.intersection(f.parts)]

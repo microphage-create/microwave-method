@@ -141,6 +141,16 @@ class TestShadowMode(unittest.TestCase):
         self.assertEqual(r.returncode, 0, r.stdout + r.stderr)  # not blocking
         self.assertIn("SHADOW", r.stdout + r.stderr)
 
+    def test_run_gates_respects_shadow_end_to_end(self):
+        # the hook path is run_gates -> gates; shadow must survive the whole chain
+        import os
+        bad = VALID_READ_CARD.replace("blast_radius: read", "blast_radius: godmode")
+        card = write_card(bad)
+        env = {**os.environ, "MICROWAVE_SHADOW": "1"}
+        r = subprocess.run([sys.executable, str(GATES / "run_gates.py"), str(card)],
+                           capture_output=True, text=True, env=env)
+        self.assertEqual(r.returncode, 0, r.stdout + r.stderr)  # hook path not blocking
+
 
 class TestGateTestableRefs(unittest.TestCase):
     def test_rejects_a_check_naming_a_nonexistent_gate(self):

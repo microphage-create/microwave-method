@@ -44,6 +44,26 @@ class ResolveAgent(unittest.TestCase):
         self.assertIsNone(refused)
 
 
+class ShellInstall(unittest.TestCase):
+    def test_install_sh_end_to_end(self):
+        import shutil as sh
+        import subprocess
+        import tempfile
+        if not sh.which("bash"):
+            self.skipTest("bash not available")
+        repo = Path(__file__).resolve().parent.parent
+        tmp = Path(tempfile.mkdtemp())
+        subprocess.run(["git", "-C", str(tmp), "init", "-q"], check=True)
+        r = subprocess.run(["bash", str(repo / "install" / "install.sh"), str(tmp)],
+                           capture_output=True, text=True)
+        self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+        self.assertTrue((tmp / "flows" / "welcome.md").is_file())
+        self.assertTrue((tmp / "CLAUDE.md").is_file() and (tmp / "AGENTS.md").is_file())
+        self.assertTrue((tmp / "wiki" / "agents" / "microwave.md").is_file())
+        self.assertFalse(list(tmp.rglob("*.pyc")), "shell install must not ship bytecode")
+        self.assertIn("agent zero", (tmp / "wiki" / "INDEX.md").read_text(encoding="utf-8"))
+
+
 class SeedConsistency(unittest.TestCase):
     def test_agent_zero_index_line_in_all_three_installers(self):
         # the INDEX seed lives in 3 places (WIKI_INDEX + install.sh + install.ps1);

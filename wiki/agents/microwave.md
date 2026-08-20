@@ -17,9 +17,9 @@ embodiment:
   display_name: Microwave
   icon: embodiment/icons/microwave.png
   palette:
-    bg: "#475559"
-    fg: "#E8EEEE"
-    accent: "#7FB0B0"
+    bg: "#0B1712"
+    fg: "#DCEDE4"
+    accent: "#2DB380"
   launch: claude
   embodied: false
 brief:

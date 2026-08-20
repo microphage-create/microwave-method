@@ -36,7 +36,7 @@ try:
     from importlib.metadata import version as _pkg_version
     VERSION = _pkg_version("microwave-method")
 except Exception:
-    VERSION = "0.1.10"
+    VERSION = "0.1.11"
 
 
 def _enable_ansi() -> bool:
@@ -217,12 +217,14 @@ def _patch_card(card: Path, launch=None, icon_rel=None, palette=None) -> None:
 
 # Terminal colour presets (bg, fg, accent) and desktop-icon variants, offered by
 # the launcher wizard. The icon PNGs ship in embodiment/icons/.
+# Terminal backgrounds must be DARK to read well; the default is a deep teal, not
+# the mid-grey petrol that only works as an icon tile.
 _PALETTES = [
-    ("Petrol", ("#475559", "#E8EEEE", "#7FB0B0")),
-    ("Charcoal", ("#1A1D1E", "#E8EEE9", "#7FB8A3")),
-    ("Forest green", ("#14211C", "#E8EEE9", "#3FBE8E")),
-    ("Slate blue", ("#1B2430", "#E6ECF2", "#7FA3C8")),
-    ("Plum", ("#241B2E", "#ECE6F2", "#AC9CC8")),
+    ("Deep teal", ("#0B1712", "#DCEDE4", "#2DB380")),
+    ("Charcoal", ("#131617", "#E8EEE9", "#7FB8A3")),
+    ("Forest green", ("#0E1A14", "#E8EEE9", "#3FBE8E")),
+    ("Slate blue", ("#0E141C", "#E6ECF2", "#7FA3C8")),
+    ("Plum", ("#17111E", "#ECE6F2", "#AC9CC8")),
 ]
 _ICON_CHOICES = [
     ("Microwave M on a petrol tile", "embodiment/icons/microwave.png"),
@@ -366,8 +368,11 @@ def _embody_agent_zero(target: Path, payload: Path) -> None:
         print(f"  {_c('32')}+{_c('0')} launcher on your desktop{extra}")
         perks = "its themed terminal" + (" and the pre-approved permissions"
                                           if "skip-permissions" in launch else "")
-        print(f"  from now on, open Microwave from that desktop icon to get {perks}:")
-        print("  this window started before the launcher, so it doesn't have them yet.")
+        print(f"  from now on, open Microwave from that launcher to get {perks}:")
+        print("  this window started before it, so it doesn't have them yet.")
+        if sys.platform != "win32":
+            print("  (launchers are newer on macOS/Linux: open it once to check it")
+            print("   works. If it doesn't, tell me and I'll fix it for your setup.)")
     else:
         tail = (r.stderr or r.stdout).strip().splitlines()
         print(f"  (couldn't place the launcher this time: {tail[-1] if tail else 'embodiment skipped'})")

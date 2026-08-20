@@ -37,7 +37,9 @@ Easier: the "central inventory" claim now holds past one repo, and
 wants. Harder: the manifest is a per-repo declaration a human maintains, and it
 federates by reading sibling checkouts, not a live service, so a repo the machine
 cannot reach is simply out of view rather than blocking. That is the deliberate
-trade: degrade to local, never fail the federation.
+trade: degrade to local, never fail the federation. Federation is also
+directional: if A lists B but B does not list A, a duplicate created in B is not
+checked against A, so declare it on both sides for symmetric coverage.
 
 ## Links
 

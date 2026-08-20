@@ -2,7 +2,8 @@ name: gates
 on:
   pull_request:
   push:
-    branches: [main]
+    # no branch filter: an adopter's default branch may be master or anything
+    # else, and a direct push must still run the gates.
 
 permissions:
   contents: read

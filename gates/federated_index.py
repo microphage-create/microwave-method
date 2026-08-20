@@ -33,9 +33,14 @@ def _manifest_repos(root: Path) -> list[Path]:
         mf = mf / part
     if not mf.exists():
         return []
+    try:
+        manifest = read_text(mf)
+    except GateError:
+        return []  # a corrupt/unreadable manifest degrades to no-federation,
+        # never a red CI (ADR-027: never fail the federation on a bad file)
     seen = {root.resolve()}
     repos: list[Path] = []
-    for raw in read_text(mf).splitlines():
+    for raw in manifest.splitlines():
         line = raw.strip()
         if not line or line.startswith("#"):
             continue

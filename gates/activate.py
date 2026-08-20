@@ -25,6 +25,15 @@ sys.path.insert(0, str(Path(__file__).parent))
 from _lib import GateError, fail, get, ok, read_frontmatter, repo_root
 
 GATE = "activate"
+# trailing whitespace tolerated: the YAML parser strips it, so a card that
+# passes gate_schema must not fail the status flip on a stray space.
+STATUS_FLIP_RE = re.compile(r"^status:[ \t]*staging[ \t]*$", re.M)
+
+
+def index_line(kind: str, slug: str, mission: str) -> str:
+    """The registry line for an activated card. The token carries the kind
+    (ADR-028), so an activated service is resolvable by gate_uses."""
+    return f"- [{kind}] {slug}: {mission} → wiki/agents/{slug}.md"
 
 
 def run_pipeline(card: Path) -> bool:
@@ -57,6 +66,7 @@ def main(card_arg: str) -> None:
         fail(GATE, str(e))
     slug = str(get(fm, "slug"))
     mission = str(get(fm, "mission") or "").rstrip(".")
+    kind = str(get(fm, "kind") or "service")  # taxonomy token for the index line
 
     if os.environ.get("MICROWAVE_SHADOW") == "1":
         # fail() is report-only in shadow, so exit directly: the gates are not
@@ -72,14 +82,13 @@ def main(card_arg: str) -> None:
         fail(GATE, f"{dst} already exists")
 
     src_text = src.read_text(encoding="utf-8")
-    new_text, n = re.subn(r"^status: staging$", "status: active", src_text,
-                          count=1, flags=re.M)
+    new_text, n = STATUS_FLIP_RE.subn("status: active", src_text, count=1)
     if n != 1:
         fail(GATE, f"{src.name}: could not flip 'status: staging' to active")
 
     index = root / "wiki" / "INDEX.md"
     idx_before = index.read_text(encoding="utf-8-sig")
-    line = f"- [agent] {slug}: {mission} → wiki/agents/{slug}.md"
+    line = index_line(kind, slug, mission)
 
     dst_created = idx_changed = src_removed = False
 

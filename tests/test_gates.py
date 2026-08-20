@@ -138,6 +138,24 @@ class TestDecay(unittest.TestCase):
         self.assertIn("LRN-C.md", names)      # orphan -> candidate
         self.assertNotIn("LRN-A.md", names)   # linked -> alive
 
+    def test_short_id_matches_on_boundary_not_substring(self):
+        root = Path(tempfile.mkdtemp())
+        d = root / "wiki" / "projects" / "x" / "learnings"
+        d.mkdir(parents=True)
+        (root / "wiki" / "INDEX.md").write_text("# idx\n", encoding="utf-8")
+        (d / "LRN-1.md").write_text("# one\nalpha\n", encoding="utf-8")
+        # the only mention anywhere is 'LRN-10', which must NOT reheat 'LRN-1'
+        (d / "LRN-10.md").write_text("# ten\nsee LRN-10\n", encoding="utf-8")
+        git = ["git", "-C", str(root)]
+        subprocess.run(git + ["init", "-q"], check=True)
+        subprocess.run(git + ["add", "-A"], check=True)
+        subprocess.run(git + ["-c", "user.email=t@t", "-c", "user.name=t",
+                              "commit", "-qm", "seed"], check=True)
+        sys.path.insert(0, str(GATES))
+        import decay
+        names = {Path(s["atom"]).name for s in decay.find_stale(root, 0.0)}
+        self.assertIn("LRN-1.md", names)  # 'LRN-10' is not a reference to 'LRN-1'
+
 
 class TestShadowMode(unittest.TestCase):
     def test_shadow_reports_but_does_not_block(self):
@@ -280,6 +298,15 @@ class TestFederatedIndex(unittest.TestCase):
         lines = federated_index.federated_index_lines(local)
         self.assertEqual(len(lines), 1)  # not doubled
 
+    def test_malformed_manifest_degrades_not_fatal(self):
+        import federated_index
+        root = repo_with_index("- [service] a: x → p\n")
+        (root / ".microwave").mkdir()
+        # a directory where the manifest file belongs: read must fail cleanly
+        (root / ".microwave" / "federation").mkdir()
+        lines = federated_index.federated_index_lines(root)  # must not raise
+        self.assertTrue(all(src is None for src, _ in lines))
+
     def test_antidup_catches_cross_repo_duplicate(self):
         fed = repo_with_index(FED_AGENT_LINE)
         _, card = self._local_with_card(federated=fed)
@@ -377,6 +404,22 @@ class TestGateUses(unittest.TestCase):
                              card_text=VALID_READ_CARD, name="test-reader")
         rc, out = run_gate("gate_uses.py", card)
         self.assertEqual(rc, 0, out)
+
+
+class TestActivate(unittest.TestCase):
+    def test_index_line_carries_the_kind_token(self):
+        import activate
+        self.assertEqual(
+            activate.index_line("service", "copywriter", "writes copy"),
+            "- [service] copywriter: writes copy → wiki/agents/copywriter.md")
+        self.assertNotIn("[agent]", activate.index_line("context", "suez", "guards"))
+
+    def test_status_flip_tolerates_trailing_whitespace(self):
+        import activate
+        text, n = activate.STATUS_FLIP_RE.subn("status: active",
+                                               "status: staging   \n", count=1)
+        self.assertEqual(n, 1)
+        self.assertIn("status: active", text)
 
 
 class TestSlopSeverity(unittest.TestCase):

@@ -67,7 +67,9 @@ def find_stale(root: Path, days: float) -> list[dict]:
     for p in files:
         keys = _reheat_keys(p)
         others = "\n".join(t for q, t in texts.items() if q != p)
-        if any(k in others for k in keys):
+        # match on id boundaries, not substrings: 'LRN-1' must not be counted
+        # as referenced just because 'LRN-10' appears somewhere.
+        if any(re.search(rf"(?<![\w-]){re.escape(k)}(?![\w-])", others) for k in keys):
             continue  # referenced by wikilink or by id in prose: alive
         age = _last_commit_age_days(root, p)
         if age is None or age < days:

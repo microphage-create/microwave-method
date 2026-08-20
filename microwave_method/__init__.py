@@ -467,6 +467,18 @@ def _uninstall(target: Path, payload: Path) -> None:
 
 
 def main() -> None:
+    # The banner (braille logo, box-drawing borders) is plain UTF-8 text, but
+    # Windows consoles are often still cp1252/cp850 by default: printing it
+    # there raises UnicodeEncodeError and kills the wizard before the desktop
+    # icon step ever runs. Force UTF-8 out, replacing anything that still
+    # can't render rather than crashing the whole install over a glyph.
+    for stream in (sys.stdout, sys.stderr):
+        if hasattr(stream, "reconfigure"):
+            try:
+                stream.reconfigure(encoding="utf-8", errors="replace")
+            except (OSError, ValueError):
+                pass
+
     target = Path(os.environ.get("MICROWAVE_TARGET", os.getcwd())).resolve()
     payload = _payload()
 

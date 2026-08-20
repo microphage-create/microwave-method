@@ -22,7 +22,7 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent))
-from _lib import GateError, fail, ok, read_text, repo_root
+from _lib import GateError, fail, ok, read_text, repo_root_or_cwd
 
 GATE = "gate_slop"
 EXCLUDED_PARTS = {"templates", "techniques", "slop", "_archive"}
@@ -94,16 +94,9 @@ def targets(root: Path) -> list[Path]:
 
 
 def main(arg: str | None) -> None:
-    # A single file given on the command line may sit outside any repo (the same
-    # case gate_testable and gate_embodiment handle): fall back to cwd, where the
-    # rules bank lives, rather than crash. arg=None already resolves from cwd.
-    root = None
-    for start in ([Path(arg).parent] if arg else []) + [Path.cwd()]:
-        try:
-            root = repo_root(start)
-            break
-        except GateError:
-            continue
+    # A single file may sit outside any repo; fall back to cwd where the rules
+    # bank lives (repo_root_or_cwd, shared in _lib). arg=None resolves from cwd.
+    root = repo_root_or_cwd(Path(arg).parent if arg else None)
     if root is None:
         fail(GATE, "cannot locate repo root (slop/slop-rules.csv not found)")
     rules = load_rules(root)

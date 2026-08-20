@@ -30,6 +30,18 @@ import gate_schema as schema  # noqa: E402  (SLUG_RE / NAME_RE / LAUNCH_FORBIDDE
 NAMESPACE = uuid.UUID("6d1c706f-7761-7665-6d65-74686f640000")  # stable per slug
 
 
+def dead_shell_note(launch: str, slug: str) -> str | None:
+    """An agent embodied with no launch gets a profile that opens a terminal but
+    invokes nothing: a dead shell. Return a warning saying how to make it
+    functional, or None when a launch is set. Pure, so it is testable without
+    touching the machine."""
+    if launch and launch.strip():
+        return None
+    return (f"[embody] note: '{slug}' has no embodiment.launch, so its profile "
+            f"opens a terminal but does not run the agent. Set "
+            f"embodiment.launch: 'claude' to invoke /{slug} on open.")
+
+
 class Identity:
     """Reads and REVALIDATES the identity fields it consumes.
 
@@ -215,6 +227,10 @@ def main() -> None:
             # far) return True/False here; others return None and stay silent.
             if result is not None:
                 print(f"[embody] launcher_verified={bool(result)}")
+            if not args.dry_run:
+                note = dead_shell_note(ident.launch, ident.slug)
+                if note:
+                    print(note)
     except (GateError, OSError, ValueError, RuntimeError) as e:
         print(f"[embody] FAIL: {e}")
         sys.exit(1)

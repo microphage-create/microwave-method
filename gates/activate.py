@@ -25,9 +25,10 @@ sys.path.insert(0, str(Path(__file__).parent))
 from _lib import GateError, fail, get, ok, read_frontmatter, repo_root
 
 GATE = "activate"
-# trailing whitespace tolerated: the YAML parser strips it, so a card that
-# passes gate_schema must not fail the status flip on a stray space.
-STATUS_FLIP_RE = re.compile(r"^status:[ \t]*staging[ \t]*$", re.M)
+# trailing whitespace AND quotes tolerated: the YAML parser strips both, so a
+# card that passes gate_schema (status: "staging" is a valid enum) must not fail
+# the flip because the raw line is quoted or padded.
+STATUS_FLIP_RE = re.compile(r"""^status:[ \t]*["']?staging["']?[ \t]*$""", re.M)
 
 
 def index_line(kind: str, slug: str, mission: str) -> str:

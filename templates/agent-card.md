@@ -24,7 +24,10 @@ created_in_minutes: 0
 # embodiment:
 #   display_name: Example
 #   icon: embodiment/icons/example.png
-#   palette: { bg: "#14181a", fg: "#e6ebeb", accent: "#9db8bd" }
+#   palette:
+#     bg: "#14181a"
+#     fg: "#e6ebeb"
+#     accent: "#9db8bd"
 #   embodied: false
 #   launch: optional bare command; shell metacharacters are rejected
 brief:

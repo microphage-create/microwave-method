@@ -64,23 +64,55 @@ def propose(root: Path) -> dict:
     return {"root": str(root), "contexts": contexts, "services": SUGGESTED_SERVICES}
 
 
+def _duplicate_slugs(contexts: list[dict]) -> list[str]:
+    seen: set[str] = set()
+    dupes: set[str] = set()
+    for c in contexts:
+        (dupes if c["slug"] in seen else seen).add(c["slug"])
+    return sorted(dupes)
+
+
+def _nested_repo_dirs(root: Path) -> list[str]:
+    """Child dirs that are not repos themselves but CONTAIN repos one level down,
+    so a nested estate (GitHub/org/repo) is not silently reported as empty."""
+    if not root.is_dir():
+        return []
+    return sorted(child.name for child in root.iterdir()
+                  if child.is_dir() and not (child / ".git").exists()
+                  and find_repos(child))
+
+
 def main(argv: list[str]) -> None:
-    root = Path(argv[0]).expanduser() if argv else Path.cwd()
+    given = argv[0] if argv else "."
+    root = Path(given).expanduser()
     plan = propose(root)
     contexts = plan["contexts"]
     if not contexts:
-        print(f"No git repos found directly under {plan['root']}.")
+        print(f"No git repos found directly under {given}.")
         if (root / ".git").exists():
             print("This looks like a single repo. Pass the folder that CONTAINS "
                   "your repos, e.g. its parent.")
+        else:
+            nested = _nested_repo_dirs(root)
+            if nested:
+                print("Repos seem nested one level deeper, under: "
+                      + ", ".join(nested) + ". Point me at one of those folders.")
         return
-    print(f"Scanned {plan['root']}: {len(contexts)} repo(s).\n")
+    print(f"Scanned {given}: {len(contexts)} repo(s) (direct children).\n")
     print("Proposed context agents (one guard per repo):")
     width = max(len(c["repo"]) for c in contexts)
     for c in contexts:
         stack = ", ".join(c["stack"]) or "stack not detected"
         note = "  [already has Microwave]" if c["microwaved"] else ""
         print(f"  - {c['repo']:<{width}}  [{stack}]  -> context, slug: {c['slug']}{note}")
+    dupes = _duplicate_slugs(contexts)
+    if dupes:
+        print("\nWARNING: repos collide on one agent slug: " + ", ".join(dupes)
+              + ". Rename a repo or give them distinct slugs before creating both.")
+    nested = _nested_repo_dirs(root)
+    if nested:
+        print("\nNote: more repos are nested under " + ", ".join(nested)
+              + " (scanned direct children only).")
     print("\nSuggested transversal services (shared, create once):")
     print("  " + ", ".join(plan["services"]))
     print("\nNext: run the propose-estate flow to create these with you, one at a "

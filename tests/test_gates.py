@@ -245,7 +245,7 @@ brief:
 Reads PDFs. Writes nothing.
 """
 
-FED_AGENT_LINE = ("- [agent] invoice-parser: parse invoices and extract line "
+FED_AGENT_LINE = ("- [service] invoice-parser: parse invoices and extract line "
                   "totals from pdfs → flows/invoice-parser.md\n")
 
 
@@ -269,7 +269,7 @@ class TestFederatedIndex(unittest.TestCase):
 
     def test_no_manifest_is_local_only(self):
         import federated_index
-        local = repo_with_index("- [agent] a: x → p\n- [agent] b: y → q\n")
+        local = repo_with_index("- [service] a: x → p\n- [service] b: y → q\n")
         lines = federated_index.federated_index_lines(local)
         self.assertEqual(len(lines), 2)
         self.assertTrue(all(src is None for src, _ in lines))
@@ -291,7 +291,7 @@ class TestFederatedIndex(unittest.TestCase):
 
     def test_self_reference_in_manifest_is_excluded(self):
         import federated_index
-        local = repo_with_index("- [agent] a: x → p\n")
+        local = repo_with_index("- [service] a: x → p\n")
         (local / ".microwave").mkdir()
         (local / ".microwave" / "federation").write_text(
             str(local) + "\n", encoding="utf-8")  # points at itself
@@ -380,6 +380,25 @@ class TestTaxonomy(unittest.TestCase):
         fm, _ = read_frontmatter(root / "templates" / "agent-card.md")
         self.assertIn(fm.get("kind"), {"context", "service"})
 
+    def test_template_has_no_inline_map(self):
+        # the YAML subset cannot parse inline {..} maps; the template must not
+        # teach a palette form that fails when a user uncomments it.
+        root = Path(__file__).resolve().parent.parent
+        text = (root / "templates" / "agent-card.md").read_text(encoding="utf-8")
+        self.assertNotIn("palette: {", text)
+
+    def test_service_with_repo_fails(self):
+        bad = VALID_READ_CARD.replace("kind: service", "kind: service\nrepo: some-repo")
+        rc, out = run_gate("gate_schema.py", write_card(bad))
+        self.assertEqual(rc, 1, out)
+        self.assertIn("repo", out)
+
+    def test_arrow_in_mission_fails(self):
+        bad = VALID_READ_CARD.replace("read files and report what they contain",
+                                      "read files → report what they contain")
+        rc, out = run_gate("gate_schema.py", write_card(bad))
+        self.assertEqual(rc, 1, out)
+
 
 class TestGateUses(unittest.TestCase):
     def _card_in(self, index_body, card_text=CONTEXT_CARD, name="my-repo-guard"):
@@ -429,6 +448,14 @@ class TestActivate(unittest.TestCase):
                                                "status: staging   \n", count=1)
         self.assertEqual(n, 1)
         self.assertIn("status: active", text)
+
+    def test_status_flip_tolerates_quotes(self):
+        # gate_schema strips quotes, so 'status: "staging"' is a valid enum; the
+        # flip must match it too, or a green card cannot be activated.
+        import activate
+        for raw in ('status: "staging"\n', "status: 'staging'\n", "status: staging\n"):
+            _, n = activate.STATUS_FLIP_RE.subn("status: active", raw, count=1)
+            self.assertEqual(n, 1, raw)
 
 
 class TestSlopSeverity(unittest.TestCase):
@@ -488,6 +515,14 @@ class TestScanEstate(unittest.TestCase):
         self.assertEqual(len(plan["contexts"]), 2)
         self.assertTrue(all(c["slug"] for c in plan["contexts"]))
         self.assertTrue(plan["services"])
+
+    def test_slug_collision_is_flagged(self):
+        import scan_estate
+        root = Path(tempfile.mkdtemp())
+        for name in ("my-app", "my_app"):  # both slugify to 'my-app'
+            (root / name / ".git").mkdir(parents=True)
+        plan = scan_estate.propose(root)
+        self.assertEqual(scan_estate._duplicate_slugs(plan["contexts"]), ["my-app"])
 
 
 if __name__ == "__main__":

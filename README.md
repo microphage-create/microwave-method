@@ -47,11 +47,11 @@ from what you already have:
 
 ```
 $ python gates/scan_estate.py ~/Documents/GitHub
-Scanned ~/Documents/GitHub: 3 repo(s).
+Scanned ~/Documents/GitHub: 3 repo(s) (direct children).
 
 Proposed context agents (one guard per repo):
-  - api-service  [Python]                  -> context, slug: api-service
-  - cli-tool     [Go]                       -> context, slug: cli-tool
+  - api-service  [Python]  -> context, slug: api-service
+  - cli-tool     [Go]  -> context, slug: cli-tool
   - web-app      [Next.js, Node/JS, TypeScript]  -> context, slug: web-app
 
 Suggested transversal services (shared, create once):

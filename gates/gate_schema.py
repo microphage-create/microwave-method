@@ -71,6 +71,12 @@ def main(card: str) -> None:
     if get(fm, "kind") == "context" and get(fm, "repo") in (None, "", []):
         fail(GATE, f"{path.name}: a context agent must name the repo it guards "
                    f"(add 'repo: <name-or-path>'); a service agent omits it.")
+    if get(fm, "kind") == "service" and get(fm, "repo") not in (None, "", []):
+        fail(GATE, f"{path.name}: a service agent is transversal and names no repo; "
+                   f"remove 'repo:', or set kind: context.")
+    if "→" in str(get(fm, "mission") or ""):
+        fail(GATE, f"{path.name}: mission must not contain '→'; it delimits the "
+                   f"registry line, so it would corrupt the index. Reword the mission.")
     # embodiment identity is validated only when the block is present
     # (mandatory for powerful agents, optional for read-only)
     if get(fm, "embodiment.display_name") not in (None, ""):

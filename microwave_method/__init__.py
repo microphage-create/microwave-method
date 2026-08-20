@@ -183,11 +183,15 @@ def _resolve_agent(target: Path) -> tuple[Path | None, Path | None]:
     if not found:
         return None, None
     agent_path = Path(found).resolve()
-    try:
-        agent_path.relative_to(Path(target).resolve())
-    except ValueError:
-        return agent_path, None  # outside the repo, from a real PATH entry
-    return None, agent_path  # inside the repo: could be planted, refuse
+    # shutil.which prepends the CWD on Windows; a planted binary could sit in the
+    # target OR the process cwd (they can differ via MICROWAVE_TARGET). Refuse both.
+    for danger in {Path(target).resolve(), Path.cwd().resolve()}:
+        try:
+            agent_path.relative_to(danger)
+            return None, agent_path  # inside a repo dir: could be planted, refuse
+        except ValueError:
+            continue
+    return agent_path, None  # outside both, from a real PATH entry
 
 
 def _install_plan(target: Path, payload: Path) -> list[Path]:

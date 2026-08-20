@@ -24,7 +24,7 @@ def is_hollow(check: str) -> bool:
     'pytest -q' (has an argument) and 'python gates/gate_wiki.py' pass;
     'works' and 'done' do not."""
     low = check.lower().strip()
-    if low in HOLLOW:
+    if low.rstrip(".!,;:") in HOLLOW:  # 'done.' is as hollow as 'done'
         return True
     words = low.split()
     return len(words) == 1 and not any(ch in low for ch in "./-_")
@@ -39,10 +39,16 @@ def main(card: str) -> None:
     crits = get(fm, "brief.success_criteria") or []
     if not crits:
         fail(GATE, f"{path.name}: no success criteria to check")
-    try:
-        root = repo_root(path.resolve().parent)
-    except GateError:
-        root = None  # card judged in isolation (e.g. a test): skip ref existence
+    root = None
+    for start in (path.resolve().parent, Path.cwd()):
+        try:
+            root = repo_root(start)
+            break
+        except GateError:
+            continue
+    # None only for a truly isolated card (unit test in a bare tmp dir); the hook
+    # validates a staged blob in a tmp path, so the Path.cwd() fallback finds the
+    # real repo and the ref-check still runs at commit time.
     for i, c in enumerate(crits, 1):
         check = str(c.get("check", "")).strip() if isinstance(c, dict) else ""
         if not check:

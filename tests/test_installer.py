@@ -29,9 +29,9 @@ class ResolveAgent(unittest.TestCase):
         self.assertEqual(refused, planted.resolve())
 
     def test_allows_binary_outside_target(self):
-        base = Path(__file__).resolve().parent
-        target = base / "some_target_repo"          # need not exist
-        outside = base / "real_claude"              # sibling, outside target
+        import tempfile
+        target = Path(tempfile.mkdtemp())                   # a target repo, off cwd
+        outside = Path(tempfile.mkdtemp()) / "real_claude"  # off both target and cwd
         microwave_method.shutil.which = lambda _: str(outside)
         trusted, refused = microwave_method._resolve_agent(target)
         self.assertEqual(trusted, outside.resolve())

@@ -562,6 +562,111 @@ class TestScanEstate(unittest.TestCase):
         self.assertEqual(kinds["corpus"], "content")
 
 
+class TestEstateHygiene(unittest.TestCase):
+    def _estate(self):
+        root = Path(tempfile.mkdtemp())
+        (root / "myproj" / ".git").mkdir(parents=True)
+        (root / "myproj" / "package.json").write_text("{}", encoding="utf-8")
+        (root / "myproj" / "next.config.js").write_text("", encoding="utf-8")
+        (root / "notes" / ".git").mkdir(parents=True)
+        (root / "notes" / ".obsidian").mkdir()
+        (root / "notes" / "a.md").write_text("# x", encoding="utf-8")
+        # a repo whose name breaks R1 (underscore + capitals): must be renamed
+        (root / "My_Proj" / ".git").mkdir(parents=True)
+        (root / "My_Proj" / "go.mod").write_text("module m", encoding="utf-8")
+        # a repo whose doc-ish suffix breaks R3: dossier -> docs
+        (root / "thing-dossier" / ".git").mkdir(parents=True)
+        (root / "thing-dossier" / "package.json").write_text("{}", encoding="utf-8")
+        # a repo with a dot (breaks R1): microphage.ai -> microphage-ai
+        (root / "microphage.ai" / ".git").mkdir(parents=True)
+        (root / "microphage.ai" / "package.json").write_text("{}", encoding="utf-8")
+        # a pure-punctuation repo name: the fix must be a VALID kebab name ("repo"),
+        # never the still-invalid original, and never a false OK
+        (root / "___" / ".git").mkdir(parents=True)
+        (root / "___" / "go.mod").write_text("module m", encoding="utf-8")
+        (root / "myproj-dossier").mkdir()  # loose, same family as myproj (companion)
+        (root / "unrelated-web").mkdir()   # loose stray, NOT any repo's family
+        return root
+
+    def _verdict(self, a, name):
+        return next(v for v in a["verdicts"] if v["name"] == name)
+
+    def test_r1_naming_and_r3_companion_renames(self):
+        import estate_hygiene
+        a = estate_hygiene.analyse(self._estate(), stale_days=120)
+        # R1: a misnamed repo gets the exact kebab rename
+        v = self._verdict(a, "My_Proj")
+        self.assertEqual(v["rule"], "R1")
+        self.assertEqual(v["rename"], "my-proj")
+        # R3: a -dossier companion gets renamed to the canonical -docs
+        v = self._verdict(a, "thing-dossier")
+        self.assertEqual(v["rule"], "R3")
+        self.assertEqual(v["rename"], "thing-docs")
+        # R1 again, a dot: microphage.ai -> microphage-ai
+        self.assertEqual(self._verdict(a, "microphage.ai")["rename"], "microphage-ai")
+        # a pure-punctuation name must NOT be a false OK: it gets a VALID kebab fix
+        v = self._verdict(a, "___")
+        self.assertEqual(v["rule"], "R1")
+        self.assertEqual(v["rename"], "repo")           # valid, not the "___" original
+        self.assertRegex(v["rename"], r"^[a-z0-9]+(-[a-z0-9]+)*$")
+        # a conforming repo is left alone (OK) and filed by stack
+        v = self._verdict(a, "myproj")
+        self.assertEqual(v["rule"], "OK")
+        self.assertIsNone(v["rename"])
+        self.assertEqual(v["home"], "code/next/")
+        self.assertEqual(self._verdict(a, "notes")["home"], "content/")
+
+    def test_report_never_mutates_the_estate(self):
+        # the read-only contract, enforced by observation not by a printed promise:
+        # snapshot every path under the estate, run the full analyse+report, assert
+        # the tree is byte-for-byte identical afterwards.
+        import contextlib
+        import io
+        import os
+
+        import estate_hygiene
+        root = self._estate()
+
+        def snapshot():
+            seen = {}
+            for dp, dns, fns in os.walk(root):
+                for f in fns:
+                    p = Path(dp) / f
+                    seen[str(p)] = p.read_bytes()
+                for d in dns:
+                    seen[str(Path(dp) / d) + os.sep] = b""
+            return seen
+
+        before = snapshot()
+        with contextlib.redirect_stdout(io.StringIO()):
+            estate_hygiene.report(estate_hygiene.analyse(root, 120))
+        self.assertEqual(snapshot(), before)  # nothing created, changed, or deleted
+
+    def test_r4_loose_companion_vs_stray(self):
+        import estate_hygiene
+        a = estate_hygiene.analyse(self._estate(), stale_days=120)
+        loose = {lf["name"]: lf["companion"] for lf in a["loose"]}
+        self.assertEqual(loose["myproj-dossier"], "myproj")  # companion detected
+        self.assertIsNone(loose["unrelated-web"])            # stray, no family
+        # the satellite groups with its project, and only it (no over-grouping)
+        self.assertEqual(sorted(a["families"]["myproj"]), ["myproj", "myproj-dossier"])
+        self.assertNotIn("myproj", a["families"].get("unrelated-web", []))
+
+    def test_report_declares_rules_and_is_readonly(self):
+        import contextlib
+        import io
+
+        import estate_hygiene
+        buf = io.StringIO()
+        with contextlib.redirect_stdout(buf):
+            estate_hygiene.report(estate_hygiene.analyse(self._estate(), 120))
+        out = buf.getvalue()
+        self.assertIn("HOUSE RULES", out)   # it declares arbitrary rules
+        self.assertIn("TARGET TREE", out)   # and where everything lands
+        self.assertIn("rename -> my-proj", out)  # a concrete verdict, not a dump
+        self.assertIn("never touches your code", out)
+
+
 class TestJsoncStrip(unittest.TestCase):
     """The Windows adapter rewrites the user's settings.json; stripping trailing
     commas must not reach inside string values (silent corruption)."""

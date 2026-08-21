@@ -42,6 +42,7 @@ agent's blast radius, never the creator's mood (the fast path is 3 steps).
 | `create-feature` | Pass 2 |
 | `devil-loop` | autonomous adversarial convergence |
 | `devil-review` | adversarial pass on a creation |
+| `estate-guard` | the convention-bringer for an estate |
 | `improve` | continuous-improvement mode |
 | `librarian` | wiki curation run |
 | `metrics` | read the ROI, log the invisible |

@@ -176,9 +176,10 @@ def _visible_windows() -> set:
     """Top-level visible window handles, right now. stdlib-only (ctypes), used
     to detect 'did a new window just appear' without extra dependencies."""
     import ctypes
-    user32 = ctypes.windll.user32
+    user32 = ctypes.windll.user32  # type: ignore[attr-defined]  # Windows-only
     hwnds: list = []
-    WNDENUMPROC = ctypes.WINFUNCTYPE(ctypes.c_bool, ctypes.c_void_p, ctypes.c_void_p)
+    WNDENUMPROC = ctypes.WINFUNCTYPE(  # type: ignore[attr-defined]  # Windows-only
+        ctypes.c_bool, ctypes.c_void_p, ctypes.c_void_p)
 
     def _collect(hwnd, _lparam):
         if user32.IsWindowVisible(hwnd):

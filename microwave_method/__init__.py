@@ -64,7 +64,7 @@ def _enable_ansi() -> bool:
     if os.name == "nt":
         try:
             import ctypes
-            k = ctypes.windll.kernel32
+            k = ctypes.windll.kernel32  # type: ignore[attr-defined]  # Windows-only
             k.SetConsoleMode(k.GetStdHandle(-11), 7)  # VT processing
         except Exception:
             return False

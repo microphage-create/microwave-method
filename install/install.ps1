@@ -14,10 +14,10 @@ $dst = Resolve-Path $Target
 git -C $dst rev-parse --is-inside-work-tree *> $null
 $isRepo = ($LASTEXITCODE -eq 0)
 if (-not $isRepo) {
-    Write-Host "warning: $dst is not a git repository (gates rely on repo protection)" -ForegroundColor Yellow
+    Write-Host "warning: $dst is not a git repository yet. Run 'git init' here first, so the gates can guard the repo." -ForegroundColor Yellow
 }
 
-$dirs = @("flows", "templates", "techniques", "slop", "gates", "embodiment", "hooks", "harness")
+$dirs = @("flows", "templates", "techniques", "slop", "gates", "embodiment", "hooks", "harness", ".claude/commands")
 foreach ($d in $dirs) {
     $from = Join-Path $src $d
     $to = Join-Path $dst $d
@@ -131,8 +131,8 @@ if ($isRepo) {
 }
 
 Write-Host "Microwave installed into $dst (flows, templates, techniques, slop, gates, embodiment, hooks, harness, CI workflow)"
-Write-Host "Next: open your coding agent there and say 'run the Microwave welcome flow'."
+Write-Host "Next: open your coding agent here and run /microwave (or say 'run the Microwave welcome flow')."
 Write-Host "Hardening left to you (cannot be shipped as files):"
 Write-Host "  1. edit CODEOWNERS with your gatekeeper's handle"
 Write-Host "  2. adapt harness/claude-settings.example.json into your harness settings"
-Write-Host "  3. enable branch protection with required check 'gates' (gh api ... enforce_admins=true)"
+Write-Host "  3. enable branch protection requiring the 'gates' check (GitHub repo Settings > Branches, or ask /microwave to walk you through it)."

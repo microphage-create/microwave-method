@@ -78,6 +78,9 @@ class ShellInstall(unittest.TestCase):
         self.assertTrue(reg.is_file() and led.is_file(), "sh install must seed the scaffold")
         self.assertIn("Session save register", reg.read_text(encoding="utf-8"))
         self.assertIn("Governance ledger", led.read_text(encoding="utf-8"))
+        # the /microwave front door must ship on the shell path too (parity with uvx)
+        self.assertTrue((tmp / ".claude" / "commands" / "microwave.md").is_file(),
+                        "sh install must ship .claude/commands so /microwave exists")
 
     def test_install_sh_does_not_run_target_planted_hooks(self):
         # RCE guard, shell path: a repo can ship its own hooks/ (git never

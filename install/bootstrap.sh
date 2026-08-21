@@ -17,5 +17,5 @@ git clone --quiet --depth 1 https://github.com/microphage-create/microwave-metho
 bash "$TMP/microwave-method/install/install.sh" "$TARGET"
 
 echo ""
-echo "Done. Next: open your coding agent in $TARGET and say:"
-echo "  \"run the Microwave welcome flow\"   (guides you, scans your existing agents)"
+echo "Done. Next: open your coding agent in $TARGET and run /microwave"
+echo "  (or say \"run the Microwave welcome flow\" - guides you, scans your existing agents)"

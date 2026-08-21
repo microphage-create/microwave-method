@@ -1,4 +1,4 @@
-# /microwave — Agent zero, the front door
+# /microwave: Agent zero, the front door
 
 This is the entry point of a Microwave-governed repo: the skill that creates
 and modifies every other agent in it. Run this first thing, every time a

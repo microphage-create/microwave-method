@@ -7,6 +7,8 @@ it, the runtime resolves agents through it. A line has the form:
 
 ## Agents
 
+- [context] repo-guard: Guard the microwave-method repo's own conventions when an agent works on it, reading and reporting violations without writing → wiki/agents/repo-guard.md
+
 - [service] librarian: Curate the wiki between gatekeeper sessions by proposing promotions, flagging rot, and keeping links and index coverage healthy → wiki/agents/librarian.md
 
 - [service] factory: single entry point of agent creation, runs the pass-1 flow with gates → wiki/agents/factory.md

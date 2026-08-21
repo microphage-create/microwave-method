@@ -49,7 +49,7 @@ WIKI_LEDGER = (
     "down per author. Never edit past lines: the ledger is history.\n"
 )
 START_LINE = "run the Microwave welcome flow"
-TAGLINE = "an agent factory with a governed memory"
+TAGLINE = "makes your AI agents and remembers them, in this repo"
 
 try:
     from importlib.metadata import version as _pkg_version
@@ -347,14 +347,10 @@ def _embody_agent_zero(target: Path, payload: Path) -> None:
         print("   from the shipped one; run it yourself if you trust it)")
         return
     print()
-    print("  One more thing, and it matters more than it looks: this icon becomes")
-    print("  your front door. From now on you open Microwave from here, not from a")
-    print("  plain terminal, so every session already knows the method and the")
-    print("  registry instead of you rebuilding that context by hand each time.")
-    print("  It is agent zero: the one that makes every other agent, skill, or")
-    print("  repo from here on, and it may add more icons of its own as you build")
-    print("  things worth their own launcher. Lose this one and you lose the door")
-    print("  back in, so it is worth the ten seconds below.")
+    print("  One more thing, worth the ten seconds: this icon is your front door.")
+    print("  You open Microwave from it, not a plain terminal, so every session")
+    print("  already knows this repo and its history instead of you rebuilding")
+    print("  that by hand each time. Lose the icon and you lose the way back in.")
     print()
     if not _confirm("Put a Microwave launcher on your desktop (opens this repo in a terminal)?"):
         return
@@ -630,7 +626,7 @@ def main() -> None:
                   f"your own coding agent yourself rather than trusting that one.")
 
     dim, bold, reset = _c("2"), _c("1"), _c("0")
-    print(f"{dim}Hardening left to you (cannot be shipped as files):{reset}")
+    print(f"{dim}Optional hardening (server-side, can't ship as files) — /microwave can walk you through these:{reset}")
     print(f"  1. put your gatekeeper's handle in {bold}CODEOWNERS{reset}")
     print(f"  2. adapt {bold}harness/claude-settings.example.json{reset} into your harness")
     print(f"  3. enable branch protection with the required check {bold}gates{reset}")

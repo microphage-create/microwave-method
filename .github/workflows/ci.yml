@@ -1,10 +1,10 @@
 name: ci
-# Microwave's OWN development CI: the full gate + static-analysis + test suite
-# across every OS and supported Python version. This is NOT the workflow the
-# installers ship to an adopter (they copy only gates.yml, a single-runner gate
-# on the adopter's governed repo). This one is the maintainer's cross-platform
-# bar, and it exists because a Windows-only green run once merged a Linux-red
-# change (ctypes is platform-specific): the matrix is the fix for that blind spot.
+# Microwave's OWN development CI (not shipped to adopters: the installers copy
+# only gates.yml, a single-runner gate on the adopter's governed repo). Two jobs:
+#   - lint: deterministic checks (ruff, codespell), run once.
+#   - matrix: platform-sensitive checks (mypy, gates, tests) across every OS and
+#     supported Python version, because Microwave is a cross-platform installer +
+#     embodiment tool and a Windows-only green run once merged a Linux-red change.
 on:
   pull_request:
   push:
@@ -13,6 +13,19 @@ permissions:
   contents: read
 
 jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Lint + spellcheck (deterministic, once)
+        run: |
+          pip install ruff==0.16.4 codespell==2.4.3
+          ruff check .
+          codespell
+
   matrix:
     name: ${{ matrix.os }} / py${{ matrix.python-version }}
     strategy:
@@ -35,10 +48,9 @@ jobs:
         run: python gates/gate_slop.py
       - name: Generated docs are fresh
         run: python gates/gate_docs.py
-      - name: Static analysis (ruff + mypy, per-OS so platform issues surface)
+      - name: Typecheck (mypy, per-OS so platform issues surface)
         run: |
-          pip install ruff==0.16.4 mypy==2.3.1
-          ruff check .
+          pip install mypy==2.3.1
           mypy
       - name: Unit and integration tests
         run: python -m unittest discover tests -v

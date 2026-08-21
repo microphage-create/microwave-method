@@ -128,6 +128,22 @@ cheaply; the proof is the devil pass, the gatekeeper, and your own tests.
 **Rolling out to a live team?** `MICROWAVE_SHADOW=1` makes the gates report what
 they would block without failing, for a grace period. Unset to enforce.
 
+## It improves itself, and so does every agent it makes
+
+The method is not shipped once and left alone. A live install is the product's
+proving ground: a friction hit on real work becomes a scrubbed report, the fix is
+made in the source, dogfooded back on the real estate, and hardened by a
+fresh-eyes devil pass before it ships as a gated, reversible commit. The human
+stays at one point, the ship (ADR-029).
+
+This is not reserved for the framework. Every governed agent has a source (its
+card and definition) and runs on a real estate, so the same loop applies to it.
+It is the second job of the executable done-criteria the factory demands: not only
+the activation gate, but the pass/fail signal that tells the loop a change improved
+the agent instead of merely running (ADR-030). An agent the factory cannot measure,
+it will not create. The full recipe, and where it stops working:
+`docs/self-improvement.md`.
+
 ## Where it sits
 
 You already have pieces of this. What Microwave adds, against each:

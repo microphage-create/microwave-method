@@ -49,7 +49,7 @@ WIKI_LEDGER = (
     "down per author. Never edit past lines: the ledger is history.\n"
 )
 START_LINE = "run the Microwave welcome flow"
-TAGLINE = "makes your AI agents and remembers them, in this repo"
+TAGLINE = "an agent factory with a governed memory"
 
 try:
     from importlib.metadata import version as _pkg_version

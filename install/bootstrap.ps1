@@ -32,5 +32,5 @@ finally {
 }
 
 Write-Host ""
-Write-Host "Done. Next: open your coding agent in $target and say:"
-Write-Host '  "run the Microwave welcome flow"   (guides you, scans your existing agents)'
+Write-Host "Done. Next: open your coding agent in $target and run /microwave"
+Write-Host '  (or say "run the Microwave welcome flow" - guides you, scans your existing agents)'

@@ -8,9 +8,9 @@ TARGET="${1:?usage: install.sh <target-repo>}"
 SRC="$(cd "$(dirname "$0")/.." && pwd)"
 DST="$(cd "$TARGET" && pwd)"
 
-git -C "$DST" rev-parse --is-inside-work-tree >/dev/null 2>&1 || echo "warning: $DST is not a git repository (gates rely on repo protection)"
+git -C "$DST" rev-parse --is-inside-work-tree >/dev/null 2>&1 || echo "warning: $DST is not a git repository yet. Run 'git init' here first, so the gates can guard the repo."
 
-for d in flows templates techniques slop gates embodiment hooks harness; do
+for d in flows templates techniques slop gates embodiment hooks harness .claude/commands; do
   mkdir -p "$DST/$d"
   (cd "$SRC/$d" && find . -type f ! -path "./icons/*" ! -path "*/__pycache__/*" ! -name "*.pyc") | while read -r f; do
     out="$DST/$d/${f#./}"
@@ -96,9 +96,8 @@ done
 [ -e "$DST/wiki/agents/microwave.md" ] || { [ -f "$SRC/wiki/agents/microwave.md" ] && cp "$SRC/wiki/agents/microwave.md" "$DST/wiki/agents/microwave.md"; }
 
 echo "Microwave installed into $DST (flows, templates, techniques, slop, gates, embodiment, hooks, harness, CI workflow)"
-echo "Next: open your coding agent there and say 'run the Microwave welcome flow'."
+echo "Next: open your coding agent here and run /microwave (or say 'run the Microwave welcome flow')."
 echo "Hardening left to you (cannot be shipped as files):"
 echo "  1. edit CODEOWNERS with your gatekeeper's handle"
 echo "  2. adapt harness/claude-settings.example.json into your harness settings"
-echo "  3. enable branch protection with required check 'gates', e.g.:"
-echo "     gh api -X PUT repos/{owner}/{repo}/branches/main/protection -f enforce_admins=true ..."
+echo "  3. enable branch protection requiring the 'gates' check (GitHub repo Settings > Branches, or ask /microwave to walk you through it)."

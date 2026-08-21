@@ -111,11 +111,14 @@ stricter.
 
 Stated plainly, because the difference is where most tools oversell.
 
-**Structural** (a machine refuses; goodwill is not involved): the pre-commit hook
-and the CI workflow run the gates and block a commit that fails them; `CODEOWNERS`
-plus branch protection gate who merges. These exit non-zero. The gates and the
-stdlib YAML parser they rely on (no dependency, deliberately: a governance tool
-should not widen your supply chain) are covered by a test suite in that same CI.
+**Structural** (a machine refuses; goodwill is not involved): the CI workflow runs
+the gates on every PR and, with branch protection enabled, `CODEOWNERS` plus the
+required `gates` check block a merge that fails. These exit non-zero and cannot be
+waved through. The local pre-commit hook runs the same gates for fast feedback,
+but it is a convenience, not the floor: `git commit --no-verify` skips it, so the
+CI re-run on the protected space is the real backstop. The gates and the stdlib
+YAML parser they rely on (no dependency, deliberately: a governance tool should
+not widen your supply chain) are covered by a test suite in that same CI.
 
 **Cooperative** (the agent has to play along): the flows, the elicitation, the
 devil pass, and the gatekeeper's judgment are conventions, not code that exits
@@ -140,8 +143,10 @@ This is not reserved for the framework. Every governed agent has a source (its
 card and definition) and runs on a real estate, so the same loop applies to it.
 It is the second job of the executable done-criteria the factory demands: not only
 the activation gate, but the pass/fail signal that tells the loop a change improved
-the agent instead of merely running (ADR-030). An agent the factory cannot measure,
-it will not create. The full recipe, and where it stops working:
+the agent instead of merely running (ADR-030). The factory refuses an agent with
+no criterion to improve toward, though a check can only confirm a criterion names
+something real, not that it bites: a weak but well-formed one still activates, it
+just leaves the agent unimprovable. The full recipe, and where it stops working:
 `docs/self-improvement.md`.
 
 ## Where it sits

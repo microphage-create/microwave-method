@@ -10,8 +10,9 @@ letting an unverified change reach the product.
 - **SOURCE** is the product repo (the framework's home). Framework code is
   edited here, never in an install.
 - **INSTALL** is a live Microwave on a real estate. It receives framework code
-  one-way (`dev-loop/sync.py`, estate-preserving) and is where a change is
-  dogfooded on real data.
+  one-way through an install-local sync tool (`dev-loop/sync.py`, estate-
+  preserving, set up per install, not shipped in the distribution) and is where a
+  change is dogfooded on real data.
 
 Edit in the source, sync into the install, dogfood, then ship. A change edited
 directly in an install is reverted by the next sync: that is the reminder, not a
@@ -33,9 +34,10 @@ publish. The scrubbing is not optional: it is what makes a report safe to share.
 3. **Verify at the source**: `python -m unittest discover tests`, and the gates
    the change touches. A bug fix ships with a regression test that fails without
    it.
-4. **Sync** into the install: `python dev-loop/sync.py --check`. The check must
-   report the estate still healthy: a framework change that breaks the real
-   estate is a failed cycle, not a ship.
+4. **Sync** into the install with your install-local sync tool (e.g. `python
+   dev-loop/sync.py --check`, which you set up per install). The check must report
+   the estate still healthy: a framework change that breaks the real estate is a
+   failed cycle, not a ship.
 5. **Dogfood**: exercise the changed behavior on the real estate. Test a few
    agents, confirm the registry is consistent and everything is indexed and
    saved (`gate_wiki`). Watch what actually changed.

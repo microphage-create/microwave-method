@@ -192,6 +192,7 @@ clones the repo and does the same. Try it with nothing touched: `uvx
 microwave-method --dry-run`. Per-OS walkthrough, uninstall and troubleshooting:
 `docs/install.md`. The generated reference (flows, gates, decisions):
 `docs/reference.md`. The longer thinking behind the method: `docs/manifesto.md`.
+Running the checks and the cross-platform CI: `docs/development.md`.
 
 ## Status
 

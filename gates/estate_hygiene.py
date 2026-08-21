@@ -5,7 +5,7 @@ DECLARES a small set of arbitrary house rules (naming, home, companions, loose
 folders, families) and then judges every repo against them: this one is misnamed,
 rename it to X; that one is stale, it belongs in archive/; this loose folder is
 not a repo, move it out. One clear way, on purpose, so a thirty-folder estate
-stays legible. Read-only, always (ADR-020: humans move and rename; the tool only
+stays legible. Read-only, always (ADR-031: humans move and rename; the tool only
 names the rule and the verdict). Stdlib only (ADR-007).
 
     python gates/estate_hygiene.py ~/Documents/GitHub [--stale-days 120]

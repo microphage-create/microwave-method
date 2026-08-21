@@ -128,7 +128,7 @@ class SeedConsistency(unittest.TestCase):
         # REGISTER + LEDGER headers are seeded by all three installers so a fresh
         # install can run its first save (IR-001). Pin a distinctive line of each
         # across the three seed sites: a divergence would seed a drifted scaffold.
-        from microwave_method import WIKI_REGISTER, WIKI_LEDGER
+        from microwave_method import WIKI_LEDGER, WIKI_REGISTER
         root = Path(__file__).resolve().parent.parent
         sh = (root / "install" / "install.sh").read_text(encoding="utf-8")
         ps = (root / "install" / "install.ps1").read_text(encoding="utf-8")

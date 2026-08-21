@@ -90,7 +90,8 @@ def _welcome(target: Path, payload: Path) -> None:
     cols = shutil.get_terminal_size((80, 24)).columns
     inner = max(46, min(cols - 2, 96))
     dim, accent, reset, bold = _c("2"), _c("38;2;120;170;170"), _c("0"), _c("1")
-    tl, tr, bl, br, h, v = ("╭", "╮", "╰", "╯", "─", "│") if _COLOR else ("+", "+", "+", "+", "-", "|")
+    tl, tr, bl, br, h, v = (("╭", "╮", "╰", "╯", "─", "│") if _COLOR
+                            else ("+", "+", "+", "+", "-", "|"))
 
     def row(content: str = "") -> None:
         print(dim + v + reset + content + " " * max(0, inner - _vlen(content)) + dim + v + reset)
@@ -99,15 +100,17 @@ def _welcome(target: Path, payload: Path) -> None:
     b = payload / "banner.txt"
     if b.is_file():
         art = b.read_text(encoding="utf-8").rstrip("\n").split("\n")
-    art_w = max((len(l) for l in art), default=0)
+    art_w = max((len(ln) for ln in art), default=0)
     pad = " " * max(0, (inner - art_w) // 2)
 
     print()
     print(dim + tl + h * inner + tr + reset)
-    row(); row()
-    for l in art:
-        row(accent + pad + l + reset)
-    row(); row()
+    row()
+    row()
+    for ln in art:
+        row(accent + pad + ln + reset)
+    row()
+    row()
     row("  " + bold + "Microwave Method" + reset + dim + "   v" + VERSION + reset)
     row("  " + dim + str(target) + reset)
     row("  " + dim + TAGLINE + reset)
@@ -416,7 +419,8 @@ def _embody_agent_zero(target: Path, payload: Path) -> None:
             print("   works. If it doesn't, run /microwave in your agent to fix it.)")
     else:
         tail = (r.stderr or r.stdout).strip().splitlines()
-        print(f"  (couldn't place the launcher this time: {tail[-1] if tail else 'embodiment skipped'})")
+        detail = tail[-1] if tail else "embodiment skipped"
+        print(f"  (couldn't place the launcher this time: {detail})")
 
 
 def _uninstall(target: Path, payload: Path) -> None:
@@ -524,7 +528,8 @@ def main() -> None:
         for ctx in ("CLAUDE.md", "AGENTS.md"):
             dst = target / ctx
             if (dst.exists() and (payload / ctx).is_file()
-                    and "runs on Microwave" not in dst.read_text(encoding="utf-8", errors="replace")):
+                    and "runs on Microwave"
+                    not in dst.read_text(encoding="utf-8", errors="replace")):
                 appends.append(dst)
         print(f"\nMicrowave dry-run in {target}\n")
         print(f"{len(planned)} file(s) would be CREATED (an existing file is never overwritten):")
@@ -626,11 +631,12 @@ def main() -> None:
                   f"your own coding agent yourself rather than trusting that one.")
 
     dim, bold, reset = _c("2"), _c("1"), _c("0")
-    print(f"{dim}Optional hardening (server-side, can't ship as files) — /microwave can walk you through these:{reset}")
+    print(f"{dim}Optional hardening (server-side, can't ship as files); "
+          f"/microwave can walk you through these:{reset}")
     print(f"  1. put your gatekeeper's handle in {bold}CODEOWNERS{reset}")
     print(f"  2. adapt {bold}harness/claude-settings.example.json{reset} into your harness")
     print(f"  3. enable branch protection with the required check {bold}gates{reset}")
-    print(f"\nTo start: open the desktop launcher if you made one, or open your")
+    print("\nTo start: open the desktop launcher if you made one, or open your")
     print(f"coding agent here yourself and run {bold}/microwave{reset}.")
     if not _is_git_repo(target):
         print(f"{dim}First run `git init` here so the gates can guard the repo.{reset}")

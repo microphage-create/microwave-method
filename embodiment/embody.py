@@ -14,18 +14,18 @@ formats accept embedded PNG), no imaging library required.
 from __future__ import annotations
 
 import argparse
+import importlib
 import platform
+import re
 import struct
 import sys
 import uuid
 from pathlib import Path
 
-import re
-
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "gates"))
-from _lib import GateError, get, read_frontmatter  # noqa: E402
 import gate_schema as schema  # noqa: E402  (SLUG_RE / NAME_RE / LAUNCH_FORBIDDEN)
+from _lib import GateError, get, read_frontmatter  # noqa: E402
 
 NAMESPACE = uuid.UUID("6d1c706f-7761-7665-6d65-74686f640000")  # stable per slug
 
@@ -70,7 +70,7 @@ class Identity:
             self.icon_src.relative_to(ROOT.resolve())
         except ValueError:
             raise GateError(f"{card_path.name}: embodiment.icon must live inside the "
-                            f"repo (got {icon_rel!r}); no absolute or ../ paths")
+                            f"repo (got {icon_rel!r}); no absolute or ../ paths") from None
         self.bg = str(get(fm, "embodiment.palette.bg"))
         self.fg = str(get(fm, "embodiment.palette.fg"))
         self.accent = str(get(fm, "embodiment.palette.accent"))
@@ -93,11 +93,12 @@ class Identity:
 
     @staticmethod
     def _hex(rgb: tuple[int, int, int]) -> str:
-        return "#%02X%02X%02X" % rgb
+        return "#{:02X}{:02X}{:02X}".format(*rgb)
 
     def mix(self, a: str, b: str, t: float) -> str:
         ra, rb = self._rgb(a), self._rgb(b)
-        return self._hex(tuple(round(x + (y - x) * t) for x, y in zip(ra, rb)))
+        v = [round(x + (y - x) * t) for x, y in zip(ra, rb, strict=True)]
+        return self._hex((v[0], v[1], v[2]))
 
     # The default palette's exact, hand-tuned 16-color scheme (the one also
     # used for the Brevo terminal): reused verbatim so the two match to the
@@ -129,10 +130,13 @@ class Identity:
             "black": self.bg, "white": self.fg,
             "brightBlack": m(self.bg, self.fg, 0.35), "brightWhite": m(self.fg, "#FFFFFF", 0.6),
             "red": m("#C05B4D", self.accent, 0.15), "brightRed": m("#E07A6B", self.accent, 0.15),
-            "green": m("#4E9A6E", self.accent, 0.15), "brightGreen": m("#6FC08F", self.accent, 0.15),
-            "yellow": m("#C7A94F", self.accent, 0.2), "brightYellow": m("#E0C878", self.accent, 0.2),
+            "green": m("#4E9A6E", self.accent, 0.15),
+            "brightGreen": m("#6FC08F", self.accent, 0.15),
+            "yellow": m("#C7A94F", self.accent, 0.2),
+            "brightYellow": m("#E0C878", self.accent, 0.2),
             "blue": m("#5B7FA6", self.accent, 0.25), "brightBlue": m("#7FA3C8", self.accent, 0.25),
-            "purple": m("#8B7AA6", self.accent, 0.25), "brightPurple": m("#AC9CC8", self.accent, 0.25),
+            "purple": m("#8B7AA6", self.accent, 0.25),
+            "brightPurple": m("#AC9CC8", self.accent, 0.25),
             "cyan": m(self.accent, self.fg, 0.15), "brightCyan": m(self.accent, "#FFFFFF", 0.3),
         }
 
@@ -174,7 +178,7 @@ class Identity:
     def set_embodied(self, value: bool) -> None:
         """Flip the flag inside the frontmatter block only."""
         lines = self.card_path.read_text(encoding="utf-8-sig").splitlines(keepends=True)
-        delims = [i for i, l in enumerate(lines) if l.strip() == "---"]
+        delims = [i for i, ln in enumerate(lines) if ln.strip() == "---"]
         if len(delims) < 2:
             raise GateError(f"{self.card_path}: no frontmatter block")
         flag = "true" if value else "false"
@@ -203,12 +207,7 @@ def main() -> None:
         print(f"[embody] FAIL: unsupported platform: {platform.system()}")
         sys.exit(1)
 
-    if os_name == "windows":
-        from adapters import windows as adapter
-    elif os_name == "macos":
-        from adapters import macos as adapter
-    else:
-        from adapters import linux as adapter
+    adapter = importlib.import_module(f"adapters.{os_name}")
 
     try:
         ident = Identity(Path(args.card).resolve())

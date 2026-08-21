@@ -278,7 +278,7 @@ class TestFederatedIndex(unittest.TestCase):
         import federated_index
         fed = repo_with_index(FED_AGENT_LINE)
         local, _ = self._local_with_card(federated=fed)
-        foreign = [(s, l) for s, l in federated_index.federated_index_lines(local)
+        foreign = [(s, ln) for s, ln in federated_index.federated_index_lines(local)
                    if s is not None]
         self.assertEqual(len(foreign), 1)
         self.assertEqual(foreign[0][0], fed.name)

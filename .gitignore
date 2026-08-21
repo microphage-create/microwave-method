@@ -1,8 +1,16 @@
+# Python bytecode
 __pycache__/
-*.pyc
-.DS_Store
-Thumbs.db
-*.bak.*
+*.py[cod]
+
+# Dev-tool caches and artifacts (ruff, mypy, coverage): none are runtime deps,
+# and their scratch output must never enter history.
+.ruff_cache/
+.mypy_cache/
+.coverage
+.coverage.*
+htmlcov/
+
+# Build output
 dist/
-.venv/
-embodiment/icons/build/
+build/
+*.egg-info/

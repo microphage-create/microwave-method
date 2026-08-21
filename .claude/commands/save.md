@@ -1,4 +1,4 @@
-# /save — session checkpoint
+# /save: session checkpoint
 
 ```
   save  v1

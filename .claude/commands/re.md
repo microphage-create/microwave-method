@@ -1,4 +1,4 @@
-# /re — resume where you left off
+# /re: resume where you left off
 
 ```
   re  v1

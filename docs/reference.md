@@ -117,6 +117,7 @@ below is the log of decisions and their current lifecycle status.
 | ADR-028 | Agents are context or service, and the model carries the anti-sprawl | accepted |
 | ADR-029 | Self-improvement loop and federated idea-box | proposed |
 | ADR-030 | Self-improvement is a birthright; the done-criteria are the oracle | proposed |
+| ADR-031 | Estate-level governance is read-only, it names but never moves | accepted |
 
 <!-- microwave:adrs end -->
 

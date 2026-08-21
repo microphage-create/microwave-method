@@ -365,7 +365,8 @@ def _embody_agent_zero(target: Path, payload: Path) -> None:
     # (a session never acts on CLAUDE.md alone), so this stays plain here.
     launch = "claude"
     if _confirm("  Start Claude with permissions pre-approved "
-                "(skips the per-action prompts)?", default=True):
+                "(faster, but it can then act without asking you each time)?",
+                default=False):
         launch = "claude --dangerously-skip-permissions"
 
     palette = _choose("Terminal colour:", _PALETTES, default=0)
@@ -409,14 +410,14 @@ def _embody_agent_zero(target: Path, payload: Path) -> None:
         elif tested:
             print(f"  from now on, open Microwave from that launcher to get {perks}:")
             print("  I tried launching it just now and didn't see a new window open.")
-            print("  double-click the desktop icon once yourself; tell me if nothing")
-            print("  happens and I'll fix it for your setup.")
+            print("  double-click the desktop icon once yourself; if nothing opens,")
+            print("  run /microwave in your agent and it will diagnose the launcher.")
         else:
             print(f"  from now on, open Microwave from that launcher to get {perks}:")
             print("  this window started before it, so it doesn't have them yet.")
         if sys.platform != "win32":
             print("  (launchers are newer on macOS/Linux: open it once to check it")
-            print("   works. If it doesn't, tell me and I'll fix it for your setup.)")
+            print("   works. If it doesn't, run /microwave in your agent to fix it.)")
     else:
         tail = (r.stderr or r.stdout).strip().splitlines()
         print(f"  (couldn't place the launcher this time: {tail[-1] if tail else 'embodiment skipped'})")
@@ -602,10 +603,11 @@ def main() -> None:
         shutil.copy2(zero_src, zero)
     _ok(f"{copied} files installed: memory, quality gates, and CODEOWNERS in place")
 
-    # Side effects (git init, hook, launching your agent) only with a yes.
+    # Side effects (git init, hook, desktop launcher) only with a yes. This does
+    # NOT open a coding agent; it sets things up so the launcher or /microwave can.
     proceed = _confirm(
-        "Set up git here (if needed), install the pre-commit check, and start the "
-        "guided setup now?")
+        "Set up git here (if needed), install the pre-commit check, and place your "
+        "desktop launcher now?")
     if proceed:
         if not _is_git_repo(target):
             init = subprocess.run(["git", "-C", str(target), "init"],

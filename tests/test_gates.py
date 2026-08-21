@@ -636,5 +636,23 @@ class TestEmbodyDeadShell(unittest.TestCase):
         self.assertIsNone(self._embody().dead_shell_note("claude", "ops"))
 
 
+class TestRunGatesAggregates(unittest.TestCase):
+    def test_all_gates_run_and_failures_collected(self):
+        # A card with no real frontmatter fails several gates. run_gates must run
+        # ALL of them (not stop at the first red) and list the failures together,
+        # so the fix list is complete in one pass. cwd is the card's own tmp dir
+        # (no repo above) so the run is isolated from this repo's registry.
+        card = write_card("# not a real card\n", slug="broken")
+        r = subprocess.run([sys.executable, str(GATES / "run_gates.py"), str(card)],
+                           capture_output=True, text=True, cwd=str(card.parent))
+        out = r.stdout + r.stderr
+        self.assertNotEqual(r.returncode, 0, out)
+        # the LAST gate in the pipeline appears -> the run did not stop at the first
+        self.assertIn("gate_wiki", out)
+        # more than one red surfaced together (the whole point of the change)
+        self.assertIn("gates RED", out)
+        self.assertGreaterEqual(out.count("FAIL"), 2, out)
+
+
 if __name__ == "__main__":
     unittest.main()

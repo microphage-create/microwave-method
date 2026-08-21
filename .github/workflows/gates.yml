@@ -22,10 +22,10 @@ jobs:
         run: python gates/gate_slop.py
       - name: Generated docs are fresh
         run: python gates/gate_docs.py
-      - name: Static analysis of the gates (ruff + mypy, dev-only)
+      - name: Static analysis (ruff + mypy, dev-only)
         run: |
           pip install ruff==0.16.4 mypy==2.3.1
-          ruff check gates/
+          ruff check .
           mypy
       - name: Unit and integration tests (only if this repo ships them)
         run: |

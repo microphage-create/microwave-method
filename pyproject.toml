@@ -60,5 +60,5 @@ select = ["E", "F", "W", "I", "B", "UP"]
 
 [tool.mypy]
 python_version = "3.10"
-files = ["gates"]
+files = ["gates", "embodiment", "microwave_method"]
 ignore_missing_imports = true

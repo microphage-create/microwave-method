@@ -8,8 +8,14 @@ import unittest
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "gates"))
-from _lib import (GateError, _scalar, parse_yaml_subset,  # noqa: E402
-                  get, tokenize, read_frontmatter)
+from _lib import (  # noqa: E402
+    GateError,
+    _scalar,
+    get,
+    parse_yaml_subset,
+    read_frontmatter,
+    tokenize,
+)
 
 
 class TestScalar(unittest.TestCase):

@@ -7,7 +7,6 @@ from __future__ import annotations
 
 import json
 import os
-import re
 import shutil
 import subprocess
 import time
@@ -80,7 +79,7 @@ def _load() -> dict:
         data = json.loads(_strip_jsonc(raw))
     except json.JSONDecodeError as e:
         raise RuntimeError(f"cannot parse {WT_SETTINGS}: {e}. "
-                           f"Fix the file or point MICROWAVE_WT_SETTINGS elsewhere.")
+                           f"Fix the file or point MICROWAVE_WT_SETTINGS elsewhere.") from e
     profiles = data.get("profiles")
     if isinstance(profiles, list):  # legacy schema: profiles was a bare list
         data["profiles"] = {"list": profiles}
@@ -222,7 +221,8 @@ def apply(ident, dry_run: bool = False) -> bool | None:
     dry-run (nothing was created, so nothing to test)."""
     if dry_run:
         ident.png_bytes()  # validate the icon source, write nothing
-        print(f"[windows] would write {ident.build_dir / (ident.slug + '-' + ident.icon_src.stem + '.ico')}")
+        ico = ident.build_dir / (ident.slug + "-" + ident.icon_src.stem + ".ico")
+        print(f"[windows] would write {ico}")
         print(f"[windows] would add scheme+profile '{ident.name}' to {WT_SETTINGS}")
         print(f"[windows] would create desktop shortcut '{ident.name}.lnk'")
         return None
@@ -245,7 +245,9 @@ def apply(ident, dry_run: bool = False) -> bool | None:
     print(f"[windows] desktop shortcut: {lnk}")
 
     verified = verify_launch(ident)
-    print(f"[windows] launcher {'verified: a new window opened' if verified else 'could not be verified: no new window detected'}")
+    status = ("verified: a new window opened" if verified
+              else "could not be verified: no new window detected")
+    print(f"[windows] launcher {status}")
     return verified
 
 

@@ -43,7 +43,7 @@ LAUNCH_FORBIDDEN = re.compile(r"""[;&|`$<>(){}\[\]"'\\\n\r]""")
 WRITE_SIGNALS = re.compile(
     r"\b(writes|creates|deletes|deploys|deployed|updates|edits|edited|"
     r"modifies|modified|pushes|pushed|commits|committed|sends|spends|"
-    r"purchases|registers)\b", re.I)
+    r"purchases|registers)\b", re.IGNORECASE)
 
 
 def main(card: str) -> None:
@@ -93,7 +93,7 @@ def main(card: str) -> None:
     if get(fm, "blast_radius") == "read":
         outputs = " ".join(str(o) for o in (get(fm, "outputs") or []))
         interfaces = ""
-        m = re.search(r"##\s*Interfaces\s*\n(.*?)(\n##|\Z)", body, re.S)
+        m = re.search(r"##\s*Interfaces\s*\n(.*?)(\n##|\Z)", body, re.DOTALL)
         if m:
             interfaces = m.group(1)
         blob = outputs + " " + interfaces

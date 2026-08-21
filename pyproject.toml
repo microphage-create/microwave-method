@@ -47,3 +47,18 @@ packages = ["microwave_method"]
 "CLAUDE.md" = "microwave_method/_payload/CLAUDE.md"
 "AGENTS.md" = "microwave_method/_payload/AGENTS.md"
 "wiki/agents/microwave.md" = "microwave_method/_payload/wiki/agents/microwave.md"
+
+# Dev-only static analysis (CI). The SHIPPED tool stays stdlib-only (ADR-007);
+# ruff and mypy are dev tools that check this repo's own gates, never runtime
+# dependencies. Borrowed from the discipline of well-typed OSS estates.
+[tool.ruff]
+target-version = "py310"
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP"]
+
+[tool.mypy]
+python_version = "3.10"
+files = ["gates"]
+ignore_missing_imports = true

@@ -24,10 +24,12 @@ import subprocess
 import sys
 import time
 from pathlib import Path
+from typing import TypedDict
 
 sys.path.insert(0, str(Path(__file__).parent))
-from _lib import GateError, repo_root  # noqa: E402
-from gate_wiki import SKIP_NAMES as SKIP  # noqa: E402  (one source of truth)
+from _lib import GateError, repo_root
+from gate_wiki import SKIP_NAMES as SKIP
+
 ID_RE = re.compile(r"^([A-Za-z]{2,6}-\d+)")  # ADR-008, LRN-012, ...
 
 
@@ -60,10 +62,15 @@ def _last_commit_age_days(root: Path, path: Path) -> float | None:
     return (time.time() - int(out)) / 86400.0
 
 
-def find_stale(root: Path, days: float) -> list[dict]:
+class StaleAtom(TypedDict):
+    atom: str
+    age_days: float
+
+
+def find_stale(root: Path, days: float) -> list[StaleAtom]:
     files = _atoms(root)
     texts = {p: p.read_text(encoding="utf-8", errors="replace") for p in files}
-    stale = []
+    stale: list[StaleAtom] = []
     for p in files:
         keys = _reheat_keys(p)
         others = "\n".join(t for q, t in texts.items() if q != p)

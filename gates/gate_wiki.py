@@ -14,7 +14,15 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent))
-from _lib import GateError, fail, index_lines, ok, read_frontmatter, read_text, repo_root
+from _lib import (
+    GateError,
+    fail,
+    index_lines,
+    ok,
+    read_frontmatter,
+    read_text,
+    repo_root,
+)
 
 GATE = "gate_wiki"
 WIKILINK = re.compile(r"\[\[([^\]|#]+)\]\]")

@@ -51,8 +51,8 @@ def parse(root: Path, since: str | None) -> list[tuple[str, str, str, str, str]]
 
 def digest(rows) -> None:
     from collections import defaultdict
-    per = defaultdict(Counter)
-    for date, event, subject, detail, author in rows:
+    per: defaultdict[str, Counter[str]] = defaultdict(Counter)
+    for _date, event, _subject, _detail, author in rows:
         per[author or "unattributed"][event] += 1
     print("== Contribution digest ==")
     print("Factual, attributed contributions. NOT a verdict on people:")
@@ -84,27 +84,27 @@ def main(since: str | None, mode: str) -> None:
         return int(tail) if (tail.isascii() and tail.isdigit()) else 1
 
     total_defects = sum(weight(r[3]) for r in intercepted)
-    by_source = Counter()
+    by_source: Counter[str] = Counter()
     for r in intercepted:
         by_source[r[3].split(":")[0]] += weight(r[3])
 
     span = f" since {since}" if since else ""
     print(f"== Microwave governance report{span} ==")
     print(f"window: {rows[0][0]} -> {rows[-1][0]}, {len(rows)} events\n")
-    print(f"VISIBLE")
+    print("VISIBLE")
     print(f"  agents created:   {events['created']}")
     print(f"  agents/atoms purged: {events['purged']}")
     if minutes:
         print(f"  method cost:      {sum(minutes)} min total, "
               f"{sum(minutes) / len(minutes):.0f} min median-ish per agent")
-    print(f"\nINVISIBLE (prevention, the reason to run this)")
+    print("\nINVISIBLE (prevention, the reason to run this)")
     print(f"  defects intercepted before activation: {total_defects} "
           f"(in {events['intercepted']} events)")
     for src, n in by_source.most_common():
         print(f"    via {src}: {n}")
     print(f"  duplicates blocked: {events['deduped']}")
-    print(f"\nnote: reuse and compute savings need your provider dashboard; "
-          f"this ledger measures what the loop itself can see (ADR-014).")
+    print("\nnote: reuse and compute savings need your provider dashboard; "
+          "this ledger measures what the loop itself can see (ADR-014).")
 
 
 if __name__ == "__main__":

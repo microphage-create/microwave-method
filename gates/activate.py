@@ -28,7 +28,7 @@ GATE = "activate"
 # trailing whitespace AND quotes tolerated: the YAML parser strips both, so a
 # card that passes gate_schema (status: "staging" is a valid enum) must not fail
 # the flip because the raw line is quoted or padded.
-STATUS_FLIP_RE = re.compile(r"""^status:[ \t]*["']?staging["']?[ \t]*$""", re.M)
+STATUS_FLIP_RE = re.compile(r"""^status:[ \t]*["']?staging["']?[ \t]*$""", re.MULTILINE)
 
 
 def index_line(kind: str, slug: str, mission: str) -> str:

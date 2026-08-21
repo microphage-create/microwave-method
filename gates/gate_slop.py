@@ -50,7 +50,7 @@ def load_rules(root: Path) -> list[dict]:
                            f"(got {row['severity']!r}); a stray comma in the "
                            f"pattern often shifts the columns, quote the pattern")
             try:
-                row["_re"] = re.compile(pattern, re.I | re.M)
+                row["_re"] = re.compile(pattern, re.IGNORECASE | re.MULTILINE)
             except (re.error, TypeError) as e:
                 fail(GATE, f"invalid regex in rule '{rid}': {e}")
             rules.append(row)
@@ -61,16 +61,17 @@ def _blank_quoted(text: str) -> str:
     # Blank out fenced code, inline code and blockquote lines (keeping line
     # positions intact) so an atom can CITE the very slop it documents without
     # tripping the gate. The prose around them is still scanned.
-    def blank(m: "re.Match") -> str:
+    def blank(m: re.Match) -> str:
         return re.sub(r"[^\n]", " ", m.group(0))
-    text = re.sub(r"```.*?```", blank, text, flags=re.S)
+    text = re.sub(r"```.*?```", blank, text, flags=re.DOTALL)
     text = re.sub(r"`[^`\n]*`", blank, text)
     return "\n".join(" " * len(line) if line.lstrip().startswith(">") else line
                      for line in text.split("\n"))
 
 
 def scan(path: Path, rules: list[dict]) -> tuple[list[str], list[str]]:
-    rejects, warns = [], []
+    rejects: list[str] = []
+    warns: list[str] = []
     text = _blank_quoted(read_text(path))
     for rule in rules:
         for m in rule["_re"].finditer(text):
@@ -112,8 +113,8 @@ def main(arg: str | None) -> None:
         all_rejects += r
         all_warns += w
 
-    for w in all_warns:
-        print(f"[{GATE}] warn: {w}")
+    for warn in all_warns:
+        print(f"[{GATE}] warn: {warn}")
     if all_rejects:
         fail(GATE, "slop detected:\n  " + "\n  ".join(all_rejects))
     ok(GATE, f"{len(files)} artifact(s) clean"

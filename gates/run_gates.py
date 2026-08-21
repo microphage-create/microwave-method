@@ -53,9 +53,9 @@ def main(card: str) -> None:
             print(f"  FAIL  {gate}: {msg}")
         sys.exit(1)
     if os.environ.get("MICROWAVE_SHADOW") == "1":
-        print(f"\n[run_gates] SHADOW MODE: gates ran report-only. Any 'would block' "
-              f"line above is NOT enforced; unset MICROWAVE_SHADOW to enforce. "
-              f"This is not a green result.")
+        print("\n[run_gates] SHADOW MODE: gates ran report-only. Any 'would block' "
+              "line above is NOT enforced; unset MICROWAVE_SHADOW to enforce. "
+              "This is not a green result.")
     else:
         print(f"\n[run_gates] ALL GREEN for {card}. "
               f"Fast path: activate. Full path: request gatekeeper judgment.")

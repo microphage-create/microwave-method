@@ -10,8 +10,8 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent))
-from _lib import GateError, fail, ok, repo_root
 import docgen
+from _lib import GateError, fail, ok, repo_root
 
 GATE = "gate_docs"
 

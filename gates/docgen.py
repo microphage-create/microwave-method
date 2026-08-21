@@ -27,7 +27,7 @@ sys.path.insert(0, str(Path(__file__).parent))
 from _lib import GateError, fail, ok, read_frontmatter, read_text, repo_root
 
 GATE = "docgen"
-MARKER_RE = re.compile(r"<!-- microwave:(\w+) start -->.*?<!-- microwave:\1 end -->", re.S)
+MARKER_RE = re.compile(r"<!-- microwave:(\w+) start -->.*?<!-- microwave:\1 end -->", re.DOTALL)
 
 
 def _gate_order(root: Path) -> list[str]:
@@ -55,7 +55,7 @@ def gen_gates(root: Path) -> str:
 def gen_flows(root: Path) -> str:
     rows = ["| Flow | Purpose |", "|---|---|"]
     for f in sorted((root / "flows").glob("*.md")):
-        m = re.search(r"^#\s*Flow:\s*(.+?)\s*\((.+?)\)\s*$", read_text(f), re.M)
+        m = re.search(r"^#\s*Flow:\s*(.+?)\s*\((.+?)\)\s*$", read_text(f), re.MULTILINE)
         name, purpose = (m.group(1).strip(), m.group(2).strip()) if m else (f.stem, "")
         rows.append(f"| `{name}` | {purpose} |")
     return "\n".join(rows)
@@ -92,7 +92,7 @@ def apply(root: Path, check: bool) -> list[str]:
         if "<!-- microwave:" not in text:
             continue
 
-        def repl(m: re.Match) -> str:
+        def repl(m: re.Match, doc: Path = doc) -> str:
             section = m.group(1)
             if section not in SECTIONS:
                 raise GateError(f"{doc.name}: unknown generated section "

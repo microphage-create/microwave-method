@@ -51,8 +51,8 @@ def main(card: str) -> None:
 
     if hits:
         rationale = str(get(fm, "anti_dup_rationale") or "").strip()
-        listing = "\n  ".join(f"similarity {j} (threshold {THRESHOLD}) :: {l}"
-                              for j, l in sorted(hits, reverse=True))
+        listing = "\n  ".join(f"similarity {j} (threshold {THRESHOLD}) :: {line}"
+                              for j, line in sorted(hits, reverse=True))
         if len(rationale) < 20:
             fail(GATE, f"{path.name}: overlaps with existing registry entries and "
                        f"anti_dup_rationale is empty/too short.\n  {listing}\n"

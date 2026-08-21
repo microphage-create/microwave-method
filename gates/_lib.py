@@ -54,11 +54,11 @@ def read_text(path: Path) -> str:
     try:
         return path.read_text(encoding="utf-8-sig")
     except FileNotFoundError:
-        raise GateError(f"{path}: file not found")
+        raise GateError(f"{path}: file not found") from None
     except OSError as e:
-        raise GateError(f"{path}: cannot read file ({e.strerror or e})")
+        raise GateError(f"{path}: cannot read file ({e.strerror or e})") from e
     except UnicodeDecodeError:
-        raise GateError(f"{path}: not valid UTF-8 (re-save the file as UTF-8)")
+        raise GateError(f"{path}: not valid UTF-8 (re-save the file as UTF-8)") from None
 
 
 def read_frontmatter(path: Path) -> tuple[dict, str]:
@@ -72,7 +72,7 @@ def read_frontmatter(path: Path) -> tuple[dict, str]:
     try:
         end = next(i for i in range(1, len(lines)) if lines[i].strip() == FM_DELIM)
     except StopIteration:
-        raise GateError(f"{path}: unterminated frontmatter")
+        raise GateError(f"{path}: unterminated frontmatter") from None
     fm = parse_yaml_subset(lines[1:end])
     body = "\n".join(lines[end + 1 :])
     return fm, body
@@ -220,7 +220,7 @@ def repo_root_or_cwd(start: Path | None = None) -> Path | None:
 
 def index_lines(root: Path) -> list[str]:
     idx = read_text(root / "wiki" / "INDEX.md")
-    return [l.strip() for l in idx.splitlines() if l.strip().startswith("- [")]
+    return [line.strip() for line in idx.splitlines() if line.strip().startswith("- [")]
 
 
 def tokenize(text: str) -> set[str]:

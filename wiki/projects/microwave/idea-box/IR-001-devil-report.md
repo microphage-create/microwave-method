@@ -56,5 +56,6 @@ as clear rather than re-raising it.
 
 ## Gatekeeper note
 
-Pending Marcel's ship-gate judgment (semi-auto: an installer change is out of
-full-auto scope). Accepted / rejected and why: {to fill at merge}.
+Accepted by Marcel ("fait tout") and merged via PR #10. The CLEAN loop and the
+live dogfood of both shell installers were the basis; the EOL non-fix was
+reviewed and judged defensible, not a defect.

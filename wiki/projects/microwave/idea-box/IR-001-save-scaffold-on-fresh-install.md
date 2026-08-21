@@ -5,7 +5,7 @@ title: first save on a fresh install writes into a non-existent scaffold
 kind: bug
 surface: flow
 severity: blocks
-status: open
+status: shipped
 scrubbed: true
 date: 2026-08-21
 source_signal: dogfood
@@ -61,4 +61,4 @@ two MEDIUM findings). Seeding at install is the root fix.
 Branch `fix/save-seed-session-scaffold` on the source. Semi-auto: an installer
 change is out of full-auto scope, so it stops at the PR for the human to merge.
 Devil loop CLEAN in 4 rounds ([[IR-001-devil-report]]).
-PR: https://github.com/microphage-create/microwave-method/pull/10 (awaiting merge).
+PR: https://github.com/microphage-create/microwave-method/pull/10 (merged, Marcel's go).

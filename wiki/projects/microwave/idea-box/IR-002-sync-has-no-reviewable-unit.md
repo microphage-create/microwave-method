@@ -36,9 +36,9 @@ from the work-tree. There is no atomic, reviewable, revertable sync unit.
 Two options were on the table: a dedicated integration branch per sync, or a
 plain changed-paths manifest. Chosen: **make the sync a commit**, which beats
 both. A commit is at once the reviewable unit (`git show`) and the revertable
-one (`git revert`) — the manifest gives only the first — while committing on the
-current branch avoids the branch-switching ceremony that made the integration
-branch heavy. An opt-in `--commit` runs the sync, gate-checks the estate, and on
+one (`git revert`); the manifest gives only the first. Committing on the current
+branch avoids the branch-switching ceremony that made the integration branch
+heavy. An opt-in `--commit` runs the sync, gate-checks the estate, and on
 green commits ONLY the framework files it changed (pathspec-limited), so the
 operator's estate edits stay uncommitted. Default behavior is unchanged.
 

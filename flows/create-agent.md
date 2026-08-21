@@ -13,12 +13,18 @@ spends, or touches production):
    `repo:`; a **service** is transversal and reusable, so `kind: service` and no
    `repo:`. Then: mission, I/O, the 3-section brief, done-criteria with executable
    checks, and `uses:` listing any services it calls (each must resolve). Write it
-   to `wiki/_staging/<slug>.md`. Embodiment is OPTIONAL here (`embodied` may stay
-   false): a throwaway read-only agent needs no desktop body.
+   to `wiki/_staging/<slug>.md`, and make the card's `definition_path` point at a
+   real definition (the flow or prompt the agent runs): reuse an existing flow, or
+   write a new one from `templates/agent-definition.md`. Every agent needs a
+   definition, read-only included: it is what the agent runs when invoked.
+   Embodiment is OPTIONAL here (`embodied` may stay false): a throwaway read-only
+   agent needs no desktop body.
 2. **Gate**: `python gates/run_gates.py wiki/_staging/<slug>.md` (anti-dup,
    brief, schema, testable, embodiment, uses, slop, wiki, all bundled). Fix reds, re-run.
-3. **Activate**: `python gates/activate.py wiki/_staging/<slug>.md`. Done,
-   nobody to wait for.
+3. **Activate**: `python gates/activate.py wiki/_staging/<slug>.md`. This moves
+   the card to `wiki/agents/<slug>.md`, flips it to `active`, and lists it in
+   `wiki/INDEX.md`. Done, nobody to wait for. From here you invoke the agent by
+   its slug: the registry resolves it to its definition.
 
 That is the whole thing for the common case. The guards below apply ONLY
 when the agent can do damage.
@@ -26,7 +32,10 @@ when the agent can do damage.
 ## Full path (write / spend / prod agents): the fast path plus guards
 
 An agent that writes repos or data, spends money, or touches production
-adds, around the three steps above:
+adds, around the three steps above. The full path in order:
+**1 Elicit → 2 Spec → 3 Embody → 4 Build → 5 Gate → 6 Devil → 7 Gatekeeper →
+8 Seed.** Each guard below threads into the fast path's three steps; here they
+are in that order:
 
 - **Elicit** (before step 1): three anchors (invert: what makes it harmful
   or useless; neighbor: which agent is closest; scope cut: what is OUT),
@@ -35,17 +44,24 @@ adds, around the three steps above:
 - **Embody** (mandatory here, part of step 1): `python
   embodiment/embody.py wiki/_staging/<slug>.md`. A durable, powerful agent
   is recognizable on the desktop; the human validates the icon.
-- **Build** (between spec and gate): create the agent definition at the
-  card's `definition_path`.
-- **Devil** (after the gates pass): a FRESH agent session with no creation
-  context attacks the card via `flows/devil-review.md`, looped by
-  `flows/devil-loop.md` until zero objections. The creator never reviews
-  their own creation.
+- **Build** (between spec and gate): where step 1's definition, when it is a new
+  file rather than a reused flow, gets written so it exists before the gate runs.
+  For a damaging agent, treat the definition with the same care as the card
+  (`flows/librarian.md` IS the librarian).
+- **Devil** (after the gates pass): an independent check hardens the card. A
+  FRESH agent session with no creation context reviews it via
+  `flows/devil-review.md`, looped by `flows/devil-loop.md` until it finds nothing.
+  The creator never reviews their own creation. Keep the review's kill/severity
+  vocabulary inside those flows, not in what the user sees.
 - **Gatekeeper** (replaces step 3's self-activation): runs `activate.py` as
   the act of judgment, clean devil report attached, or rejects (card stays
   in `_staging/`, marked `rejected`).
 - **Seed** (after): create `wiki/projects/<domain>/` from
   `templates/project-seed.md` if the agent opens a new domain.
+
+Once the gatekeeper activates it, the card lands in `wiki/agents/<slug>.md` and
+the registry just like the fast path, and you invoke it by its slug; an embodied
+agent also has its desktop launcher as a way in.
 
 **When in doubt about blast radius, take the full path.** `gate_schema`
 cross-checks a `read` declaration against write-signals, but the devil and

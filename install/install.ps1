@@ -51,7 +51,7 @@ foreach ($f in @("LICENSE", "NOTICE.md")) {
 
 # Seed the wiki (INDEX + spaces), never overwriting
 $wiki = Join-Path $dst "wiki"
-foreach ($d in @("agents", "adr", "projects", "_staging", "_archive")) {
+foreach ($d in @("agents", "adr", "projects", "_staging", "_archive", "sessions", "metrics")) {
     New-Item -ItemType Directory -Force -Path (Join-Path $wiki $d) | Out-Null
 }
 $index = Join-Path $wiki "INDEX.md"
@@ -69,6 +69,36 @@ One line per artifact: `- [type] id: one-line summary → path`
 
 ## Projects
 '@ | Set-Content -Encoding utf8NoBOM $index
+}
+$register = Join-Path $wiki "sessions/REGISTER.md"
+if (-not (Test-Path $register)) {
+    @'
+# Session save register
+
+Append-only lookup table for `flows/save.md` / `flows/resume.md`. One line
+per save, most recent last:
+
+`- S-YYYYMMDD-NN-slug | YYYY-MM-DD | agent | scope | one-line summary`
+
+An id is all a human needs to resume from any machine that has this repo.
+Saves live beside this file; this register is their local index (ADR-012).
+'@ | Set-Content -Encoding utf8NoBOM $register
+}
+$ledger = Join-Path $wiki "metrics/LEDGER.md"
+if (-not (Test-Path $ledger)) {
+    @'
+# Governance ledger (append-only)
+
+One line per governance event, logged at the moment it happens (ADR-014).
+Format: `DATE | event | subject | detail | author` (author = agent+human).
+
+Events: created (agent activated, detail = minutes) - intercepted (defect
+caught before activation, detail = source:severity) - deduped (creation
+blocked as duplicate) - purged (agent/atom retired, detail = why).
+
+`gates/metrics.py` aggregates this into the ROI report; `--digest` breaks it
+down per author. Never edit past lines: the ledger is history.
+'@ | Set-Content -Encoding utf8NoBOM $ledger
 }
 
 # CLAUDE.md (session-start context) + agent-zero card, additive (parity with uvx)

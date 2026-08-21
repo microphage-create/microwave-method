@@ -20,7 +20,8 @@ from pathlib import Path
 
 PAYLOAD_DIRS = ["flows", "templates", "techniques", "slop", "gates",
                 "embodiment", "hooks", "harness", ".claude/commands"]
-WIKI_SPACES = ["agents", "adr", "projects", "_staging", "_archive"]
+WIKI_SPACES = ["agents", "adr", "projects", "_staging", "_archive",
+               "sessions", "metrics"]
 WIKI_INDEX = (
     "# Registry index\n\n"
     "One line per artifact: `- [type] id: one-line summary → path`\n\n"
@@ -28,6 +29,24 @@ WIKI_INDEX = (
     "- [service] microwave: agent zero, the desktop front door that opens a "
     "context-loaded session on this repo → wiki/agents/microwave.md\n\n"
     "## ADR (meta)\n\n## Projects\n"
+)
+WIKI_REGISTER = (
+    "# Session save register\n\n"
+    "Append-only lookup table for `flows/save.md` / `flows/resume.md`. One line\n"
+    "per save, most recent last:\n\n"
+    "`- S-YYYYMMDD-NN-slug | YYYY-MM-DD | agent | scope | one-line summary`\n\n"
+    "An id is all a human needs to resume from any machine that has this repo.\n"
+    "Saves live beside this file; this register is their local index (ADR-012).\n"
+)
+WIKI_LEDGER = (
+    "# Governance ledger (append-only)\n\n"
+    "One line per governance event, logged at the moment it happens (ADR-014).\n"
+    "Format: `DATE | event | subject | detail | author` (author = agent+human).\n\n"
+    "Events: created (agent activated, detail = minutes) - intercepted (defect\n"
+    "caught before activation, detail = source:severity) - deduped (creation\n"
+    "blocked as duplicate) - purged (agent/atom retired, detail = why).\n\n"
+    "`gates/metrics.py` aggregates this into the ROI report; `--digest` breaks it\n"
+    "down per author. Never edit past lines: the ledger is history.\n"
 )
 START_LINE = "run the Microwave welcome flow"
 TAGLINE = "an agent factory with a governed memory"
@@ -306,6 +325,8 @@ def _install_plan(target: Path, payload: Path) -> list[Path]:
     for name in ("CODEOWNERS", "LICENSE", "NOTICE.md", "CLAUDE.md", "AGENTS.md"):
         add(target / name)
     add(target / "wiki" / "INDEX.md")
+    add(target / "wiki" / "sessions" / "REGISTER.md")
+    add(target / "wiki" / "metrics" / "LEDGER.md")
     add(target / "wiki" / "agents" / "microwave.md")
     return planned
 
@@ -435,6 +456,14 @@ def _uninstall(target: Path, payload: Path) -> None:
     if idx.is_file() and idx.read_text(encoding="utf-8") == WIKI_INDEX:
         idx.unlink()
         removed += 1
+    reg = target / "wiki" / "sessions" / "REGISTER.md"
+    if reg.is_file() and reg.read_text(encoding="utf-8") == WIKI_REGISTER:
+        reg.unlink()
+        removed += 1
+    led = target / "wiki" / "metrics" / "LEDGER.md"
+    if led.is_file() and led.read_text(encoding="utf-8") == WIKI_LEDGER:
+        led.unlink()
+        removed += 1
     co = target / "CODEOWNERS"
     co_src = payload / "CODEOWNERS"
     if co.is_file() and co_src.is_file():
@@ -455,7 +484,8 @@ def _uninstall(target: Path, payload: Path) -> None:
             print("  restored your previous pre-commit hook")
     for d in ("flows", "templates", "techniques", "slop", "gates", "embodiment",
               "hooks", "harness", "wiki/agents", "wiki/adr", "wiki/projects",
-              "wiki/_staging", "wiki/_archive", "wiki", ".github/workflows", ".github"):
+              "wiki/_staging", "wiki/_archive", "wiki/sessions", "wiki/metrics",
+              "wiki", ".github/workflows", ".github"):
         p = target / d
         if p.is_dir() and not any(p.iterdir()):
             p.rmdir()
@@ -547,6 +577,12 @@ def main() -> None:
     index = wiki / "INDEX.md"
     if not index.exists():
         index.write_text(WIKI_INDEX, encoding="utf-8", newline="\n")
+    register = wiki / "sessions" / "REGISTER.md"
+    if not register.exists():
+        register.write_text(WIKI_REGISTER, encoding="utf-8", newline="\n")
+    ledger = wiki / "metrics" / "LEDGER.md"
+    if not ledger.exists():
+        ledger.write_text(WIKI_LEDGER, encoding="utf-8", newline="\n")
     # CLAUDE.md (session-start context) and the agent-zero card, additive
     # session-start context for whichever agent runs here (Claude Code reads
     # CLAUDE.md; Codex/Cursor read AGENTS.md). Append, never clobber, an existing one.

@@ -72,6 +72,12 @@ class ShellInstall(unittest.TestCase):
         self.assertTrue((tmp / "wiki" / "agents" / "microwave.md").is_file())
         self.assertFalse(list(tmp.rglob("*.pyc")), "shell install must not ship bytecode")
         self.assertIn("agent zero", (tmp / "wiki" / "INDEX.md").read_text(encoding="utf-8"))
+        # the session scaffold is born with the install, so the first save can run
+        reg = tmp / "wiki" / "sessions" / "REGISTER.md"
+        led = tmp / "wiki" / "metrics" / "LEDGER.md"
+        self.assertTrue(reg.is_file() and led.is_file(), "sh install must seed the scaffold")
+        self.assertIn("Session save register", reg.read_text(encoding="utf-8"))
+        self.assertIn("Governance ledger", led.read_text(encoding="utf-8"))
 
     def test_install_sh_does_not_run_target_planted_hooks(self):
         # RCE guard, shell path: a repo can ship its own hooks/ (git never
@@ -115,6 +121,30 @@ class SeedConsistency(unittest.TestCase):
         self.assertIn("- [service] microwave: agent zero", py)
         self.assertIn("wiki/agents/microwave.md", py)
 
+    def test_session_scaffold_seed_in_all_three_installers(self):
+        # REGISTER + LEDGER headers are seeded by all three installers so a fresh
+        # install can run its first save (IR-001). Pin a distinctive line of each
+        # across the three seed sites: a divergence would seed a drifted scaffold.
+        from microwave_method import WIKI_REGISTER, WIKI_LEDGER
+        root = Path(__file__).resolve().parent.parent
+        sh = (root / "install" / "install.sh").read_text(encoding="utf-8")
+        ps = (root / "install" / "install.ps1").read_text(encoding="utf-8")
+        # pin the WHOLE header block (not a marker line) into both shell installers,
+        # so no unpinned prose line can drift between install.sh and install.ps1.
+        # This guards CONTENT parity; line endings are intentionally platform-native
+        # (install.ps1 is `eol=crlf` per .gitattributes, install.sh is LF), and
+        # read_text normalizes them, so the check is EOL-insensitive by design. The
+        # seeded files are gate-skipped and read newline-agnostically everywhere.
+        for blob in (sh, ps):
+            self.assertIn(WIKI_REGISTER, blob)
+            self.assertIn(WIKI_LEDGER, blob)
+        # the seed matches the source's own canonical scaffold (fidelity): the live
+        # files may append rows below the header, so pin the header as a prefix.
+        canon_reg = (root / "wiki" / "sessions" / "REGISTER.md").read_text(encoding="utf-8")
+        canon_led = (root / "wiki" / "metrics" / "LEDGER.md").read_text(encoding="utf-8")
+        self.assertTrue(canon_reg.startswith(WIKI_REGISTER))
+        self.assertTrue(canon_led.startswith(WIKI_LEDGER))
+
 
 class UninstallSafety(unittest.TestCase):
     def test_uninstall_keeps_an_edited_file(self):
@@ -138,6 +168,37 @@ class UninstallSafety(unittest.TestCase):
             self.assertEqual(edited.read_text(encoding="utf-8"), "MY EDITS, keep me\n")
         finally:
             microwave_method._payload = orig_payload
+            os.environ.pop("MICROWAVE_TARGET", None)
+            os.environ.pop("MICROWAVE_NO_LAUNCH", None)
+            sys.argv = ["mw"]
+
+    def test_clean_uninstall_leaves_no_orphan_wiki_dirs(self):
+        # a clean install then uninstall must prune every wiki space it created,
+        # including the seeded sessions/ and metrics/, and wiki/ itself: adding a
+        # space to WIKI_SPACES without a matching prune entry would orphan a dir.
+        import contextlib
+        import io
+        import os
+        import tempfile
+        repo = Path(__file__).resolve().parent.parent
+        tmp = Path(tempfile.mkdtemp())
+        orig = microwave_method._payload
+        microwave_method._payload = lambda: repo
+        os.environ["MICROWAVE_TARGET"] = str(tmp)
+        os.environ["MICROWAVE_NO_LAUNCH"] = "1"
+        try:
+            with contextlib.redirect_stdout(io.StringIO()):
+                sys.argv = ["mw"]
+                microwave_method.main()  # install
+                self.assertTrue((tmp / "wiki" / "sessions" / "REGISTER.md").exists())
+                self.assertTrue((tmp / "wiki" / "metrics" / "LEDGER.md").exists())
+                sys.argv = ["mw", "--uninstall"]
+                microwave_method.main()  # uninstall (nothing edited)
+            for orphan in ("wiki/sessions", "wiki/metrics", "wiki"):
+                self.assertFalse((tmp / orphan).exists(),
+                                 f"clean uninstall left an orphan dir: {orphan}")
+        finally:
+            microwave_method._payload = orig
             os.environ.pop("MICROWAVE_TARGET", None)
             os.environ.pop("MICROWAVE_NO_LAUNCH", None)
             sys.argv = ["mw"]

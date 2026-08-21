@@ -52,16 +52,8 @@ disposition and a priority:
 - `migrate`: recreate through the factory (`flows/create-agent.md`); the
   archived entry becomes the elicitation input of pass 1, which makes
   migrations the cheapest creations.
-- `merge`: an existing or planned agent absorbs it (name which). Merge
-  rule: the MISSION is the atomic boundary (the repo is its usual
-  indicator). Merge siblings of the same mission, generic tool agents, or
-  a source-of-truth and its SINGLE consumer. Never two unrelated
-  missions. And never at the cost of a frequent gesture: merge the ENGINE
-  (shared logic, one registry), keep the short VERBS as direct entry
-  points (LRN-005). A hub is a shared backend with several doors, not one
-  door with modes. A source of truth read by MANY consumers is never
-  merged into one of them: it stays a shared layer they all read
-  (LRN-007).
+- `merge`: an existing or planned agent absorbs it (name which). Only when
+  the mission is the same; see the merge doctrine below before proposing it.
 - `keep-as-is`: runs outside Microwave for now, listed so it is never
   invisible again.
 - `reshape`: the artifact is in the wrong form (ADR-015); move it to the
@@ -69,6 +61,15 @@ disposition and a priority:
   wiki layer; a function dressed as an agent becomes a tool). Dispositions
   below apply per form: only agents migrate/merge.
 - `retire`: propose for deletion; a human confirms.
+
+**Merge doctrine** (only when you reach for `merge`): the MISSION is the atomic
+boundary (the repo is its usual indicator). Merge siblings of the same mission,
+generic tool agents, or a source-of-truth and its SINGLE consumer; never two
+unrelated missions. Never at the cost of a frequent gesture: merge the ENGINE
+(shared logic, one registry), keep the short VERBS as direct entry points
+(LRN-005). A hub is a shared backend with several doors, not one door with modes.
+A source of truth read by MANY consumers is never merged into one of them: it
+stays a shared layer they all read (LRN-007).
 
 Sort by: agents people actually use first, dead weight last. The human
 prunes and reorders: the backlog is a proposal, not a verdict.

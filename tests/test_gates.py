@@ -535,6 +535,32 @@ class TestScanEstate(unittest.TestCase):
         plan = scan_estate.propose(root)
         self.assertEqual(scan_estate._duplicate_slugs(plan["contexts"]), ["my-app"])
 
+    def test_classifies_content_vs_code(self):
+        # dogfood finding: a real estate is mixed. A vanilla web site (index.html,
+        # no package.json) must be detected as code; an Obsidian vault or a
+        # markdown corpus must be content, so scan does not propose a
+        # code-conventions guard for a pile of prose.
+        import scan_estate
+        root = Path(tempfile.mkdtemp())
+        web = root / "site"
+        (web / ".git").mkdir(parents=True)
+        (web / "index.html").write_text("<html></html>", encoding="utf-8")
+        vault = root / "notes"
+        (vault / ".git").mkdir(parents=True)
+        (vault / ".obsidian").mkdir()
+        (vault / "atom.md").write_text("# note", encoding="utf-8")
+        corpus = root / "corpus"
+        (corpus / ".git").mkdir(parents=True)
+        for i in range(5):
+            (corpus / f"doc{i}.md").write_text("# x", encoding="utf-8")
+        contexts = scan_estate.propose(root)["contexts"]
+        kinds = {c["repo"]: c["kind"] for c in contexts}
+        stacks = {c["repo"]: c["stack"] for c in contexts}
+        self.assertEqual(kinds["site"], "code")
+        self.assertIn("Web/static", stacks["site"])
+        self.assertEqual(kinds["notes"], "content")
+        self.assertEqual(kinds["corpus"], "content")
+
 
 class TestJsoncStrip(unittest.TestCase):
     """The Windows adapter rewrites the user's settings.json; stripping trailing

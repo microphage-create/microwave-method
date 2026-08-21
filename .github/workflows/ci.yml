@@ -1,0 +1,55 @@
+name: ci
+# Microwave's OWN development CI: the full gate + static-analysis + test suite
+# across every OS and supported Python version. This is NOT the workflow the
+# installers ship to an adopter (they copy only gates.yml, a single-runner gate
+# on the adopter's governed repo). This one is the maintainer's cross-platform
+# bar, and it exists because a Windows-only green run once merged a Linux-red
+# change (ctypes is platform-specific): the matrix is the fix for that blind spot.
+on:
+  pull_request:
+  push:
+
+permissions:
+  contents: read
+
+jobs:
+  matrix:
+    name: ${{ matrix.os }} / py${{ matrix.python-version }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        python-version: ["3.10", "3.11", "3.12", "3.13"]
+    runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Wiki integrity
+        run: python gates/gate_wiki.py
+      - name: Anti-slop sweep
+        run: python gates/gate_slop.py
+      - name: Generated docs are fresh
+        run: python gates/gate_docs.py
+      - name: Static analysis (ruff + mypy, per-OS so platform issues surface)
+        run: |
+          pip install ruff==0.16.4 mypy==2.3.1
+          ruff check .
+          mypy
+      - name: Unit and integration tests
+        run: python -m unittest discover tests -v
+      - name: All agent cards (active and staged)
+        run: |
+          set -e
+          found=0
+          for card in wiki/agents/*.md wiki/_staging/*.md; do
+            [ -e "$card" ] || continue
+            case "$card" in *README.md) continue;; esac
+            found=1
+            python gates/run_gates.py "$card"
+          done
+          [ "$found" = "1" ] || echo "no agent cards yet"

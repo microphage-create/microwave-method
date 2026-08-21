@@ -8,6 +8,7 @@ flow drives creation with the user, one at a time. Stdlib only (ADR-007).
 
     python gates/scan_estate.py ~/Documents/GitHub
 """
+import os
 import re
 import sys
 from pathlib import Path
@@ -22,7 +23,13 @@ STACK_MARKERS = [
     ("go.mod", "Go"), ("Cargo.toml", "Rust"), ("Gemfile", "Ruby"),
     ("composer.json", "PHP"), ("pom.xml", "Java/Maven"),
     ("build.gradle", "Gradle"), ("Dockerfile", "Docker"),
+    ("index.html", "Web/static"),  # a vanilla HTML/JS site with no package.json
 ]
+# Extensions that mark a file as code (vs prose), for the content-repo heuristic.
+CODE_EXT = {".js", ".mjs", ".ts", ".jsx", ".tsx", ".py", ".go", ".rs", ".rb",
+            ".php", ".java", ".html", ".css", ".vue", ".svelte", ".c", ".cpp"}
+WALK_SKIP = {".git", "node_modules", ".next", "dist", "build", "__pycache__",
+             ".obsidian", "_legacy", "_raw", "_archive"}
 # a starter catalog of transversal services worth having across repos
 SUGGESTED_SERVICES = ["code-review", "copywriter", "release-notes", "test-writer"]
 SLUG_BAD = re.compile(r"[^a-z0-9-]+")
@@ -44,6 +51,38 @@ def detect_stack(repo: Path) -> list[str]:
     return labels
 
 
+def _markdown_dominant(repo: Path) -> bool:
+    """A repo of prose, not code: markdown files clearly outnumber code files.
+    Walks a bounded tree (heavy/vendored dirs pruned) so it stays fast."""
+    md = code = seen = 0
+    for _dirpath, dirnames, filenames in os.walk(repo):
+        dirnames[:] = [d for d in dirnames if d not in WALK_SKIP]
+        for f in filenames:
+            seen += 1
+            ext = Path(f).suffix.lower()
+            if ext == ".md":
+                md += 1
+            elif ext in CODE_EXT:
+                code += 1
+        # bounded by TOTAL entries too, so a repo with a huge assets/data tree
+        # (which grows neither counter) is not crawled in full every scan.
+        if seen > 2000 or md + code > 400:
+            break
+    return md >= 3 and md >= 3 * code
+
+
+def classify(repo: Path) -> tuple[str, list[str]]:
+    """(kind, stack). kind is 'code' (a code stack was found), 'content' (an
+    Obsidian vault or a markdown-dominant corpus, where a code-conventions guard
+    does not fit), or 'unknown' (no code stack and not obviously content)."""
+    stack = detect_stack(repo)
+    if stack:
+        return "code", stack
+    if (repo / ".obsidian").is_dir() or _markdown_dominant(repo):
+        return "content", []
+    return "unknown", []
+
+
 def slugify(name: str) -> str:
     s = SLUG_BAD.sub("-", name.lower()).strip("-")[:32].rstrip("-")
     return s or "repo"
@@ -55,12 +94,16 @@ def already_microwaved(repo: Path) -> bool:
 
 def propose(root: Path) -> dict:
     repos = find_repos(root)
-    contexts = [{
-        "slug": slugify(r.name),
-        "repo": r.name,
-        "stack": detect_stack(r),
-        "microwaved": already_microwaved(r),
-    } for r in repos]
+    contexts = []
+    for r in repos:
+        kind, stack = classify(r)
+        contexts.append({
+            "slug": slugify(r.name),
+            "repo": r.name,
+            "kind": kind,
+            "stack": stack,
+            "microwaved": already_microwaved(r),
+        })
     return {"root": str(root), "contexts": contexts, "services": SUGGESTED_SERVICES}
 
 
@@ -99,12 +142,23 @@ def main(argv: list[str]) -> None:
                       + ", ".join(nested) + ". Point me at one of those folders.")
         return
     print(f"Scanned {given}: {len(contexts)} repo(s) (direct children).\n")
-    print("Proposed context agents (one guard per repo):")
     width = max(len(c["repo"]) for c in contexts)
-    for c in contexts:
-        stack = ", ".join(c["stack"]) or "stack not detected"
+    content = [c for c in contexts if c["kind"] == "content"]
+    guarded = [c for c in contexts if c["kind"] != "content"]
+
+    print("Proposed context agents (one guard per code repo):")
+    for c in guarded:
+        stack = ", ".join(c["stack"]) or "no stack detected, confirm this is a code repo"
         note = "  [already has Microwave]" if c["microwaved"] else ""
         print(f"  - {c['repo']:<{width}}  [{stack}]  -> context, slug: {c['slug']}{note}")
+
+    if content:
+        print("\nContent/knowledge repos (a code-conventions guard does not fit "
+              "these vaults and prose corpora; govern their content another way, "
+              "or skip):")
+        for c in content:
+            note = "  [already has Microwave]" if c["microwaved"] else ""
+            print(f"  - {c['repo']:<{width}}{note}")
     dupes = _duplicate_slugs(contexts)
     if dupes:
         print("\nWARNING: repos collide on one agent slug: " + ", ".join(dupes)

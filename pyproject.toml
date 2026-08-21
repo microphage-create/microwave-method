@@ -62,3 +62,9 @@ select = ["E", "F", "W", "I", "B", "UP"]
 python_version = "3.10"
 files = ["gates", "embodiment", "microwave_method"]
 ignore_missing_imports = true
+
+[tool.codespell]
+# Prose-heavy project (flows, ADRs, README): a typo guard, borrowed from
+# pydantic/rich. No current typos; ignore-list is real terms it misreads.
+skip = "./.git,./embodiment/icons,*.png,*.ico,uv.lock,*.svg"
+ignore-words-list = "iterm,ans,som,unparseable"

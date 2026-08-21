@@ -54,9 +54,9 @@ def family_root(name: str) -> str:
 
 
 def kebab_fix(name: str) -> str:
-    # The R1-conforming form of a name: accents folded (cafe not caf), lowercased,
-    # every run of non-[a-z0-9] collapsed to a single hyphen, edges trimmed
-    # ("microphage.ai" -> "microphage-ai", "cafe-app" from "café-app"). Falls back
+    # The R1-conforming form of a name: accents folded, not dropped, then
+    # lowercased, every run of non-[a-z0-9] collapsed to a single hyphen, edges
+    # trimmed ("microphage.ai" -> "microphage-ai", "café-app" -> "cafe-app"). Falls back
     # to "repo" for a name that is all punctuation, so the output is always a valid
     # kebab name, never a still-invalid suggestion.
     folded = unicodedata.normalize("NFKD", name.lower())

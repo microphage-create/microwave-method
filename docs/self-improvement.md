@@ -8,8 +8,10 @@ recipe, and the method applies it to itself first.
 
 - The **source** is the product: the framework's home, where its code is edited.
 - An **install** is a live Microwave on a real estate. It receives framework code
-  one way (`dev-loop/sync.py`, estate-preserving) and is where a change meets real
-  data.
+  one way, through a small install-local sync tool (`dev-loop/sync.py`, estate-
+  preserving) that you wire per install and point at your own source and install
+  paths. That tool is not shipped in the distribution: the loop is a practice you
+  set up, not a runtime that ships turnkey.
 
 Edit in the source, sync into the install, dogfood, then ship. A change edited
 directly in an install is reverted by the next sync: that is the reminder the two
@@ -33,8 +35,11 @@ planes are not the same, not a bug.
    a hypothesis until an adversary fails to kill it.
 6. **Ship, gated.** Semi-auto (the default) runs the whole cycle on its own but
    stops at the merge and the release: the human is the gatekeeper of every ship.
-   Full-auto exists only inside hard rails (narrow bug fixes with tests, an
-   explicit arming file, a kill switch) and refuses anything interesting.
+   Full-auto stays inside narrow rails by convention (narrow bug fixes with tests
+   only, an explicit arming file, a kill switch that disarms it) and refuses
+   anything interesting. These rails are agent-followed discipline, not a runtime
+   that enforces them: the same "method, not a runtime" honesty as the rest of
+   Microwave.
 
 Every step produces a reviewable, revertable unit: a branch, a PR, a single sync
 commit. The worst case is `git revert`.

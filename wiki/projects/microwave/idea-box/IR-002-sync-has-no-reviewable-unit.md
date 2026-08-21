@@ -5,7 +5,7 @@ title: sync overwrites the install work-tree with no reviewable or revertable un
 kind: idea
 surface: other
 severity: slows
-status: open
+status: shipped
 scrubbed: true
 date: 2026-08-21
 source_signal: dogfood
@@ -33,15 +33,20 @@ from the work-tree. There is no atomic, reviewable, revertable sync unit.
 
 ## Fix or idea
 
-Give each sync a reviewable, revertable unit. Options, cheapest first:
-land the sync on a dedicated integration branch (one commit per sync, so the
-diff and the revert are a single git object); or have `--check` emit a summary
-manifest of the paths it changed. Open question: branch-per-sync adds git
-ceremony to a loop meant to be fast, so weigh it against a plain manifest
-before building. Design needed before code; this stays an idea, not a queued
-fix.
+Two options were on the table: a dedicated integration branch per sync, or a
+plain changed-paths manifest. Chosen: **make the sync a commit**, which beats
+both. A commit is at once the reviewable unit (`git show`) and the revertable
+one (`git revert`) — the manifest gives only the first — while committing on the
+current branch avoids the branch-switching ceremony that made the integration
+branch heavy. An opt-in `--commit` runs the sync, gate-checks the estate, and on
+green commits ONLY the framework files it changed (pathspec-limited), so the
+operator's estate edits stay uncommitted. Default behavior is unchanged.
 
 ## Ship
 
-Not shipped. Open idea, pending a design decision (integration branch vs
-manifest). No branch yet.
+Shipped install-side: `dev-loop/sync.py` is install-local plumbing (in
+`ESTATE_PRESERVED`, never synced from source), so the fix lives in the install,
+not this repo. Commit `5f5c4e8` on the install adds `--commit`. Verified: an
+isolated git test proves the sync commit excludes an uncommitted estate edit;
+a real 0-change `--commit` on the install runs the gates and makes no spurious
+commit. This report is closed here for the idea-box record.

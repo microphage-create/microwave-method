@@ -40,7 +40,7 @@ if git -C "$DST" rev-parse --is-inside-work-tree >/dev/null 2>&1; then
   (cd "$DST" && bash "$SRC/hooks/install-hooks.sh")
 fi
 
-mkdir -p "$DST/wiki/agents" "$DST/wiki/adr" "$DST/wiki/projects" "$DST/wiki/_staging" "$DST/wiki/_archive"
+mkdir -p "$DST/wiki/agents" "$DST/wiki/adr" "$DST/wiki/projects" "$DST/wiki/_staging" "$DST/wiki/_archive" "$DST/wiki/sessions" "$DST/wiki/metrics"
 if [ ! -e "$DST/wiki/INDEX.md" ]; then
   cat > "$DST/wiki/INDEX.md" <<'EOF'
 # Registry index
@@ -54,6 +54,34 @@ One line per artifact: `- [type] id: one-line summary → path`
 ## ADR (meta)
 
 ## Projects
+EOF
+fi
+if [ ! -e "$DST/wiki/sessions/REGISTER.md" ]; then
+  cat > "$DST/wiki/sessions/REGISTER.md" <<'EOF'
+# Session save register
+
+Append-only lookup table for `flows/save.md` / `flows/resume.md`. One line
+per save, most recent last:
+
+`- S-YYYYMMDD-NN-slug | YYYY-MM-DD | agent | scope | one-line summary`
+
+An id is all a human needs to resume from any machine that has this repo.
+Saves live beside this file; this register is their local index (ADR-012).
+EOF
+fi
+if [ ! -e "$DST/wiki/metrics/LEDGER.md" ]; then
+  cat > "$DST/wiki/metrics/LEDGER.md" <<'EOF'
+# Governance ledger (append-only)
+
+One line per governance event, logged at the moment it happens (ADR-014).
+Format: `DATE | event | subject | detail | author` (author = agent+human).
+
+Events: created (agent activated, detail = minutes) - intercepted (defect
+caught before activation, detail = source:severity) - deduped (creation
+blocked as duplicate) - purged (agent/atom retired, detail = why).
+
+`gates/metrics.py` aggregates this into the ROI report; `--digest` breaks it
+down per author. Never edit past lines: the ledger is history.
 EOF
 fi
 

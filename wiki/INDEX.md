@@ -21,3 +21,9 @@ it, the runtime resolves agents through it. A line has the form:
 ## Projects
 
 - [project] microwave: the framework itself, first product-plane project → wiki/projects/microwave/brief.md
+
+## Idea-box
+
+- [improvement-report] IR-001: first save on a fresh install writes into a non-existent scaffold (PR open, devil CLEAN) → wiki/projects/microwave/idea-box/IR-001-save-scaffold-on-fresh-install.md
+- [devil-report] IR-001-devil: adversarial loop on the IR-001 installer-seed fix, CLEAN in 4 rounds [2,2,2,0] → wiki/projects/microwave/idea-box/IR-001-devil-report.md
+- [improvement-report] IR-002: sync overwrites the install work-tree with no reviewable or revertable unit (open idea) → wiki/projects/microwave/idea-box/IR-002-sync-has-no-reviewable-unit.md

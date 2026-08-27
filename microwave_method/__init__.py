@@ -48,6 +48,33 @@ WIKI_LEDGER = (
     "`gates/metrics.py` aggregates this into the ROI report; `--digest` breaks it\n"
     "down per author. Never edit past lines: the ledger is history.\n"
 )
+# Pre-ADR-032 installs also dropped this AGENTS.md (the Codex/Cursor context
+# file). It is no longer shipped, so the payload cannot vouch for it at
+# uninstall time: keep the exact text we used to install, and remove a
+# leftover only when it still matches byte for byte.
+LEGACY_AGENTS_MD = (
+    "# AGENTS.md: this repo runs on Microwave\n"
+    "\n"
+    "(The Claude-Code equivalent is `CLAUDE.md`; this file is the same context for\n"
+    "Codex, Cursor, and any agent that reads `AGENTS.md`.)\n"
+    "\n"
+    "Microwave governs how agents get made here and what they remember. On session\n"
+    "start, before anything else, get your bearings so you are never wired to\n"
+    "nothing:\n"
+    "\n"
+    "1. Read `wiki/INDEX.md`, the registry: one line per agent, who does what.\n"
+    "2. Skim the headings in `wiki/adr/`: the decisions that bind this repo.\n"
+    "\n"
+    "That is the whole ceremony: seconds, not an interrogation. Now you are\n"
+    "contextualized.\n"
+    "\n"
+    "- Create an agent only through the factory (`flows/create-agent.md`), never on\n"
+    "  the side. That is the anti-sprawl invariant.\n"
+    "- New here? `flows/welcome.md` takes you by the hand.\n"
+    "- What you commit is gate-checked (`hooks/pre-commit`, CI). Red cards do not\n"
+    "  enter history; a determined committer can still bypass a local hook, which is\n"
+    "  why branch protection with the `gates` check is the backstop.\n"
+)
 START_LINE = "run the Microwave welcome flow"
 TAGLINE = "an agent factory with a governed memory"
 
@@ -451,6 +478,11 @@ def _uninstall(target: Path, payload: Path) -> None:
                     payload / ".github" / "workflows" / "gates.yml")
     for name in ("LICENSE", "NOTICE.md", "CLAUDE.md"):
         rm_if_untouched(target / name, payload / name)
+    legacy_agents = target / "AGENTS.md"
+    if (legacy_agents.is_file()
+            and legacy_agents.read_text(encoding="utf-8") == LEGACY_AGENTS_MD):
+        legacy_agents.unlink()
+        removed += 1
     rm_if_untouched(target / "wiki" / "agents" / "microwave.md",
                     payload / "wiki" / "agents" / "microwave.md")
     idx = target / "wiki" / "INDEX.md"

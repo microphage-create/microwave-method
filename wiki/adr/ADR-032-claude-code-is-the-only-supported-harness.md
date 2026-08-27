@@ -41,7 +41,10 @@ deny-rule surface that actually corresponds to a tool. The honesty section of
 `docs/limits.md` loses a caveat instead of carrying it.
 
 Harder: an adopter on Codex or Cursor gets nothing pre-wired and has to write the
-context file, which is the cost of not pretending. Reversible: adding a harness
+context file, which is the cost of not pretending. Installs that predate this ADR
+carry an `AGENTS.md` Microwave no longer ships, so `--uninstall` keeps a copy of
+the text it used to write and removes the file only when it still matches, the
+same rule that governs every other uninstalled file. Reversible: adding a harness
 back means shipping its context file, its deny-rule equivalent, and a session
 that proves a creation flow completes in it. Until those three exist, the repo
 says Claude Code.

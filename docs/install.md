@@ -116,6 +116,10 @@ or your own atoms, and it restores a backed-up pre-commit hook if it made one:
 uvx microwave-method --uninstall
 ```
 
+An `AGENTS.md` left behind by an install from before ADR-032 is cleaned up by
+the same command, under the same rule: removed if it still matches exactly what
+Microwave wrote, kept if you touched it or it was already yours.
+
 Embodied agents: run `python embodiment/embody.py <card> --remove` first to also
 clean their desktop profiles. The wiki is yours: plain markdown, keep it.
 

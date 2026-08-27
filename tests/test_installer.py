@@ -176,6 +176,36 @@ class UninstallSafety(unittest.TestCase):
             os.environ.pop("MICROWAVE_NO_LAUNCH", None)
             sys.argv = ["mw"]
 
+    def test_uninstall_removes_a_legacy_agents_md_but_never_an_edited_one(self):
+        # Installs from before ADR-032 dropped an AGENTS.md that is no longer
+        # shipped. Uninstall still cleans it up, on the same rule as everything
+        # else: byte-identical to what we installed, or it stays.
+        import os
+        import tempfile
+        repo = Path(__file__).resolve().parent.parent
+        orig_payload = microwave_method._payload
+        microwave_method._payload = lambda: repo
+        os.environ["MICROWAVE_NO_LAUNCH"] = "1"
+        try:
+            for content, must_survive in ((microwave_method.LEGACY_AGENTS_MD, False),
+                                          ("MY OWN AGENTS.md\n", True)):
+                tmp = Path(tempfile.mkdtemp())
+                os.environ["MICROWAVE_TARGET"] = str(tmp)
+                sys.argv = ["mw"]
+                microwave_method.main()  # install
+                agents = tmp / "AGENTS.md"
+                self.assertFalse(agents.exists(), "install must not create AGENTS.md")
+                agents.write_text(content, encoding="utf-8")
+                sys.argv = ["mw", "--uninstall"]
+                microwave_method.main()
+                self.assertEqual(agents.exists(), must_survive,
+                                 f"wrong uninstall verdict for {content[:20]!r}")
+        finally:
+            microwave_method._payload = orig_payload
+            os.environ.pop("MICROWAVE_TARGET", None)
+            os.environ.pop("MICROWAVE_NO_LAUNCH", None)
+            sys.argv = ["mw"]
+
     def test_clean_uninstall_leaves_no_orphan_wiki_dirs(self):
         # a clean install then uninstall must prune every wiki space it created,
         # including the seeded sessions/ and metrics/, and wiki/ itself: adding a

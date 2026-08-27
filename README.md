@@ -126,7 +126,11 @@ non-zero. And precisely what the gates check, so "gate" does not oversell:
 `gate_antidup` is a lexical overlap test, not semantic, with a written-rationale
 escape hatch; `gate_slop` is surface regexes, not a quality score; `gate_testable`
 checks a criterion names a check, not that it ran. They catch common failures
-cheaply; the proof is the devil pass, the gatekeeper, and your own tests.
+cheaply; the proof is the devil pass, the gatekeeper, and your own tests. So the
+sprawl case that matters, two agents eighty percent redundant in what they do but
+written in different words, walks past the machine: what holds it back is the
+taxonomy above (one guard per repo, services shared), a cardinality a machine can
+count, and after that a human reading the registry.
 
 **Rolling out to a live team?** `MICROWAVE_SHADOW=1` makes the gates report what
 they would block without failing, for a grace period. Unset to enforce.
@@ -175,10 +179,33 @@ No headline percentage, because the honest version is unglamorous. Reading conte
 is a large, repeated share of agent cost. Prompt caching cuts the cost of
 re-reading the SAME context inside the cache window, so a stable, reused context
 file is cheaper on the second hit; the size of that win depends on your provider and
-workload. The slower, compounding win is not re-discovering knowledge across
-sessions, because it was captured once as an atom and reopened by id. Measure your
-own: the method instruments itself (`docs/method.md`), so diff your token spend
-before and after on the same tasks.
+workload, and the window is minutes to an hour, so two sessions a day apart share
+no cache. The slower, compounding win is the one that survives that: knowledge is
+not re-discovered across sessions, because it was captured once as an atom and is
+reopened by id, so the next session loads a smaller, pre-sorted context. Measure
+your own: the method instruments itself (`docs/method.md`), so diff your token
+spend before and after on the same tasks.
+
+## What it does not do
+
+The short version, so you can judge before installing (the long version, with the
+reasoning, is `docs/limits.md`):
+
+- **The guaranteed floor is narrow.** The pre-commit hook (bypassable), the CI
+  workflow and `CODEOWNERS` plus branch protection. The flows, the elicitation,
+  the devil pass and the gatekeeper are conventions, not exit codes.
+- **One repository at a time.** Federation extends anti-dup and service
+  resolution to sibling repos checked out on disk and declared on both sides.
+  Org-wide aggregation is a direction, not shipped code.
+- **One tested harness.** Built and run on Claude Code. `AGENTS.md`, the flows
+  and the standard-library gates should carry over to Codex and Cursor, but no
+  CI job proves a creation flow completes there, and the deny-rules example is
+  Claude-Code-specific.
+- **Two experimental bodies.** The macOS and Linux embodiment adapters are
+  written and never run on a real machine; Windows is the tested reference.
+- **A cost that needs a few agents to repay.** Gates, registry and gatekeeper
+  cost minutes per creation. Two agents you can hold in your head do not need
+  any of this.
 
 ## Install
 
@@ -199,31 +226,10 @@ Running the checks and the cross-platform CI: `docs/development.md`.
 Extracted from a system its author runs daily on a private stack, then squashed and
 cleaned for release. The scale behind it (dozens of skills, a multi-generation rule
 corpus) lives in that private system, not here, so take it as provenance, not proof.
-What this repo demonstrates on its own: it self-hosts (its own agent cards pass the
-same gates the factory imposes) and its CI is green. Judge it on that, and on what
-you build with it.
+There is no external adopter yet: if you install it today you are the first, with
+the bug reports that implies. What this repo demonstrates on its own is checkable:
+it self-hosts (its own agent cards pass the same gates the factory imposes) and its
+CI is green on Linux, macOS and Windows across Python 3.10 to 3.13. Judge it on
+that, on `docs/limits.md`, and on what you build with it.
 
 MIT. See `NOTICE.md` for attributions.
-
----
-
-```
-⣾⣿⣿⣿⣿⣿⣿⣿⣧⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢰⣿⣿⣿⣿⣿⣿⣿⣿⡄⠀⠀⠀⠀
-⣿⣿⣿⣿⣿⣿⣿⣿⣿⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢸⣿⣿⣿⣿⣿⣿⣿⣿⡇⠀⠀⠀⠀
-⠈⠉⠉⠉⠉⠉⠉⠉⠙⣷⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⡟⠉⠉⠉⠉⠉⠉⠉⠉⢻⣶⣶⣶⣤
-⠀⠀⠀⠀⠀⠀⠀⠀⠀⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡇⠀⠀⠀⠀⠀⠀⠀⠀⢸⣿⣿⣿⣿
-⠀⠀⠀⠀⢀⣤⣤⣤⣴⣿⣿⣿⣿⡿⠛⠛⠛⠛⠛⠛⠛⠛⠁⠀⠀⠀⠀⣠⣤⣤⣤⡾⠛⠛⠛⠉
-⠀⠀⠀⠀⢸⣿⣿⣿⣿⣿⣿⣿⣿⡇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣿⣿⣿⣿⡇⠀⠀⠀⠀
-⠀⠀⠀⠀⠘⠿⠿⠿⢿⣿⣿⣿⣿⣧⣀⣀⣀⡀⠀⠀⠀⠀⠀⣀⣀⣀⣠⣿⣿⣿⣿⡇⠀⠀⠀⠀
-⠀⠀⠀⠀⠀⠀⠀⠀⠀⣿⣿⣿⣿⣿⣿⣿⣿⣿⠀⠀⠀⠀⢸⣿⣿⣿⣿⣿⣿⣿⣿⡇⠀⠀⠀⠀
-⠀⠀⠀⠀⠀⠀⠀⠀⢀⣿⣿⣿⣿⣿⣿⣿⣿⣿⠀⠀⠀⠀⢸⣿⣿⣿⣿⣿⣿⣿⣿⣇⠀⠀⠀⠀    Microwave Method
-⠀⠀⠀⠀⢰⣿⣿⣿⣿⠁⠀⠀⠀⢹⣿⣿⣿⣿⠀⠀⠀⠀⢸⣿⣿⣿⣿⠁⠀⠀⠀⢹⣿⣿⣿⣷    an agent factory with a governed memory
-⠀⠀⠀⠀⢸⣿⣿⣿⣿⠀⠀⠀⠀⢸⣿⣿⣿⣿⠀⠀⠀⠀⢸⣿⣿⣿⡿⠀⠀⠀⠀⢸⣿⣿⣿⣿
-⣴⣶⣶⣶⣿⣿⣿⣿⣿⠀⠀⠀⠀⠀⠉⠉⠉⠙⣷⣶⣶⣶⡟⠉⠉⠉⠀⠀⠀⠀⠀⢸⣿⣿⣿⣿
-⣿⣿⣿⣿⣿⣿⣿⣿⣿⠀⠀⠀⠀⠀⠀⠀⠀⠀⣿⣿⣿⣿⡇⠀⠀⠀⠀⠀⠀⠀⠀⢸⣿⣿⣿⣿
-⣿⣿⣿⣿⣿⣿⣿⣿⣿⠀⠀⠀⠀⠀⠀⠀⠀⠀⠙⠛⠛⠋⠀⠀⠀⠀⠀⠀⠀⠀⠀⢸⣿⣿⣿⣿
-⣿⣿⣿⣿⣿⣿⣿⣿⣿⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢸⣿⣿⣿⣿
-⠛⠿⠿⠿⣿⣿⣿⣿⣿⣄⣀⣀⣀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣀⣀⣀⣼⠿⠿⠿⠛
-⠀⠀⠀⠀⢸⣿⣿⣿⣿⣿⣿⣿⣿⡇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣿⣿⣿⣿⡇⠀⠀⠀⠀
-⠀⠀⠀⠀⠘⣿⣿⣿⣿⣿⣿⣿⣿⠃⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢿⣿⣿⣿⠃⠀⠀⠀⠀
-```

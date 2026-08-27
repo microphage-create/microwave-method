@@ -1,6 +1,8 @@
 # Microwave one-line installer (Windows, PowerShell 7+):
 #   irm https://raw.githubusercontent.com/microphage-create/microwave-method/main/install/bootstrap.ps1 | iex
 # Installs into the CURRENT directory; set $env:MICROWAVE_TARGET to override.
+# This clones and executes a branch at HEAD: pin it with $env:MICROWAVE_REF =
+# "<branch|tag>", or download this file, read it, then run it.
 # (#Requires does not apply under iex, hence the explicit version guard.)
 $ErrorActionPreference = "Stop"
 
@@ -9,6 +11,7 @@ if ($PSVersionTable.PSVersion.Major -lt 7) {
 }
 
 $target = if ($env:MICROWAVE_TARGET) { $env:MICROWAVE_TARGET } else { (Get-Location).Path }
+$ref = if ($env:MICROWAVE_REF) { $env:MICROWAVE_REF } else { "main" }
 
 if (-not (Get-Command git -ErrorAction SilentlyContinue)) { throw "git is required" }
 
@@ -22,8 +25,8 @@ if (-not $py) { throw "Python 3.10+ is required (a working python3/python/py on 
 
 $tmp = Join-Path ([IO.Path]::GetTempPath()) ("microwave-" + [guid]::NewGuid().ToString("N").Substring(0, 8))
 try {
-    Write-Host "Fetching Microwave Method..."
-    git clone --quiet --depth 1 https://github.com/microphage-create/microwave-method $tmp
+    Write-Host "Fetching Microwave Method ($ref)..."
+    git clone --quiet --depth 1 --branch $ref https://github.com/microphage-create/microwave-method $tmp
     if ($LASTEXITCODE -ne 0) { throw "git clone failed (exit $LASTEXITCODE): check network access" }
     & (Join-Path $tmp "install/install.ps1") -Target $target
 }

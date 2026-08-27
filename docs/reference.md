@@ -9,9 +9,12 @@ how-to and the why live in the docs linked at the bottom.
 
 A microwave oven does not cook from scratch, it excites the water molecules
 already present. Your wiki atoms are those molecules: the expensive context is
-cooked once and reheated at cache-read price on every later session, instead of
-being rediscovered from zero. That is the whole thesis (full version in the
-README).
+distilled once and reopened by id on every later session, instead of being
+rediscovered from zero. Inside a provider's cache window, re-reading the same
+context file is cheaper too, but that window is minutes to an hour: between two
+spaced sessions the win is the smaller, pre-sorted context, not the cache price.
+That is the whole thesis (full version in the README, its limits in
+`docs/limits.md`).
 
 ## Architecture in one breath
 

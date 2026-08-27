@@ -10,8 +10,10 @@ The name has two readings, and both are the method.
 **Micro-wave, the oven.** A microwave does not cook your dish from scratch; it
 excites the water molecules already present in it. Your wiki atoms are the water
 molecules. The expensive work (specifying an agent, curating what it learned) is
-done once and stored, and every subsequent feature reheats context that already
-exists, at cache-read price, instead of rediscovering it from scratch.
+done once and stored, and every subsequent feature reopens that context by id
+instead of rediscovering it from scratch. The saving is a smaller, pre-sorted
+context. Prompt caching adds to it only inside the provider's window, minutes to
+an hour, so do not count on it across sessions (`docs/limits.md`).
 
 **Micro + wave, the ripples.** Small waves of continuous improvement. Each pass is
 one small wave that leaves the wiki richer and the next pass cheaper and
@@ -106,7 +108,7 @@ wiki; the wiki reheats and informs the next pass.
         v
    THE LLM WIKI (atoms)                    << your second brain >>
         |
-   reheated at cache price, informs the next decision, feeds the next build
+   reopened by id, informs the next decision, feeds the next build
 ```
 
 A real creation, end to end:

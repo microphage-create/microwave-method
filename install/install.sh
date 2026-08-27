@@ -85,8 +85,8 @@ down per author. Never edit past lines: the ledger is history.
 EOF
 fi
 
-# session-start context (CLAUDE.md + AGENTS.md) + agent-zero card, additive (parity with uvx)
-for ctx in CLAUDE.md AGENTS.md; do
+# session-start context (CLAUDE.md) + agent-zero card, additive (parity with uvx)
+for ctx in CLAUDE.md; do
   if [ ! -e "$DST/$ctx" ]; then
     [ -f "$SRC/$ctx" ] && cp "$SRC/$ctx" "$DST/$ctx"
   elif ! grep -q "runs on Microwave" "$DST/$ctx"; then

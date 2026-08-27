@@ -8,7 +8,7 @@ uvx microwave-method
 
 Prerequisites: `git`, Python 3.10+ and `uv` (the Python package runner, installs
 in one line). The tool itself is standard library only, no packages. Your coding
-agent (Claude Code, Codex, Cursor, ...) does the rest. No `uv`? The shell
+agent (Claude Code, the supported harness) does the rest. No `uv`? The shell
 bootstrap below does the same by cloning the repo (the desktop icon is uvx-only).
 
 Note on `python`: commands in the flows are written `python gates/...`. On
@@ -63,9 +63,8 @@ pre-commit). The `uvx` path asks before any side effect.
 
 1. Copies `flows/`, `templates/`, `techniques/`, `slop/`, `gates/`,
    `embodiment/`, `hooks/`, `harness/` into your repo and seeds `wiki/`.
-2. Drops session-start context (`CLAUDE.md` for Claude Code, `AGENTS.md` for
-   Codex/Cursor) and the agent-zero card (`wiki/agents/microwave.md`), so no
-   session opens wired to nothing.
+2. Drops the session-start context (`CLAUDE.md`) and the agent-zero card
+   (`wiki/agents/microwave.md`), so no session opens wired to nothing.
 3. Wires the pre-commit hook (gates run on every committed agent card).
 4. Drops the CI workflow (`.github/workflows/gates.yml`) and a `CODEOWNERS`
    placeholder.

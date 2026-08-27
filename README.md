@@ -2,7 +2,7 @@
 
 **Point it at your folder of repos. It scans them and proposes one AI agent to guard each repo, plus the shared services they call, then governs the whole set: a factory that gates every creation, a registry you can read, and a markdown memory that compounds.**
 
-*A method, not a runtime. Not a SaaS. Dependency-free scripts your coding agent (Claude Code, Codex, Cursor) runs. It takes you by the hand from the repos you already have, not from a blank page.*
+*A method, not a runtime. Not a SaaS. Dependency-free scripts your coding agent runs, built and supported on Claude Code. It takes you by the hand from the repos you already have, not from a blank page.*
 
 [![gates](https://github.com/microphage-create/microwave-method/actions/workflows/gates.yml/badge.svg)](https://github.com/microphage-create/microwave-method/actions/workflows/gates.yml)
 [![license: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
@@ -160,8 +160,8 @@ You already have pieces of this. What Microwave adds, against each:
 - **Native skills / subagents** (Claude Code, etc.): great for building one agent.
   No registry, no anti-dup across many, no lifecycle. Microwave keeps a hundred of
   them mappable.
-- **`AGENTS.md` / `CLAUDE.md`**: a context file. Microwave ships one too and wraps
-  it in a factory, a governed memory, and gates.
+- **`CLAUDE.md`**: a context file. Microwave ships one too and wraps it in a
+  factory, a governed memory, and gates.
 - **spec-kit, BMAD-METHOD**: structure, but from a blank page and with ceremony per
   object. Microwave scans your existing estate, deletes any step nothing reads, and
   scales ceremony to blast radius.
@@ -197,10 +197,10 @@ reasoning, is `docs/limits.md`):
 - **One repository at a time.** Federation extends anti-dup and service
   resolution to sibling repos checked out on disk and declared on both sides.
   Org-wide aggregation is a direction, not shipped code.
-- **One tested harness.** Built and run on Claude Code. `AGENTS.md`, the flows
-  and the standard-library gates should carry over to Codex and Cursor, but no
-  CI job proves a creation flow completes there, and the deny-rules example is
-  Claude-Code-specific.
+- **One harness.** Claude Code, deliberately (ADR-032): one `CLAUDE.md`, one
+  deny-rule surface, one place the flows are actually run. The gates are
+  standard-library Python and the flows are markdown, so porting to another
+  harness is possible; it is not shipped, tested, or claimed.
 - **Two experimental bodies.** The macOS and Linux embodiment adapters are
   written and never run on a real machine; Windows is the tested reference.
 - **A cost that needs a few agents to repay.** Gates, registry and gatekeeper

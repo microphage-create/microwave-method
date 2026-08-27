@@ -325,7 +325,7 @@ def _install_plan(target: Path, payload: Path) -> list[Path]:
                     continue
                 add(target / d / rel / name)
     add(target / ".github" / "workflows" / "gates.yml")
-    for name in ("CODEOWNERS", "LICENSE", "NOTICE.md", "CLAUDE.md", "AGENTS.md"):
+    for name in ("CODEOWNERS", "LICENSE", "NOTICE.md", "CLAUDE.md"):
         add(target / name)
     add(target / "wiki" / "INDEX.md")
     add(target / "wiki" / "sessions" / "REGISTER.md")
@@ -449,7 +449,7 @@ def _uninstall(target: Path, payload: Path) -> None:
                 rm_if_untouched(target / d / rel / name, src / rel / name)
     rm_if_untouched(target / ".github" / "workflows" / "gates.yml",
                     payload / ".github" / "workflows" / "gates.yml")
-    for name in ("LICENSE", "NOTICE.md", "CLAUDE.md", "AGENTS.md"):
+    for name in ("LICENSE", "NOTICE.md", "CLAUDE.md"):
         rm_if_untouched(target / name, payload / name)
     rm_if_untouched(target / "wiki" / "agents" / "microwave.md",
                     payload / "wiki" / "agents" / "microwave.md")
@@ -525,7 +525,7 @@ def main() -> None:
     if "--dry-run" in sys.argv or os.environ.get("MICROWAVE_DRY_RUN") == "1":
         planned = _install_plan(target, payload)
         appends = []
-        for ctx in ("CLAUDE.md", "AGENTS.md"):
+        for ctx in ("CLAUDE.md",):
             dst = target / ctx
             if (dst.exists() and (payload / ctx).is_file()
                     and "runs on Microwave"
@@ -585,10 +585,10 @@ def main() -> None:
     ledger = wiki / "metrics" / "LEDGER.md"
     if not ledger.exists():
         ledger.write_text(WIKI_LEDGER, encoding="utf-8", newline="\n")
-    # CLAUDE.md (session-start context) and the agent-zero card, additive
-    # session-start context for whichever agent runs here (Claude Code reads
-    # CLAUDE.md; Codex/Cursor read AGENTS.md). Append, never clobber, an existing one.
-    for ctx in ("CLAUDE.md", "AGENTS.md"):
+    # CLAUDE.md (session-start context) and the agent-zero card, additive.
+    # Claude Code is the supported harness (ADR-032), so CLAUDE.md is the one
+    # context file. Append, never clobber, an existing one.
+    for ctx in ("CLAUDE.md",):
         dst = target / ctx
         src = payload / ctx
         if not src.is_file():

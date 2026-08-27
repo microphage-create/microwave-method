@@ -110,7 +110,7 @@ if ((-not (Test-Path $cardTo)) -and (Test-Path $cardFrom)) {
     Copy-Item $cardFrom $cardTo
 }
 # session-start context: copy if absent, else append (never clobber), matching uvx
-foreach ($ctx in @("CLAUDE.md", "AGENTS.md")) {
+foreach ($ctx in @("CLAUDE.md")) {
     $to = Join-Path $dst $ctx
     $fromf = Join-Path $src $ctx
     if (-not (Test-Path $fromf)) { continue }

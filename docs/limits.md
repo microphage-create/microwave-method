@@ -59,21 +59,25 @@ beyond that is a bet you are taking early.
 | Gates, flows, registry, wiki | exercised on Linux, macOS and Windows in CI |
 | Windows embodiment adapter | tested on a real machine, the reference adapter |
 | macOS and Linux embodiment adapters | written, never run on a real machine |
-| `install.sh` / `bootstrap.sh` | never executed in CI, never run on a fresh macOS or Linux box (`tests/test_installer.py` covers the `uvx` path's auto-launch guard, not the shell installers) |
+| `install.sh` | run end to end in CI on the Linux and macOS runners (`test_install_sh_end_to_end`), never on a fresh personal machine |
+| `bootstrap.sh` / `bootstrap.ps1` | not covered by any test: they clone, then hand off to the installers above |
 
 Running an experimental adapter once and opening an issue with what happened is
 the single most useful contribution available today (`docs/embodiment.md`).
 
-## 6. Harness portability is asserted, not demonstrated
+## 6. One harness, and it is Claude Code
 
-Claude Code is the harness this was built and run on. The rest is honest but
-untested: `AGENTS.md` carries the same session-start context for Codex and Cursor,
-the gates are standard-library Python that any agent can shell out to, and the
-flows are plain markdown. What does not port is
-`harness/claude-settings.example.json`: deny-rules are Claude-Code-specific, and
-the equivalent for another harness is yours to write (see `docs/governance.md`
-for what they do and do not protect). No CI job proves a Codex or Cursor session
-completes a creation flow end to end.
+Not a gap, a decision (ADR-032). The repo used to advertise Codex and Cursor and
+ship an `AGENTS.md` for them; nobody ran a session in either, so the claim was
+dropped rather than carried. What ships is one context file (`CLAUDE.md`), one
+deny-rule example (`harness/claude-settings.example.json`, and read
+`docs/governance.md` for what deny-rules do and do not protect), and flows that
+are exercised in Claude Code.
+
+Nothing blocks another harness: the gates are standard-library Python you shell
+out to, the flows are plain markdown, the registry and the wiki are files. You
+write your own context file and point it at the same flows. That is a port you
+own, unsupported and unproven here.
 
 ## 7. Scope is one repository
 

@@ -35,6 +35,13 @@ brief:
     - criterion: The agent accomplishes X measurably
       check: command or executable assertion proving it
   volume_cap: "N items max before human checkpoint"
+  # a never-touch guarantee ("the agent never does X to resource R") names
+  # EVERY transport to R - local ops, the primary remote verb, CLI-mediated
+  # APIs, web/UI paths, third-party services holding credentials - as one
+  # abort_conditions line each, in this fixed shape (devil-review row 3b
+  # fires on any transport with no such line):
+  #   - "transport <name>: mechanically guarded by <mechanism> | refused
+  #     outright | residual risk, closed by <whom>"
   abort_conditions:
     - situation where the agent MUST stop and escalate
 ---

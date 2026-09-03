@@ -39,8 +39,12 @@ are in that order:
 
 - **Elicit** (before step 1): three anchors (invert: what makes it harmful
   or useless; neighbor: which agent is closest; scope cut: what is OUT),
-  plus 2-3 techniques from `techniques/` if it helps. Feeds the spec, then
-  discard.
+  plus 2-3 techniques from `techniques/` if it helps. For a never-touch
+  mission, the invert anchor includes the transport enumeration: every way
+  the agent's toolset can reach the protected resource, each named
+  mechanically guarded, explicitly refused, or declared residual risk in
+  the card (the devil fires on any transport left unnamed). Feeds the spec,
+  then discard.
 - **Embody** (mandatory here, part of step 1): `python
   embodiment/embody.py wiki/_staging/<slug>.md`. A durable, powerful agent
   is recognizable on the desktop; the human validates the icon.
